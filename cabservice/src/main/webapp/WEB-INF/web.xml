@@ -5,21 +5,11 @@
 <web-app>
   <display-name>Archetype Created Web Application</display-name>
   <servlet>
-  	<servlet-name>Cabservice</servlet-name>
-  	<display-name>Cabservice</display-name>
-  	<description></description>
-  	<servlet-class>Cabservice</servlet-class>
-  </servlet>
-  <servlet>
   	<servlet-name>UserController</servlet-name>
   	<display-name>UserController</display-name>
   	<description></description>
   	<servlet-class>com.cabservice.controller.UserController</servlet-class>
   </servlet>
-  <servlet-mapping>
-  	<servlet-name>Cabservice</servlet-name>
-  	<url-pattern>/Cabservice</url-pattern>
-  </servlet-mapping>
   <servlet-mapping>
   	<servlet-name>UserController</servlet-name>
   	<url-pattern>/UserController</url-pattern>
