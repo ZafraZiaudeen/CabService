@@ -1,9 +1,12 @@
 package com.cabservice.dao;
 
+import java.sql.Connection;
+
 public class DBConnectionFactory {
 
-	public DBConnectionFactory() {
-		// TODO Auto-generated constructor stub
+	public static Connection getConnection() {
+		return DBConnection.getInstance().getConnection();
 	}
+	
 
 }
