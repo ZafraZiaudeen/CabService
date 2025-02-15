@@ -6,6 +6,7 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import org.mindrot.jbcrypt.BCrypt;
 
 import com.cabservice.model.User;
 import com.cabservice.service.UserService;
@@ -60,12 +61,15 @@ public class UserController extends HttpServlet {
         String email = request.getParameter("email");
         String password = request.getParameter("password");
         String role = "customer";
+        // Hash the password using BCrypt
+        String hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt());
+
         User user = new User();
         user.setName(name);
         user.setAddress(address);
         user.setPhoneNumber(phoneNumber);
         user.setEmail(email);
-        user.setPassword(password);
+        user.setPassword(hashedPassword); 
         user.setRole(role);
         try {
             userService.addUser(user);  // This actually saves the user to the database
