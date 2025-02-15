@@ -43,12 +43,21 @@
       <version>4.11</version>
       <scope>test</scope>
     </dependency>
-    <dependency>
+   <dependency>
     <groupId>org.mockito</groupId>
     <artifactId>mockito-core</artifactId>
-    <version>5.2.0</version>
+    <version>5.12.0</version>
     <scope>test</scope>
 </dependency>
+<dependency>
+    <groupId>net.bytebuddy</groupId>
+    <artifactId>byte-buddy</artifactId>
+    <version>1.14.12</version> <!-- Latest version with Java 23 support -->
+    <scope>test</scope>
+</dependency>
+
+
+
   </dependencies>
 
   <build>

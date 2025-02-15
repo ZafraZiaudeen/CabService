@@ -67,7 +67,5 @@ public class UserDAO {
 		        statement.close();
 		        return users;
 		    }
-		 
-		 
-
+		
 }
