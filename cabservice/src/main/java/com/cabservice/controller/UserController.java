@@ -8,7 +8,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.mindrot.jbcrypt.BCrypt;
 
-import com.cabservice.model.User;
+import com.cabservice.model.Customer;
 import com.cabservice.service.UserService;
 
 @WebServlet("/user")
@@ -28,12 +28,13 @@ public class UserController extends HttpServlet {
         String action = request.getParameter("action");
 
         if (action == null || action.equals("home")) {
-            // Redirect to the homepage (index.jsp)
             request.getRequestDispatcher("/index.jsp").forward(request, response);
         } else if (action.equals("register")) {
             showRegisterPage(request, response);
         } else if (action.equals("login")) {
             showLoginPage(request, response);
+        } else if (action.equals("adminlogin")) {
+            showAdminLoginPage(request, response);
         }
     }
 
@@ -41,41 +42,42 @@ public class UserController extends HttpServlet {
         request.getRequestDispatcher("/WEB-INF/view/customer/login.jsp").forward(request, response);
     }
 
-    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        String action = request.getParameter("action");
-        if (action != null && action.equals("register")) {
-            processUserRegistration(request, response);
-        } else {
-            doGet(request, response);
-        }
+    private void showAdminLoginPage(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        request.getRequestDispatcher("/WEB-INF/view/admin/adminlogin.jsp").forward(request, response);
     }
 
     private void showRegisterPage(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         request.getRequestDispatcher("/WEB-INF/view/customer/register.jsp").forward(request, response);
     }
 
-    private void processUserRegistration(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        String name = request.getParameter("name");
-        String address = request.getParameter("address");
-        String phoneNumber = request.getParameter("phoneNumber");
-        String email = request.getParameter("email");
-        String password = request.getParameter("password");
-        String role = "customer";
-        // Hash the password using BCrypt
-        String hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt());
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        String action = request.getParameter("action");
+        if (action != null && action.equals("register")) {
+            processCustomerRegistration(request, response);
+        } else {
+            doGet(request, response);
+        }
+    }
 
-        User user = new User();
-        user.setName(name);
-        user.setAddress(address);
-        user.setPhoneNumber(phoneNumber);
-        user.setEmail(email);
-        user.setPassword(hashedPassword); 
-        user.setRole(role);
+    protected void processCustomerRegistration(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         try {
-            userService.addUser(user);  // This actually saves the user to the database
-            response.sendRedirect("user?action=login"); // Redirect after success
+            Customer customer = new Customer();
+            customer.setName(request.getParameter("name"));
+            customer.setAddress(request.getParameter("address"));
+            customer.setPhoneNumber(request.getParameter("phoneNumber"));
+            customer.setUsername(request.getParameter("username"));
+            customer.setPassword(BCrypt.hashpw(request.getParameter("password"), BCrypt.gensalt()));
+            customer.setRole("Customer");
+            customer.setNic(request.getParameter("nic"));
+
+            if (userService.addUser(customer) > 0) {
+                response.sendRedirect("user?action=login");
+            } else {
+                request.setAttribute("errorMessage", "User registration failed.");
+                request.getRequestDispatcher("/WEB-INF/view/customer/register.jsp").forward(request, response);
+            }
         } catch (Exception e) {
-            request.setAttribute("errorMessage", "Error: " + e.getMessage());
+            request.setAttribute("errorMessage", "Registration failed: " + e.getMessage());
             request.getRequestDispatcher("/WEB-INF/view/customer/register.jsp").forward(request, response);
         }
     }

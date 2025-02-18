@@ -81,8 +81,12 @@
                     <input type="text" id="phone" name="phoneNumber" required>
                 </div>
                 <div class="input-group">
-                    <label for="email">Email</label>
-                    <input type="email" id="email" name="email" required>
+                    <label for="nic">NIC</label>
+                    <input type="text" id="nic" name="nic" required>
+                </div>
+                <div class="input-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" name="username" required>
                 </div>
                 <div class="input-group">
                     <label for="password">Password</label>

@@ -6,33 +6,33 @@ public class User {
     private String name;
     private String address;
     private String phoneNumber;
-    private String email;
+    private String username;
     private String password;
     private String role;
     
     // Full constructor with all attributes
-    public User(int userId, String name, String address, String phoneNumber, String email, String password, String role) {
+    public User(int userId, String name, String address, String phoneNumber, String username, String password, String role) {
         this.userId = userId;
         this.name = name;
         this.address = address;
         this.phoneNumber = phoneNumber;
-        this.email = email;
+        this.username = username;
         this.password = password;
         this.role = role;
     }
     
-    // Constructor with key attributes (name, email, and password)
-    public User(int userId, String name, String email, String password) {
+    // Constructor with key attributes (name, username, and password)
+    public User(int userId, String name, String username, String password) {
         this.userId = userId;
         this.name = name;
-        this.email = email;
+        this.username = username;
         this.password = password;
     }
     
-    // Minimal constructor (userId, email, and password)
-    public User(int userId, String email, String password) {
+    // Minimal constructor (userId, username, and password)
+    public User(int userId, String username, String password) {
         this.userId = userId;
-        this.email = email;
+        this.username = username;
         this.password = password;
     }
     
@@ -74,12 +74,12 @@ public class User {
         this.phoneNumber = phoneNumber;
     }
     
-    public String getEmail() {
-        return email;
+    public String getUsername() {
+        return username;
     }
     
-    public void setEmail(String email) {
-        this.email = email;
+    public void setUsername(String username) {
+        this.username = username;
     }
     
     public String getPassword() {

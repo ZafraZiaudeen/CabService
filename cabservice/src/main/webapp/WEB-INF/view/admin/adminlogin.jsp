@@ -1,4 +1,5 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -68,7 +69,7 @@
     <main class="container">
         <div class="form-box">
             <h2>Login</h2>
-            <form action="user?action=login" id="loginForm" method="post">
+            <form action="user?action=adminlogin" id="loginForm" method="post">
                 <div class="input-group">
                     <label for="username">Username</label>
                     <input type="username" id="username" name="username" required>
@@ -79,7 +80,7 @@
                 </div>
                 <button type="submit">Login</button>
             </form>
-            <p>Don't have an account? <a href="user?action=register">Sign up</a></p>
+            
            <p><a href="user?action=home">Back to Home</a></p>
         </div>
     </main>

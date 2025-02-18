@@ -60,7 +60,7 @@
         <h2>Welcome to Mega City Cab</h2>
         <p>Mega City Cab is a leading cab service in Colombo, serving thousands of customers monthly.</p>
         <p>Please choose your login option:</p>
-        <button class="btn btn-admin" onclick="location.href='adminLogin.jsp'">Login as Admin</button>
+        <button class="btn btn-admin" onclick="location.href='user?action=adminlogin'">Login as Admin</button>
         <button class="btn btn-customer" onclick="location.href='user?action=login'">Login as Customer</button>
     </div>
 </body>
