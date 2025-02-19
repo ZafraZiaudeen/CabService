@@ -33,6 +33,14 @@ public class DBConnection {
     }
 
     public Connection getConnection() {
+        try {
+            if (connection == null || connection.isClosed()) {
+                System.out.println("Reconnecting to the database...");
+                this.connection = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Error reconnecting to the database", e);
+        }
         return connection;
     }
 }
