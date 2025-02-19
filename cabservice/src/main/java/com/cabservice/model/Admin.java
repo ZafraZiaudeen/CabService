@@ -20,7 +20,7 @@ public class Admin extends User {
         setName(name);
         setAddress(address);
         setPhoneNumber(phoneNumber);
-        setUsername(username);  // Now allows updating the username
+        setUsername(username);  
         setPassword(password);
     }
 }

@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.mindrot.jbcrypt.BCrypt;
+
 import com.cabservice.model.User;
 import com.cabservice.model.Admin;
 import com.cabservice.model.Customer;
@@ -82,6 +84,46 @@ public class UserDAO {
             // Set the customerId to the customer object
             customer.setCustomerId(customerId);
         }
+    }
+    
+    public Admin loginAdmin(String username, String password) {
+    	String userQuery = "SELECT * FROM users WHERE username = ? AND role = 'Admin'";
+        String adminQuery = "SELECT id FROM admin WHERE fk_admin_user_id = ?"; 
+
+
+        try (Connection connection = DBConnectionFactory.getConnection()) { // Keep connection open for both queries
+            try (PreparedStatement userStmt = connection.prepareStatement(userQuery)) {
+                userStmt.setString(1, username);
+                ResultSet userRs = userStmt.executeQuery();
+
+                if (userRs.next()) {
+                    int userId = userRs.getInt("id");
+                    String hashedPassword = userRs.getString("password");
+                    String name = userRs.getString("name");
+                    String address = userRs.getString("address");
+                    String phoneNumber = userRs.getString("phoneNumber");
+                    String storedUsername = userRs.getString("username");
+
+                    // Validate password using BCrypt
+                    if (BCrypt.checkpw(password, hashedPassword)) {
+                        try (PreparedStatement adminStmt = connection.prepareStatement(adminQuery)) {
+                            adminStmt.setInt(1, userId);
+                            ResultSet adminRs = adminStmt.executeQuery();
+
+                            if (adminRs.next()) {
+                                int adminId = adminRs.getInt("id");
+
+                                // Return the authenticated Admin object
+                                return new Admin(userId, name, address, phoneNumber, storedUsername, hashedPassword, adminId);
+                            }
+                        }
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            LOGGER.log(Level.SEVERE, "Error during Admin login", e);
+        }
+        return null; // Return null if authentication fails
     }
 
     // Update existing Admin details

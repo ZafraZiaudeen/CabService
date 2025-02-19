@@ -9,6 +9,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.mindrot.jbcrypt.BCrypt;
 
 import com.cabservice.model.Customer;
+import com.cabservice.model.Admin;
 import com.cabservice.service.UserService;
 
 @WebServlet("/user")
@@ -52,8 +53,19 @@ public class UserController extends HttpServlet {
 
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String action = request.getParameter("action");
-        if (action != null && action.equals("register")) {
-            processCustomerRegistration(request, response);
+
+        if (action != null) {
+            switch (action) {
+                case "register":
+                    processCustomerRegistration(request, response);
+                    break;
+                case "adminlogin":
+                    processAdminLogin(request, response);
+                    break;
+                default:
+                    doGet(request, response);
+                    break;
+            }
         } else {
             doGet(request, response);
         }
@@ -79,6 +91,28 @@ public class UserController extends HttpServlet {
         } catch (Exception e) {
             request.setAttribute("errorMessage", "Registration failed: " + e.getMessage());
             request.getRequestDispatcher("/WEB-INF/view/customer/register.jsp").forward(request, response);
+        }
+    }
+
+    protected void processAdminLogin(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        try {
+            String username = request.getParameter("username");
+            String password = request.getParameter("password");
+
+            Admin admin = userService.loginAdmin(username, password);
+
+            if (admin != null) {
+                // Admin authentication successful
+                request.setAttribute("successMessage", "Login successful!");
+            } else {
+                // Authentication failed
+                request.setAttribute("errorMessage", "Invalid credentials. Please try again.");
+            }
+            
+            request.getRequestDispatcher("/WEB-INF/view/admin/adminlogin.jsp").forward(request, response);
+        } catch (Exception e) {
+            request.setAttribute("errorMessage", "Login failed: " + e.getMessage());
+            request.getRequestDispatcher("/WEB-INF/view/admin/adminlogin.jsp").forward(request, response);
         }
     }
 }

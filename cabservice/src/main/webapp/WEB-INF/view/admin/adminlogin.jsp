@@ -5,7 +5,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login</title>
+    <title>Admin Login</title>
     <style>
         body {
             display: flex;
@@ -56,6 +56,21 @@
         button:hover {
             background-color: #0056b3;
         }
+        .message {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 4px;
+        }
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
         p {
             margin-top: 20px;
         }
@@ -68,11 +83,22 @@
 <body>
     <main class="container">
         <div class="form-box">
-            <h2>Login</h2>
+            <h2>Admin Login</h2>
+
+            <!-- Display Success Message -->
+            <% if (request.getAttribute("successMessage") != null) { %>
+                <div class="message success"><%= request.getAttribute("successMessage") %></div>
+            <% } %>
+
+            <!-- Display Error Message -->
+            <% if (request.getAttribute("errorMessage") != null) { %>
+                <div class="message error"><%= request.getAttribute("errorMessage") %></div>
+            <% } %>
+
             <form action="user?action=adminlogin" id="loginForm" method="post">
                 <div class="input-group">
                     <label for="username">Username</label>
-                    <input type="username" id="username" name="username" required>
+                    <input type="text" id="username" name="username" required>
                 </div>
                 <div class="input-group">
                     <label for="password">Password</label>
@@ -81,7 +107,7 @@
                 <button type="submit">Login</button>
             </form>
             
-           <p><a href="user?action=home">Back to Home</a></p>
+            <p><a href="user?action=home">Back to Home</a></p>
         </div>
     </main>
 </body>
