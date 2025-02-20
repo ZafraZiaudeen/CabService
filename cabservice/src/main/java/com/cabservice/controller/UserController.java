@@ -6,6 +6,8 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
 import org.mindrot.jbcrypt.BCrypt;
 
 import com.cabservice.model.Customer;
@@ -102,17 +104,22 @@ public class UserController extends HttpServlet {
             Admin admin = userService.loginAdmin(username, password);
 
             if (admin != null) {
-                // Admin authentication successful
-                request.setAttribute("successMessage", "Login successful!");
+                HttpSession session = request.getSession(); // Create or retrieve session
+                session.setAttribute("adminUser", admin); // Store admin object in session
+                
+                // Redirect to dashboard instead of forwarding
+                response.sendRedirect(request.getContextPath() + "/dashboard");
+                return;
             } else {
-                // Authentication failed
+                // Authentication failed - Forward to login page with error message
                 request.setAttribute("errorMessage", "Invalid credentials. Please try again.");
+                request.getRequestDispatcher("/WEB-INF/view/admin/adminlogin.jsp").forward(request, response);
             }
-            
-            request.getRequestDispatcher("/WEB-INF/view/admin/adminlogin.jsp").forward(request, response);
         } catch (Exception e) {
             request.setAttribute("errorMessage", "Login failed: " + e.getMessage());
             request.getRequestDispatcher("/WEB-INF/view/admin/adminlogin.jsp").forward(request, response);
         }
     }
+
+
 }
