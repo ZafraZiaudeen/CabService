@@ -255,7 +255,7 @@
                         <li><a href="<%= request.getContextPath() %>/customer">
                             <span class="nav-text">Manage Customer</span>
                         </a></li>
-                        <li><a href="#active-bookings">
+                        <li><a href="<%= request.getContextPath() %>/customer?action=add">
                             <span class="nav-text">Add Customer</span>
                         </a></li>
                         

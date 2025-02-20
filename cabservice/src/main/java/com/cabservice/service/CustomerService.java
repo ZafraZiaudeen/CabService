@@ -1,0 +1,34 @@
+package com.cabservice.service;
+
+import com.cabservice.dao.CustomerDAO;
+import com.cabservice.model.Customer;
+import java.util.List;
+
+public class CustomerService {
+    private CustomerDAO customerDAO;
+
+    public CustomerService() {
+        this.customerDAO = new CustomerDAO();
+    }
+
+    public List<Customer> fetchAllCustomers() {
+        return customerDAO.getAllCustomers();
+    }
+    
+    public void deleteCustomer(int customerId) {
+        customerDAO.deleteCustomer(customerId);
+    }
+    public boolean addCustomer(String name, String address, String phoneNumber, String username, String hashedPassword, String role, String nic) {
+        return customerDAO.insertCustomer(name, address, phoneNumber, username, hashedPassword, role, nic);
+    }
+    
+    public Customer getCustomerById(int customerId) {
+        return customerDAO.getCustomerById(customerId);
+    }
+
+    public boolean updateCustomer(int customerId, String name, String address, String phoneNumber, String username, String nic) {
+        return customerDAO.updateCustomer(customerId, name, address, phoneNumber, username, nic);
+    }
+
+
+}
