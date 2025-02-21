@@ -286,13 +286,13 @@
                         <span class="material-icons dropdown-icon">expand_more</span>
                     </a>
                     <ul class="submenu">
-                        <li><a href="#all-drivers">
+                        <li><a href="<%= request.getContextPath() %>/driver?action=list">
                             <span class="nav-text">All Drivers</span>
                         </a></li>
-                        <li><a href="#active-drivers">
+                        <li><a href="<%= request.getContextPath() %>/driver?action=available">
                             <span class="nav-text">Active Drivers</span>
                         </a></li>
-                        <li><a href="#driver-applications">
+                        <li><a href="<%= request.getContextPath() %>/driver?action=add">
                             <span class="nav-text">Applications</span>
                         </a></li>
                     </ul>
