@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <title>Sidebar</title>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    
     <style>
         * {
             margin: 0;
@@ -304,41 +305,28 @@
                         <span class="material-icons dropdown-icon">expand_more</span>
                     </a>
                     <ul class="submenu">
-                        <li><a href="#fleet-overview">
-                            <span class="nav-text">Fleet Overview</span>
+                        <li><a href="<%= request.getContextPath() %>/vehicle?action=list">
+                            <span class="nav-text">Manage Vehicle</span>
                         </a></li>
-                        <li><a href="#maintenance">
-                            <span class="nav-text">Maintenance</span>
+                        <li><a href="<%= request.getContextPath() %>/vehicle?action=add">
+                            <span class="nav-text">Add Vehicle</span>
                         </a></li>
-                        <li><a href="#vehicle-documents">
-                            <span class="nav-text">Documents</span>
-                        </a></li>
-                    </ul>
-                </li>
-                <li class="menu-item">
-                    <a href="#" class="has-submenu">
-                        <span class="material-icons">analytics</span>
-                        <span class="nav-text">Reports</span>
-                        <span class="material-icons dropdown-icon">expand_more</span>
-                    </a>
-                    <ul class="submenu">
-                        <li><a href="#earnings">
-                            <span class="nav-text">Earnings</span>
-                        </a></li>
-                        <li><a href="#driver-performance">
-                            <span class="nav-text">Driver Performance</span>
-                        </a></li>
-                        <li><a href="#customer-feedback">
-                            <span class="nav-text">Customer Feedback</span>
+                        <li><a href="<%= request.getContextPath() %>/vehicle?action=available">
+                            <span class="nav-text">Available Vehicles</span>
                         </a></li>
                     </ul>
                 </li>
-                <li class="menu-item">
-                    <a href="#settings">
-                        <span class="material-icons">settings</span>
-                        <span class="nav-text">Settings</span>
+               
+                 <li class="menu-item">
+                    <a href="<%= request.getContextPath() %>/assignment?action=list">
+                     <span class="material-icons">assignment_ind</span>
+
+
+
+                        <span class="nav-text">Assign Vehicle-Driver</span>
                     </a>
                 </li>
+                
             </ul>
         </nav>
         <div class="sidebar-footer">

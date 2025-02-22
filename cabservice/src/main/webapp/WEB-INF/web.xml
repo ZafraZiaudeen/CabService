@@ -34,6 +34,24 @@
   	<description></description>
   	<servlet-class>com.cabservice.controller.DriverController</servlet-class>
   </servlet>
+  <servlet>
+  	<servlet-name>VehicleController</servlet-name>
+  	<display-name>VehicleController</display-name>
+  	<description></description>
+  	<servlet-class>com.cabservice.controller.VehicleController</servlet-class>
+  </servlet>
+  <servlet>
+  	<servlet-name>AssignmentController</servlet-name>
+  	<display-name>AssignmentController</display-name>
+  	<description></description>
+  	<servlet-class>com.cabservice.controller.AssignmentController</servlet-class>
+  </servlet>
+  <servlet>
+  	<servlet-name>BookingController</servlet-name>
+  	<display-name>BookingController</display-name>
+  	<description></description>
+  	<servlet-class>com.cabservice.controller.BookingController</servlet-class>
+  </servlet>
  
   <servlet-mapping>
   	<servlet-name>UserController</servlet-name>
@@ -54,6 +72,18 @@
   <servlet-mapping>
   	<servlet-name>DriverController</servlet-name>
   	<url-pattern>/DriverController</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+  	<servlet-name>VehicleController</servlet-name>
+  	<url-pattern>/VehicleController</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+  	<servlet-name>AssignmentController</servlet-name>
+  	<url-pattern>/AssignmentController</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+  	<servlet-name>BookingController</servlet-name>
+  	<url-pattern>/BookingController</url-pattern>
   </servlet-mapping>
   
 </web-app>

@@ -79,7 +79,7 @@ public class CustomerController extends HttpServlet {
             // ✅ Hash the password before storing it
             String hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt());
 
-            String role = "Customer"; // Default role
+            String role = "Customer";
 
             // ✅ Call the service layer to add customer
             boolean success = customerService.addCustomer(name, address, phoneNumber, username, hashedPassword, role, nic);

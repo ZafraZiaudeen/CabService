@@ -163,5 +163,30 @@ public class DriverDAO {
 
         return availableDrivers;
     }
+    public List<Driver> getUnassignedDrivers() {
+        List<Driver> drivers = new ArrayList<>();
+        String query = "SELECT d.id, d.name, d.phoneNumber " +
+                       "FROM driver d " +
+                       "WHERE NOT EXISTS (SELECT 1 FROM driver_vehicle dv WHERE dv.driver_id = d.id)";
+
+        try (Connection conn = DBConnectionFactory.getConnection();
+             PreparedStatement ps = conn.prepareStatement(query);
+             ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+                Driver driver = new Driver();
+                driver.setDriverId(rs.getInt("id"));
+                driver.setName(rs.getString("name"));
+                driver.setPhoneNumber(rs.getString("phoneNumber"));
+                drivers.add(driver);
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return drivers;
+    }
+
 
 }
