@@ -52,6 +52,24 @@
   	<description></description>
   	<servlet-class>com.cabservice.controller.BookingController</servlet-class>
   </servlet>
+  <servlet>
+  	<servlet-name>DistanceController</servlet-name>
+  	<display-name>DistanceController</display-name>
+  	<description></description>
+  	<servlet-class>com.cabservice.controller.DistanceController</servlet-class>
+  </servlet>
+  <servlet>
+  	<servlet-name>SystemConfigController</servlet-name>
+  	<display-name>SystemConfigController</display-name>
+  	<description></description>
+  	<servlet-class>com.cabservice.controller.SystemConfigController</servlet-class>
+  </servlet>
+  <servlet>
+  	<servlet-name>BillingController</servlet-name>
+  	<display-name>BillingController</display-name>
+  	<description></description>
+  	<servlet-class>com.cabservice.controller.BillingController</servlet-class>
+  </servlet>
  
   <servlet-mapping>
   	<servlet-name>UserController</servlet-name>
@@ -84,6 +102,18 @@
   <servlet-mapping>
   	<servlet-name>BookingController</servlet-name>
   	<url-pattern>/BookingController</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+  	<servlet-name>DistanceController</servlet-name>
+  	<url-pattern>/DistanceController</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+  	<servlet-name>SystemConfigController</servlet-name>
+  	<url-pattern>/SystemConfigController</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+  	<servlet-name>BillingController</servlet-name>
+  	<url-pattern>/BillingController</url-pattern>
   </servlet-mapping>
   
 </web-app>
