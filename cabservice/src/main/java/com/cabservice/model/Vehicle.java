@@ -6,7 +6,7 @@ public class Vehicle {
     private String model;
     private int capacity;
     private double ratePerKm;
-    private String status; // Example: "Available", "In Use", "Under Maintenance"
+    private String status; 
 
     // ✅ Constructors
     public Vehicle() {}
