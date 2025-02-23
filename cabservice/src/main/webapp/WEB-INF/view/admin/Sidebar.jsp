@@ -262,6 +262,22 @@
                         
                     </ul>
                 </li>
+                  <li class="menu-item">
+                    <a href="#" class="has-submenu">
+                        <span class="material-icons">pin_drop</span>
+                        <span class="nav-text">Distance</span>
+                        <span class="material-icons dropdown-icon">expand_more</span>
+                    </a>
+                    <ul class="submenu">
+                        <li><a href="<%= request.getContextPath() %>/distance?action=list">
+                            <span class="nav-text">Manage Distances</span>
+                        </a></li>
+                        <li><a href="<%= request.getContextPath() %>/distance?action=add">
+                            <span class="nav-text">Add Distance</span>
+                        </a></li>
+                        
+                    </ul>
+                </li>
                 <li class="menu-item">
                     <a href="#" class="has-submenu">
                         <span class="material-icons">book_online</span>
@@ -269,7 +285,7 @@
                         <span class="material-icons dropdown-icon">expand_more</span>
                     </a>
                     <ul class="submenu">
-                        <li><a href="#new-booking">
+                        <li><a href="<%= request.getContextPath() %>/booking?action=add">
                             <span class="nav-text">New Booking</span>
                         </a></li>
                         <li><a href="#active-bookings">
@@ -316,16 +332,32 @@
                         </a></li>
                     </ul>
                 </li>
+                
+                 <li class="menu-item">
+                    <a href="#" class="has-submenu">
+                        <span class="material-icons">settings</span>
+                        <span class="nav-text">Tax/Discount</span>
+                        <span class="material-icons dropdown-icon">expand_more</span>
+                    </a>
+                    <ul class="submenu">
+                        <li><a href="<%= request.getContextPath() %>/system-config?action=list">
+                            <span class="nav-text">Manage Tax/Discount</span>
+                        </a></li>
+                        <li><a href="<%= request.getContextPath() %>/system-config?action=add">
+                            <span class="nav-text">Add Tax</span>
+                        </a></li>
+                      
+                    </ul>
+                </li>
                
                  <li class="menu-item">
                     <a href="<%= request.getContextPath() %>/assignment?action=list">
                      <span class="material-icons">assignment_ind</span>
-
-
-
                         <span class="nav-text">Assign Vehicle-Driver</span>
                     </a>
                 </li>
+               
+               
                 
             </ul>
         </nav>
