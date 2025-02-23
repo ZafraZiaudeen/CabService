@@ -185,4 +185,34 @@ public class CustomerDAO {
         }
         return false;
     }
+    /**
+     * Search for customers by name, phone, or email.
+     */
+    public List<Customer> searchCustomers(String keyword) {
+        List<Customer> customers = new ArrayList<>();
+        String sql = "SELECT u.id, u.name, u.phoneNumber, u.email, c.nic " +
+                     "FROM users u JOIN customer c ON u.id = c.user_id " +
+                     "WHERE u.name LIKE ? OR u.phoneNumber LIKE ? OR u.email LIKE ?";
+        
+        try (Connection conn = DBConnectionFactory.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, "%" + keyword + "%");
+            stmt.setString(2, "%" + keyword + "%");
+            stmt.setString(3, "%" + keyword + "%");
+
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                Customer customer = new Customer();
+                customer.setUserId(rs.getInt("id"));
+                customer.setName(rs.getString("name"));
+                customer.setPhoneNumber(rs.getString("phoneNumber"));
+                customer.setNic(rs.getString("nic"));
+                customers.add(customer);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return customers;
+    }
 }
