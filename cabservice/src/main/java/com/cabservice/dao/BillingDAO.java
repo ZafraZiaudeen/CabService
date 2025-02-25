@@ -147,13 +147,24 @@ public class BillingDAO {
     }
     
     public void updateBookingStatus(int bookingId, String status) throws SQLException {
-        String sql = "UPDATE bookings SET status = ? WHERE id = ?";
+        String sql;
+        
+        // If status is 'Completed', update completed_at
+        if ("Completed".equals(status)) {
+            sql = "UPDATE bookings SET status = ?, completed_at = NOW() WHERE id = ?";
+        } else {
+            sql = "UPDATE bookings SET status = ? WHERE id = ?";
+        }
+
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, status);
             stmt.setInt(2, bookingId);
+            
+            // Execute the update
             stmt.executeUpdate();
         }
     }
+
     // Add this method to get billing by booking ID
     public Billing getBillingByBookingId(int bookingId) throws SQLException {
         String sql = "SELECT * FROM billing WHERE booking_id = ?";
@@ -174,5 +185,22 @@ public class BillingDAO {
             }
         }
         return null;
+    }
+  
+
+    public void updateBilling(Billing billing) throws SQLException {
+        String sql = """
+            UPDATE billing SET total_amount = ?, tax = ?, discount = ?, final_amount = ?, payment_type = ?
+            WHERE id = ?
+        """;
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setDouble(1, billing.getTotalAmount());
+            stmt.setDouble(2, billing.getTax());
+            stmt.setDouble(3, billing.getDiscount());
+            stmt.setDouble(4, billing.getFinalAmount());
+            stmt.setString(5, billing.getPaymentType());
+            stmt.setInt(6, billing.getId());
+            stmt.executeUpdate();
+        }
     }
 }

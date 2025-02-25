@@ -42,4 +42,9 @@ public class BillingService {
     public Billing getBillingByBookingId(int bookingId) throws SQLException {
         return billingDAO.getBillingByBookingId(bookingId);
     }
+   
+
+    public void updateBilling(Billing billing) throws SQLException {
+        billingDAO.updateBilling(billing);
+    }
 }

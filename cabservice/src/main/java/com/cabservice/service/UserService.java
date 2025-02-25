@@ -72,6 +72,9 @@ public class UserService {
     public Admin loginAdmin(String username, String password) {
         return userDAO.loginAdmin(username, password);
     }
+    public Customer loginCustomer(String username, String password) {
+        return userDAO.loginCustomer(username, password);
+    }
 
     // Get all users (including Admins & Customers)
     public List<User> getAllUsers() {

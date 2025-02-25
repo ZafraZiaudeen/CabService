@@ -36,17 +36,19 @@ public class UserController extends HttpServlet {
             showRegisterPage(request, response);
         } else if (action.equals("login")) {
             showLoginPage(request, response);
-        } else if (action.equals("adminlogin")) {
-            showAdminLoginPage(request, response);
+        }else if ("logout".equals(action)) {
+            HttpSession session = request.getSession(false); // Get existing session
+            if (session != null) {
+                session.invalidate();  // Invalidate the session to log out
+            }
+            response.sendRedirect(request.getContextPath() + "/index.jsp"); // Redirect to home page
+            return;
         }
+
     }
 
     private void showLoginPage(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        request.getRequestDispatcher("/WEB-INF/view/customer/login.jsp").forward(request, response);
-    }
-
-    private void showAdminLoginPage(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        request.getRequestDispatcher("/WEB-INF/view/admin/adminlogin.jsp").forward(request, response);
+        request.getRequestDispatcher("/WEB-INF/view/login.jsp").forward(request, response);
     }
 
     private void showRegisterPage(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -56,23 +58,46 @@ public class UserController extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String action = request.getParameter("action");
 
-        if (action != null) {
-            switch (action) {
-                case "register":
-                    processCustomerRegistration(request, response);
-                    break;
-                case "adminlogin":
-                    processAdminLogin(request, response);
-                    break;
-                default:
-                    doGet(request, response);
-                    break;
-            }
+        if (action != null && action.equals("login")) {
+            processLogin(request, response);
+        } else if (action != null && action.equals("register")) {
+            processCustomerRegistration(request, response);
         } else {
             doGet(request, response);
         }
     }
 
+    // Unified login process for both Customer and Admin
+    protected void processLogin(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        String username = request.getParameter("username");
+        String password = request.getParameter("password");
+
+        // Try to login as Admin
+        Admin admin = userService.loginAdmin(username, password);
+        if (admin != null) {
+            HttpSession session = request.getSession();
+            session.setAttribute("adminUser", admin);
+            response.sendRedirect(request.getContextPath() + "/dashboard"); // Redirect to admin dashboard
+            return;
+        }
+
+        // If not admin, try to login as Customer
+        Customer customer = userService.loginCustomer(username, password);
+
+if (customer != null) {
+    HttpSession session = request.getSession();
+    session.setAttribute("customerUser", customer);
+    System.out.println("Customer logged in: " + customer.getUsername()); // Debug log
+    response.sendRedirect(request.getContextPath() + "/user?action=home");
+    return;
+}
+
+        // If authentication fails, show error message and stay on login page
+        request.setAttribute("errorMessage", "Invalid credentials. Please try again.");
+        request.getRequestDispatcher("/WEB-INF/view/login.jsp").forward(request, response);
+    }
+
+    // Customer registration process
     protected void processCustomerRegistration(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         try {
             Customer customer = new Customer();
@@ -95,31 +120,4 @@ public class UserController extends HttpServlet {
             request.getRequestDispatcher("/WEB-INF/view/customer/register.jsp").forward(request, response);
         }
     }
-
-    protected void processAdminLogin(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        try {
-            String username = request.getParameter("username");
-            String password = request.getParameter("password");
-
-            Admin admin = userService.loginAdmin(username, password);
-
-            if (admin != null) {
-                HttpSession session = request.getSession(); // Create or retrieve session
-                session.setAttribute("adminUser", admin); // Store admin object in session
-                
-                // Redirect to dashboard instead of forwarding
-                response.sendRedirect(request.getContextPath() + "/dashboard");
-                return;
-            } else {
-                // Authentication failed - Forward to login page with error message
-                request.setAttribute("errorMessage", "Invalid credentials. Please try again.");
-                request.getRequestDispatcher("/WEB-INF/view/admin/adminlogin.jsp").forward(request, response);
-            }
-        } catch (Exception e) {
-            request.setAttribute("errorMessage", "Login failed: " + e.getMessage());
-            request.getRequestDispatcher("/WEB-INF/view/admin/adminlogin.jsp").forward(request, response);
-        }
-    }
-
-
 }

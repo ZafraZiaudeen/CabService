@@ -30,28 +30,34 @@ public class BookingDAO {
     public List<Map<String, String>> getAvailableVehicles() throws SQLException {
         List<Map<String, String>> vehicles = new ArrayList<>();
         String sql = """
-            SELECT v.id, v.plate_number, v.model, v.rate_per_km, v.status, d.id AS driver_id
-            FROM vehicle v
-            LEFT JOIN driver_vehicle dv ON v.id = dv.vehicle_id
-            LEFT JOIN driver d ON dv.driver_id = d.id
-            WHERE (v.status = 'Available' OR (v.status = 'In Use' AND d.availability = TRUE))
-        """;
-        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
-            ResultSet rs = stmt.executeQuery();
+                SELECT v.id, v.plate_number, v.model, v.rate_per_km, v.status, d.id AS driver_id
+                FROM vehicle v
+                LEFT JOIN driver_vehicle dv ON v.id = dv.vehicle_id
+                LEFT JOIN driver d ON dv.driver_id = d.id
+                WHERE (v.status = 'Available' OR (v.status = 'In Use' AND d.availability = TRUE))
+            """;
+        try (Connection conn = DBConnectionFactory.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
+
             while (rs.next()) {
-                Map<String, String> vehicle = new HashMap<>();
-                vehicle.put("vehicleId", rs.getString("id"));
-                vehicle.put("plateNumber", rs.getString("plate_number"));
-                vehicle.put("model", rs.getString("model"));
-                vehicle.put("ratePerKm", rs.getString("rate_per_km"));
-                vehicle.put("status", rs.getString("status"));
-                vehicle.put("driverId", rs.getString("driver_id"));
-                vehicles.add(vehicle);
+            	 Map<String, String> vehicle = new HashMap<>();
+                 vehicle.put("vehicleId", rs.getString("id"));
+                 vehicle.put("plateNumber", rs.getString("plate_number"));
+                 vehicle.put("model", rs.getString("model"));
+                 vehicle.put("ratePerKm", rs.getString("rate_per_km"));
+                 vehicle.put("status", rs.getString("status"));
+                 vehicle.put("driverId", rs.getString("driver_id"));
+                 vehicles.add(vehicle);
             }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw e; // Re-throw the exception to handle it in the controller
         }
+
         return vehicles;
-   
     }
+    
     public double getDistance(String fromLocation, String toLocation) throws SQLException {
         // Try to find distance directly (from -> to)
         String sql = "SELECT distance_km FROM distance WHERE (from_location = ? AND to_location = ?) OR (from_location = ? AND to_location = ?)";
@@ -193,5 +199,98 @@ public class BookingDAO {
             return stmt.executeUpdate() > 0;
         }
     }
+    
+    // Method to get booking by ID (for edit-booking.jsp)
+    public Booking getBookingById(int bookingId) throws SQLException {
+        String sql = "SELECT * FROM bookings WHERE id = ?";
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, bookingId);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                Booking booking = new Booking();
+                booking.setId(rs.getInt("id"));
+                booking.setCustomerId(rs.getInt("customer_id"));
+                booking.setPickupLocation(rs.getString("pickup_location"));
+                booking.setDropoffLocation(rs.getString("dropoff_location"));
+                booking.setVehicleId(rs.getInt("vehicle_id"));
+                return booking;
+            }
+        }
+        return null;
+    }
+
+    // Method to update booking details
+    public boolean updateBooking(Booking booking) throws SQLException {
+        String sql = """
+            UPDATE bookings SET customer_id = ?, pickup_location = ?, dropoff_location = ?, vehicle_id = ?
+            WHERE id = ?
+        """;
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, booking.getCustomerId());
+            stmt.setString(2, booking.getPickupLocation());
+            stmt.setString(3, booking.getDropoffLocation());
+            stmt.setInt(4, booking.getVehicleId());
+            stmt.setInt(5, booking.getId());
+            stmt.executeUpdate();
+            
+            return stmt.executeUpdate() > 0; 
+        }
+    
+    }
+    
+    public Map<String, String> getCustomerById(int customerId) throws SQLException {
+        String sql = """
+            SELECT c.id AS customer_id, u.name, u.phoneNumber, u.address
+            FROM customer c
+            JOIN users u ON c.user_id = u.id
+            WHERE c.id = ?
+        """;
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, customerId);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                Map<String, String> customer = new HashMap<>();
+                customer.put("customerId", rs.getString("customer_id"));
+                customer.put("name", rs.getString("name"));
+                customer.put("phoneNumber", rs.getString("phoneNumber"));
+                customer.put("address", rs.getString("address"));
+                return customer;
+            }
+        }
+        return null; // Return null if no customer is found
+    }
+
+    public Map<String, String> getVehicleById(int vehicleId) throws SQLException {
+        String sql = """
+            SELECT v.id, v.plate_number, v.model, v.rate_per_km, v.status
+            FROM vehicle v
+            WHERE v.id = ?
+        """;
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, vehicleId);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                Map<String, String> vehicle = new HashMap<>();
+                vehicle.put("vehicleId", rs.getString("id"));
+                vehicle.put("plateNumber", rs.getString("plate_number"));
+                vehicle.put("model", rs.getString("model"));
+                vehicle.put("ratePerKm", rs.getString("rate_per_km"));
+                vehicle.put("status", rs.getString("status"));
+                return vehicle;
+            }
+        }
+        return null; // Return null if no vehicle is found
+    }
+
+    
+    public boolean deleteBooking(int bookingId) throws SQLException {
+        String sql = "DELETE FROM bookings WHERE id = ?";
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, bookingId);
+            int affectedRows = stmt.executeUpdate();
+            return affectedRows > 0;
+        }
+    }
+
  
 }

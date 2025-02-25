@@ -57,7 +57,19 @@ public class BookingService {
     public Billing getBillingById(int billingId) throws SQLException {
         return billingDAO.getBillingById(billingId);
     }
+    public Booking getBookingById(int bookingId) throws SQLException {
+        return bookingDAO.getBookingById(bookingId);
+    }
+
+    public boolean updateBooking(Booking booking) throws SQLException {
+        
+		return bookingDAO.updateBooking(booking);
+    }
     
+    public boolean deleteBooking(int bookingId) throws SQLException {
+        return bookingDAO.deleteBooking(bookingId);
+    }
+
     
     
 }

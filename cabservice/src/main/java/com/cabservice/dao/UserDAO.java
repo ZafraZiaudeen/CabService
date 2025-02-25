@@ -177,4 +177,46 @@ public class UserDAO {
         }
         return users;
     }
+    
+    public Customer loginCustomer(String username, String password) {
+        String userQuery = "SELECT * FROM users WHERE username = ? AND role = 'Customer'"; 
+
+        try (Connection connection = DBConnectionFactory.getConnection()) {
+            // Query the users table to find a customer with the given username
+            try (PreparedStatement userStmt = connection.prepareStatement(userQuery)) {
+                userStmt.setString(1, username);
+                ResultSet userRs = userStmt.executeQuery();
+
+                if (userRs.next()) {
+                    int userId = userRs.getInt("id");
+                    String hashedPassword = userRs.getString("password");
+                    String name = userRs.getString("name");
+                    String address = userRs.getString("address");
+                    String phoneNumber = userRs.getString("phoneNumber");
+                    String storedUsername = userRs.getString("username");
+
+                    // Validate password using BCrypt
+                    if (BCrypt.checkpw(password, hashedPassword)) {
+                        // Fetch the customer details from the customer table
+                        String customerQuery = "SELECT NIC FROM customer WHERE user_id = ?";
+                        try (PreparedStatement customerStmt = connection.prepareStatement(customerQuery)) {
+                            customerStmt.setInt(1, userId);
+                            ResultSet customerRs = customerStmt.executeQuery();
+
+                            if (customerRs.next()) {
+                                String nic = customerRs.getString("NIC");
+
+                                // Return the authenticated Customer object
+                                return new Customer(userId, name, address, phoneNumber, storedUsername, hashedPassword, "Customer", userId, nic);
+                            }
+                        }
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            LOGGER.log(Level.SEVERE, "Error during Customer login", e);
+        }
+        return null; // Return null if authentication fails
+    }
+
 }

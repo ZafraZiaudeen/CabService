@@ -12,7 +12,9 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.cabservice.dao.DBConnectionFactory;
 import com.cabservice.model.Billing;
+import com.cabservice.model.Booking;
 import com.cabservice.service.BillingService;
+import com.cabservice.service.BookingService;
 
 @WebServlet("/billing")
 public class BillingController extends HttpServlet {
@@ -20,8 +22,10 @@ public class BillingController extends HttpServlet {
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String action = request.getParameter("action");
+
         try (Connection conn = DBConnectionFactory.getConnection()) {
             BillingService billingService = new BillingService(conn);
+            BookingService bookingService = new BookingService(conn);
 
             if ("view".equals(action)) {
                 String billingIdStr = request.getParameter("id");
@@ -39,21 +43,76 @@ public class BillingController extends HttpServlet {
                     request.setAttribute("error", "Invalid billing ID.");
                     request.getRequestDispatcher("/WEB-INF/view/admin/billing.jsp").forward(request, response);
                 }
+            }  else if ("back".equals(action)) {
+                String billingIdStr = request.getParameter("id");
+                if (billingIdStr != null && !billingIdStr.isEmpty()) {
+                    int billingId = Integer.parseInt(billingIdStr);
+
+                    // Fetch the billing details first.
+                    Billing billing = billingService.getBillingById(billingId);
+                    if (billing != null) {
+                        // Fetch the booking details using the bookingId from the billing object
+                        int bookingId = billing.getBookingId();
+                        Booking booking = bookingService.getBookingById(bookingId);
+
+                        if (booking != null) {
+                            // **Temporarily store booking data in request attributes** to pre-populate the add-booking form
+                            request.setAttribute("tempBookingData", booking);
+                            
+                            // Delete the booking record from the database
+                            bookingService.deleteBooking(bookingId); 
+
+                            // Forward to add-booking.jsp with the pre-populated data
+                            request.getRequestDispatcher("/WEB-INF/view/admin/add-booking.jsp").forward(request, response);
+                        } else {
+                            request.setAttribute("error", "Booking details not found.");
+                            request.getRequestDispatcher("/WEB-INF/view/admin/billing.jsp").forward(request, response);
+                        }
+                    } else {
+                        request.setAttribute("error", "Billing details not found.");
+                        request.getRequestDispatcher("/WEB-INF/view/admin/billing.jsp").forward(request, response);
+                    }
+                } else {
+                    request.setAttribute("error", "Invalid billing ID.");
+                    request.getRequestDispatcher("/WEB-INF/view/admin/billing.jsp").forward(request, response);
+                }
             }
-        } catch (SQLException e) {
+if ("edit".equals(action)) {
+                String billingIdStr = request.getParameter("id");
+                if (billingIdStr != null && !billingIdStr.isEmpty()) {
+                    int billingId = Integer.parseInt(billingIdStr);
+
+                    // Fetch the billing details by billing ID
+                    Billing billing = billingService.getBillingById(billingId);
+                    if (billing != null) {
+                        request.setAttribute("billing", billing);
+                        request.getRequestDispatcher("/WEB-INF/view/admin/edit-billing.jsp").forward(request, response);
+                    } else {
+                        request.setAttribute("error", "Billing details not found.");
+                        request.getRequestDispatcher("/WEB-INF/view/admin/billing.jsp").forward(request, response);
+                    }
+                } else {
+                    request.setAttribute("error", "Invalid billing ID.");
+                    request.getRequestDispatcher("/WEB-INF/view/admin/billing.jsp").forward(request, response);
+                }
+            }}
+         catch (SQLException e) {
             e.printStackTrace();
             request.setAttribute("error", "An error occurred while fetching billing details.");
             request.getRequestDispatcher("/WEB-INF/view/admin/billing.jsp").forward(request, response);
         } catch (NumberFormatException e) {
             e.printStackTrace();
-            request.setAttribute("error", "Invalid billing ID.");
+            request.setAttribute("error", "Invalid billing ID format.");
             request.getRequestDispatcher("/WEB-INF/view/admin/billing.jsp").forward(request, response);
         }
     }
+
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String action = request.getParameter("action");
+
         try (Connection conn = DBConnectionFactory.getConnection()) {
             BillingService billingService = new BillingService(conn);
+            BookingService bookingService = new BookingService(conn); // Instantiate the bookingService here
 
             if ("save".equals(action)) {
                 // Extract user inputs for billing details
@@ -115,6 +174,37 @@ public class BillingController extends HttpServlet {
 
                 // Redirect to the add-booking page
                 request.getRequestDispatcher("/WEB-INF/view/admin/add-booking.jsp").forward(request, response);
+            } else if ("update".equals(action)) {
+                // Fetch updated booking details
+                int bookingId = Integer.parseInt(request.getParameter("booking_id"));
+                String pickupLocation = request.getParameter("pickup_location");
+                String dropoffLocation = request.getParameter("dropoff_location");
+                int vehicleId = Integer.parseInt(request.getParameter("vehicle_id"));
+
+                Booking updatedBooking = new Booking();
+                updatedBooking.setId(bookingId);
+                updatedBooking.setPickupLocation(pickupLocation);
+                updatedBooking.setDropoffLocation(dropoffLocation);
+                updatedBooking.setVehicleId(vehicleId);
+
+                // Update booking details
+                bookingService.updateBooking(updatedBooking);
+
+                // Fetch updated billing details
+                Billing billing = billingService.getBillingByBookingId(bookingId);
+                if (billing != null) {
+                    billing.setTotalAmount(Double.parseDouble(request.getParameter("total_amount")));
+                    billing.setTax(Double.parseDouble(request.getParameter("tax")));
+                    billing.setDiscount(Double.parseDouble(request.getParameter("discount")));
+                    billing.setFinalAmount(Double.parseDouble(request.getParameter("final_amount")));
+                    billing.setPaymentType(request.getParameter("payment_type"));
+
+                    // Update billing details
+                    billingService.updateBilling(billing);
+                }
+
+                // Redirect to edit-billing.jsp with updated billing details
+                response.sendRedirect(request.getContextPath() + "/billing?action=view&id=" + billing.getId());
             }
         } catch (SQLException | NumberFormatException e) {
             e.printStackTrace();

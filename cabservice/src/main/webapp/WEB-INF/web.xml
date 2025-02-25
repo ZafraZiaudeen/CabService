@@ -70,6 +70,13 @@
   	<description></description>
   	<servlet-class>com.cabservice.controller.BillingController</servlet-class>
   </servlet>
+  <servlet>
+  	<servlet-name>CustomerBookingController</servlet-name>
+  	<display-name>CustomerBookingController</display-name>
+  	<description></description>
+  	<servlet-class>com.cabservice.controller.CustomerBookingController</servlet-class>
+  </servlet>
+  
  
   <servlet-mapping>
   	<servlet-name>UserController</servlet-name>
@@ -115,5 +122,10 @@
   	<servlet-name>BillingController</servlet-name>
   	<url-pattern>/BillingController</url-pattern>
   </servlet-mapping>
+  <servlet-mapping>
+  	<servlet-name>CustomerBookingController</servlet-name>
+  	<url-pattern>/CustomerBookingController</url-pattern>
+  </servlet-mapping>
+  
   
 </web-app>

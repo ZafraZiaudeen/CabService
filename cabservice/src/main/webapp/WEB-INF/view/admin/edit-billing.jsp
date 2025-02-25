@@ -5,7 +5,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Billing & Payment - Cab Service</title>
+    <title>Edit Billing & Payment - Cab Service</title>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <style>
         * {
@@ -200,13 +200,16 @@
 </head>
 <body>
     <jsp:include page="Sidebar.jsp" />
-
+    <%
+        Billing billing = (Billing) request.getAttribute("billing");
+        if (billing != null) {
+    %>
     <main class="main-content">
         <div class="page-header">
             <button class="back-button" onclick="goBackToAddBooking()">
                 <span class="material-icons">arrow_back</span>
             </button>
-            <h1 class="page-title">Billing & Payment</h1>
+            <h1 class="page-title">Edit Billing & Payment</h1>
         </div>
 
         <div class="billing-container">
@@ -217,44 +220,30 @@
                     Billing Details
                 </h2>
 
-                <%
-                    Billing billing = (Billing) request.getAttribute("billing");
-                    if (billing != null) {
-                %>
-                    <div class="detail-item">
-                        <span class="label">Booking ID</span>
-                        <span class="value">#<%= billing.getBookingId() %></span>
-                    </div>
-                    <div class="detail-item">
-                        <span class="label">Base Fare</span>
-                        <span class="value">Rs.<%= String.format("%.2f", billing.getTotalAmount()) %></span>
-                    </div>
-                    <div class="detail-item">
-                        <span class="label">Tax (18%)</span>
-                        <span class="value">Rs.<%= String.format("%.2f", billing.getTax()) %></span>
-                    </div>
-                    <div class="detail-item">
-                        <span class="label">Discount</span>
-                        <span class="value">-Rs.<%= String.format("%.2f", billing.getDiscount()) %></span>
-                    </div>
-                    <div class="detail-item final-amount">
-                        <span class="label">Total Amount</span>
-                        <span class="value">Rs.<%= String.format("%.2f", billing.getFinalAmount()) %></span>
-                    </div>
-                    <div class="detail-item">
-                        <span class="label">Generated At</span>
-                        <span class="value"><%= billing.getGeneratedAt() %></span>
-                    </div>
-                <%
-                    } else {
-                %>
-                    <div class="error-message">
-                        <span class="material-icons">error</span>
-                        Billing details not found.
-                    </div>
-                <%
-                    }
-                %>
+                <div class="detail-item">
+                    <span class="label">Booking ID</span>
+                    <span class="value">#<%= billing.getBookingId() %></span>
+                </div>
+                <div class="detail-item">
+                    <span class="label">Base Fare</span>
+                    <span class="value">Rs.<%= String.format("%.2f", billing.getTotalAmount()) %></span>
+                </div>
+                <div class="detail-item">
+                    <span class="label">Tax (18%)</span>
+                    <span class="value">Rs.<%= String.format("%.2f", billing.getTax()) %></span>
+                </div>
+                <div class="detail-item">
+                    <span class="label">Discount</span>
+                    <span class="value">-Rs.<%= String.format("%.2f", billing.getDiscount()) %></span>
+                </div>
+                <div class="detail-item final-amount">
+                    <span class="label">Total Amount</span>
+                    <span class="value">Rs.<%= String.format("%.2f", billing.getFinalAmount()) %></span>
+                </div>
+                <div class="detail-item">
+                    <span class="label">Generated At</span>
+                    <span class="value"><%= billing.getGeneratedAt() %></span>
+                </div>
             </div>
 
             <!-- Payment Section -->
@@ -276,13 +265,13 @@
                 </div>
 
                 <!-- Credit Card Form -->
-                <form id="credit-card-form" action="<%= request.getContextPath() %>/billing?action=save" method="post" onsubmit="return combineExpiryDate()">
+                <form id="credit-card-form" action="<%= request.getContextPath() %>/billing?action=update" method="post" onsubmit="return combineExpiryDate()">
                     <input type="hidden" name="payment_type" value="Card">
-                    <input type="hidden" name="booking_id" value="<%= billing != null ? billing.getBookingId() : "" %>">
-                    <input type="hidden" name="total_amount" value="<%= billing != null ? billing.getTotalAmount() : 0 %>">
-                    <input type="hidden" name="tax" value="<%= billing != null ? billing.getTax() : 0 %>">
-                    <input type="hidden" name="discount" value="<%= billing != null ? billing.getDiscount() : 0 %>">
-                    <input type="hidden" name="final_amount" value="<%= billing != null ? billing.getFinalAmount() : 0 %>">
+                     <input type="hidden" name="booking_id" value="<%= billing.getBookingId() %>">
+                    <input type="hidden" name="total_amount" value="<%= billing.getTotalAmount() %>">
+                    <input type="hidden" name="tax" value="<%= billing.getTax() %>">
+                    <input type="hidden" name="discount" value="<%= billing.getDiscount() %>">
+                    <input type="hidden" name="final_amount" value="<%= billing.getFinalAmount() %>">
                     <input type="hidden" name="expiry_date" id="expiry_date">
 
                     <div class="form-group">
@@ -309,22 +298,22 @@
                         </div>
                     </div>
 
-                    <button type="submit" class="submit-button">Pay ₹<%= billing != null ? String.format("%.2f", billing.getFinalAmount()) : "0.00" %></button>
+                    <button type="submit" class="submit-button">Pay ₹<%= String.format("%.2f", billing.getFinalAmount()) %></button>
                 </form>
 
                 <!-- Cash Payment Form -->
-                <form id="cash-form" action="<%= request.getContextPath() %>/billing?action=save" method="post" style="display: none;">
+                <form id="cash-form" action="<%= request.getContextPath() %>/billing?action=update" method="post" style="display: none;">
                     <input type="hidden" name="payment_type" value="Cash">
-                    <input type="hidden" name="booking_id" value="<%= billing != null ? billing.getBookingId() : "" %>">
-                    <input type="hidden" name="total_amount" value="<%= billing != null ? billing.getTotalAmount() : 0 %>">
-                    <input type="hidden" name="tax" value="<%= billing != null ? billing.getTax() : 0 %>">
-                    <input type="hidden" name="discount" value="<%= billing != null ? billing.getDiscount() : 0 %>">
-                    <input type="hidden" name="final_amount" value="<%= billing != null ? billing.getFinalAmount() : 0 %>">
+                     <input type="hidden" name="booking_id" value="<%= billing.getBookingId() %>">
+                    <input type="hidden" name="total_amount" value="<%= billing.getTotalAmount() %>">
+                    <input type="hidden" name="tax" value="<%= billing.getTax() %>">
+                    <input type="hidden" name="discount" value="<%= billing.getDiscount() %>">
+                    <input type="hidden" name="final_amount" value="<%= billing.getFinalAmount() %>">
 
                     <div class="form-group">
                         <label>
                             <input type="checkbox" required>
-                            I agree to pay Rs.<%= billing != null ? String.format("%.2f", billing.getFinalAmount()) : "0.00" %> in cash to the driver.
+                            I agree to pay Rs.<%= String.format("%.2f", billing.getFinalAmount()) %> in cash to the driver.
                         </label>
                         <p style="margin-top: 8px; color: #64748b; font-size: 14px;">
                             Please ensure you have the exact amount ready for the driver.
@@ -336,6 +325,16 @@
             </div>
         </div>
     </main>
+    <%
+        } else {
+    %>
+    <div class="error-message">
+        <span class="material-icons">error</span>
+        Billing details not found.
+    </div>
+    <%
+        }
+    %>
 
     <script>
         function combineExpiryDate() {
@@ -358,19 +357,20 @@
             document.getElementById('cash-form').style.display = tabId === 'cash' ? 'block' : 'none';
         }
 
-        function goBackToAddBooking() {
+        function goBackToEditedBooking() {
             const urlParams = new URLSearchParams(window.location.search);
             const billingId = urlParams.get("id"); // Get the billing ID from URL if available
+
+            // Ensure the context path is included
             const contextPath = "<%= request.getContextPath() %>";
             
             if (billingId) {
-                // Navigate to the BillingController with action=back
+                // Navigate back using the BillingController with action=back
                 window.location.href = `${contextPath}/billing?action=back&id=${billingId}`;
             } else {
                 console.error("Billing ID not found.");
             }
         }
-
 
         // Card number formatting
         document.getElementById('card_number').addEventListener('input', function(e) {
@@ -385,6 +385,21 @@
             if (value > 12) e.target.value = '12';
             if (value < 1) e.target.value = '01';
         });
+        
+        function goBackToAddBooking() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const billingId = urlParams.get("id"); // Get the billing ID from URL if available
+
+            // Ensure the context path is included
+            const contextPath = "<%= request.getContextPath() %>";
+            
+            if (billingId) {
+                // Navigate back using the BillingController with action=back
+                window.location.href = `${contextPath}/billing?action=back&id=${billingId}`;
+            } else {
+                console.error("Billing ID not found.");
+            }
+        }
     </script>
 </body>
 </html>
