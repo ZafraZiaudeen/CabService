@@ -17,11 +17,11 @@ public class DashboardController extends HttpServlet {
     }
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        HttpSession session = request.getSession(false); // Do NOT create a new session
+        HttpSession session = request.getSession(false); 
 
         if (session == null || session.getAttribute("adminUser") == null) {
             System.out.println("Redirecting: No active session found!");
-            response.sendRedirect(request.getContextPath() + "/user?action=adminlogin");
+            response.sendRedirect(request.getContextPath() + "/user?action=login");
             return;
         }
 

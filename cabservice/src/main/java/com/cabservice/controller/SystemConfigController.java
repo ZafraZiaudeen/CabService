@@ -10,6 +10,7 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import com.cabservice.dao.DBConnectionFactory;
 import com.cabservice.service.SystemConfigService;
@@ -30,7 +31,13 @@ public class SystemConfigController extends HttpServlet {
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String action = request.getParameter("action");
+        HttpSession session = request.getSession(false); 
 
+        if (session == null || session.getAttribute("adminUser") == null) {
+            System.out.println("Redirecting: No active session found!");
+            response.sendRedirect(request.getContextPath() + "/user?action=login");
+            return;
+        }
         try (Connection conn = DBConnectionFactory.getConnection()) {
             systemConfigService = new SystemConfigService(conn);
 

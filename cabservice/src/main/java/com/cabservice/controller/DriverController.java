@@ -9,6 +9,7 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 @WebServlet("/driver")
 public class DriverController extends HttpServlet {
     private static final long serialVersionUID = 1L;
@@ -21,7 +22,13 @@ public class DriverController extends HttpServlet {
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String action = request.getParameter("action");
+        HttpSession session = request.getSession(false); 
 
+        if (session == null || session.getAttribute("adminUser") == null) {
+            System.out.println("Redirecting: No active session found!");
+            response.sendRedirect(request.getContextPath() + "/user?action=login");
+            return;
+        }
         if ("add".equals(action)) {
             request.getRequestDispatcher("/WEB-INF/view/admin/add-driver.jsp").forward(request, response);
         } else if ("edit".equals(action)) {

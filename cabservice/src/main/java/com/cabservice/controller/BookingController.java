@@ -16,6 +16,7 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 @WebServlet("/booking")
 public class BookingController extends HttpServlet {
@@ -27,7 +28,13 @@ public class BookingController extends HttpServlet {
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String action = request.getParameter("action");
+        HttpSession session = request.getSession(false); 
 
+        if (session == null || session.getAttribute("adminUser") == null) {
+            System.out.println("Redirecting: No active session found!");
+            response.sendRedirect(request.getContextPath() + "/user?action=login");
+            return;
+        }
         // Start with a try-with-resources block for connection handling
         try (Connection conn = DBConnectionFactory.getConnection()) {
             // Instantiate the BookingService with the database connection
@@ -70,11 +77,11 @@ public class BookingController extends HttpServlet {
                 if (bookingIdStr != null && !bookingIdStr.isEmpty()) {
                     try {
                         int bookingId = Integer.parseInt(bookingIdStr);
-                        Booking booking = bookingService.getBookingById(bookingId); // Retrieve booking details using the service
+                        Booking booking = bookingService.getBookingById(bookingId); 
 
                         if (booking != null) {
                             // Pass the booking to the JSP for rendering
-                            request.setAttribute("booking", booking); // This line is crucial
+                            request.setAttribute("booking", booking); 
                             request.getRequestDispatcher("/WEB-INF/view/admin/edit-booking.jsp").forward(request, response);
                         } else {
                             request.setAttribute("error", "Booking not found.");

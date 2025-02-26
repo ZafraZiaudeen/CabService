@@ -9,6 +9,7 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import com.cabservice.dao.DBConnectionFactory;
 import com.cabservice.model.Billing;
@@ -22,6 +23,14 @@ public class BillingController extends HttpServlet {
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String action = request.getParameter("action");
+        
+        HttpSession session = request.getSession(false); 
+
+        if (session == null || session.getAttribute("adminUser") == null) {
+            System.out.println("Redirecting: No active session found!");
+            response.sendRedirect(request.getContextPath() + "/user?action=login");
+            return;
+        }
 
         try (Connection conn = DBConnectionFactory.getConnection()) {
             BillingService billingService = new BillingService(conn);
@@ -56,7 +65,7 @@ public class BillingController extends HttpServlet {
                         Booking booking = bookingService.getBookingById(bookingId);
 
                         if (booking != null) {
-                            // **Temporarily store booking data in request attributes** to pre-populate the add-booking form
+              
                             request.setAttribute("tempBookingData", booking);
                             
                             // Delete the booking record from the database
