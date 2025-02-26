@@ -14,7 +14,7 @@
                 <li><a href="<%= request.getContextPath() %>/index.jsp#hero">Home</a></li>
                 <li><a href="<%= request.getContextPath() %>/index.jsp#services">Services</a></li>
                 <li><a href="<%= request.getContextPath() %>/index.jsp#about">About</a></li>
-
+<li><a href="<%= request.getContextPath() %>/routes">Routes</a></li>
                 <%
                     if (session != null && session.getAttribute("customerUser") != null) {
                 %>

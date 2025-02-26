@@ -88,6 +88,12 @@
   	<description></description>
   	<servlet-class>com.cabservice.controller.CancelBookingController</servlet-class>
   </servlet>
+  <servlet>
+  	<servlet-name>RoutesController</servlet-name>
+  	<display-name>RoutesController</display-name>
+  	<description></description>
+  	<servlet-class>com.cabservice.controller.RoutesController</servlet-class>
+  </servlet>
   
  
   <servlet-mapping>
@@ -145,6 +151,10 @@
   <servlet-mapping>
   	<servlet-name>CancelBookingController</servlet-name>
   	<url-pattern>/CancelBookingController</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+  	<servlet-name>RoutesController</servlet-name>
+  	<url-pattern>/RoutesController</url-pattern>
   </servlet-mapping>
   
   

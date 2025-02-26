@@ -7,84 +7,8 @@
     <meta charset="UTF-8">
     <title>Available Vehicles - Cab Service</title>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    <style>
-       .main-content {
-            margin-left: 260px;
-            padding: 20px;
-            transition: margin-left 0.3s ease;
-        }
-        .main-content.expanded {
-            margin-left: 70px;
-        }
-        .page-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 24px;
-        }
-        .page-title {
-            font-size: 24px;
-            font-weight: 600;
-        }
-        .search-container {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            width: 100%;
-        }
-        .search-bar {
-            flex-grow: 1;
-            max-width: 400px;
-            display: flex;
-            align-items: center;
-            background-color: white;
-            padding: 10px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-        .search-bar input {
-            flex-grow: 1;
-            padding: 8px 12px;
-            border: none;
-            font-size: 14px;
-            outline: none;
-        }
-        .search-bar button {
-            background: none;
-            border: none;
-            cursor: pointer;
-            color: #4a5568;
-        }
-        .vehicles-table {
-            background-color: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            overflow: hidden;
-        }
-        .table-container {
-            overflow-x: auto;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            min-width: 800px;
-        }
-        th, td {
-            padding: 12px 16px;
-            text-align: left;
-            border-bottom: 1px solid #e2e8f0;
-        }
-        th {
-            background-color: #f8fafc;
-            font-weight: 600;
-            color: #4a5568;
-            font-size: 14px;
-        }
-        td {
-            font-size: 14px;
-            color: #2d3748;
-        }
-    </style>
+      <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+    <link rel="stylesheet" href="<c:url value='/css/adminManagement.css'/>">
 </head>
 <body>
     <jsp:include page="Sidebar.jsp" />
@@ -100,7 +24,7 @@
                 </button>
             </div>
         </div>
-        <section class="vehicles-table">
+        <section class="section-table">
             <div class="table-container">
                 <table>
                     <thead>
