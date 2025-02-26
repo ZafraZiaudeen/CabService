@@ -292,5 +292,83 @@ public class BookingDAO {
         }
     }
 
+    public List<Booking> getBookingHistoryByCustomerId(int customerId) throws SQLException {
+        List<Booking> bookingHistory = new ArrayList<>();
+        String sql = "SELECT * FROM bookings WHERE customer_id = ? ORDER BY booked_at DESC"; 
+
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, customerId);
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                Booking booking = new Booking();
+                booking.setId(rs.getInt("id"));
+                booking.setCustomerId(rs.getInt("customer_id"));
+                booking.setDriverId(rs.getInt("driver_id"));
+                booking.setVehicleId(rs.getInt("vehicle_id"));
+                booking.setPickupLocation(rs.getString("pickup_location"));
+                booking.setDropoffLocation(rs.getString("dropoff_location"));
+                booking.setDistanceKm(rs.getDouble("distance_km"));
+                booking.setStatus(rs.getString("status"));
+                booking.setBookedAt(rs.getTimestamp("booked_at"));
+                bookingHistory.add(booking);
+            }
+        }
+        return bookingHistory;
+    }
+    public List<Map<String, Object>> getBookingHistoryWithPaymentDetails(int customerId) throws SQLException {
+        List<Map<String, Object>> bookingHistory = new ArrayList<>();
+        String sql = """
+            SELECT b.id AS booking_id, b.booked_at, b.pickup_location, b.dropoff_location, b.status,
+                   bi.total_amount, bi.payment_type
+            FROM bookings b
+            LEFT JOIN billing bi ON b.id = bi.booking_id
+            WHERE b.customer_id = ? 
+            ORDER BY b.booked_at DESC
+        """;
+
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, customerId);
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                Map<String, Object> booking = new HashMap<>();
+                booking.put("booking_id", rs.getInt("booking_id"));
+                booking.put("booked_at", rs.getTimestamp("booked_at"));
+                booking.put("pickup_location", rs.getString("pickup_location"));
+                booking.put("dropoff_location", rs.getString("dropoff_location"));
+                booking.put("status", rs.getString("status"));
+                booking.put("total_amount", rs.getDouble("total_amount"));
+                booking.put("payment_type", rs.getString("payment_type"));
+                bookingHistory.add(booking);
+            }
+        }
+        return bookingHistory;
+    }
+    
+ // In BookingDAO.java
+    public boolean canCancelBooking(int bookingId) throws SQLException {
+        String sql = "SELECT booked_at FROM bookings WHERE id = ?";
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, bookingId);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                Timestamp bookedAt = rs.getTimestamp("booked_at");
+                long currentTime = System.currentTimeMillis();
+                long bookedTime = bookedAt.getTime();
+                long diffInMinutes = (currentTime - bookedTime) / (1000 * 60); // Convert milliseconds to minutes
+                return diffInMinutes <= 5; // True if within 5 minutes
+            }
+        }
+        return false; // Booking not found or too late to cancel
+    }
+
+    public void cancelBooking(int bookingId) throws SQLException {
+        String sql = "UPDATE bookings SET status = 'Cancelled' WHERE id = ?";
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, bookingId);
+            stmt.executeUpdate();
+        }
+    }
  
 }

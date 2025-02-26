@@ -203,4 +203,13 @@ public class BillingDAO {
             stmt.executeUpdate();
         }
     }
+    
+ // In BillingDAO.java
+    public void removePaymentDetails(int bookingId) throws SQLException {
+        String sql = "UPDATE billing SET card_number = NULL, cvv = NULL, expiry_date = NULL WHERE booking_id = ?";
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, bookingId);
+            stmt.executeUpdate();
+        }
+    }
 }

@@ -76,6 +76,18 @@
   	<description></description>
   	<servlet-class>com.cabservice.controller.CustomerBookingController</servlet-class>
   </servlet>
+  <servlet>
+  	<servlet-name>CustomerBillingController</servlet-name>
+  	<display-name>CustomerBillingController</display-name>
+  	<description></description>
+  	<servlet-class>com.cabservice.controller.CustomerBillingController</servlet-class>
+  </servlet>
+  <servlet>
+  	<servlet-name>CancelBookingController</servlet-name>
+  	<display-name>CancelBookingController</display-name>
+  	<description></description>
+  	<servlet-class>com.cabservice.controller.CancelBookingController</servlet-class>
+  </servlet>
   
  
   <servlet-mapping>
@@ -125,6 +137,14 @@
   <servlet-mapping>
   	<servlet-name>CustomerBookingController</servlet-name>
   	<url-pattern>/CustomerBookingController</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+  	<servlet-name>CustomerBillingController</servlet-name>
+  	<url-pattern>/CustomerBillingController</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+  	<servlet-name>CancelBookingController</servlet-name>
+  	<url-pattern>/CancelBookingController</url-pattern>
   </servlet-mapping>
   
   

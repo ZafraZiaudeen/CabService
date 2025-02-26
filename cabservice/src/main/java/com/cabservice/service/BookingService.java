@@ -70,6 +70,22 @@ public class BookingService {
         return bookingDAO.deleteBooking(bookingId);
     }
 
+    public List<Booking> getBookingHistoryByCustomerId(int customerId) throws SQLException {
+        return bookingDAO.getBookingHistoryByCustomerId(customerId);
+    }
     
+    public List<Map<String, Object>> getBookingHistoryWithPaymentDetails(int customerId) throws SQLException {
+        return bookingDAO.getBookingHistoryWithPaymentDetails(customerId);
+    }
+
+ // In BookingService.java
+    public boolean cancelBooking(int bookingId) throws SQLException {
+        if (bookingDAO.canCancelBooking(bookingId)) {
+            bookingDAO.cancelBooking(bookingId); 
+            billingDAO.removePaymentDetails(bookingId); 
+            return true;
+        }
+        return false; // Cancellation not allowed (beyond 5 minutes)
+    }
     
 }

@@ -18,7 +18,8 @@
             <div class="hero-content">
                 <h1>Your Ride, Your Way</h1>
                 <p>Experience comfort and reliability with CabService. Book your ride now and travel with ease.</p>
-                <a href="booking.html" class="btn-primary">Book a Ride</a>
+               <a href="javascript:void(0);" class="btn-primary" onclick="checkLogin()">Book a Ride</a>
+
             </div>
         </section>
 
@@ -109,6 +110,23 @@
 </section>
     </main>
  <jsp:include page="Footer.jsp" />
-    <script src="script.js"></script>
+    <script>
+    function checkLogin() {
+        fetch('<%= request.getContextPath() %>/user?action=checkLogin')
+            .then(response => response.json())
+            .then(data => {
+                if (data.isLoggedIn) {
+                    window.location.href = "<%= request.getContextPath() %>/customerBooking";
+                } else {
+                    alert("Please log in to book a ride.");
+                    window.location.href = "<%= request.getContextPath() %>/user?action=login";
+                }
+            })
+            .catch(error => {
+                console.error('Error checking login status:', error);
+            });
+    }
+
+    </script>
 </body>
 </html>

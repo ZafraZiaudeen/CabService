@@ -198,16 +198,18 @@ public class UserDAO {
                     // Validate password using BCrypt
                     if (BCrypt.checkpw(password, hashedPassword)) {
                         // Fetch the customer details from the customer table
-                        String customerQuery = "SELECT NIC FROM customer WHERE user_id = ?";
+                        String customerQuery = "SELECT id, NIC FROM customer WHERE user_id = ?";
+
                         try (PreparedStatement customerStmt = connection.prepareStatement(customerQuery)) {
                             customerStmt.setInt(1, userId);
                             ResultSet customerRs = customerStmt.executeQuery();
 
                             if (customerRs.next()) {
+                                int customerId = customerRs.getInt("id");  // Get the correct customerId
                                 String nic = customerRs.getString("NIC");
 
                                 // Return the authenticated Customer object
-                                return new Customer(userId, name, address, phoneNumber, storedUsername, hashedPassword, "Customer", userId, nic);
+                                return new Customer(userId, name, address, phoneNumber, storedUsername, hashedPassword, "Customer", customerId, nic);
                             }
                         }
                     }

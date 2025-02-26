@@ -36,15 +36,21 @@ public class UserController extends HttpServlet {
             showRegisterPage(request, response);
         } else if (action.equals("login")) {
             showLoginPage(request, response);
-        }else if ("logout".equals(action)) {
+        } else if ("logout".equals(action)) {
             HttpSession session = request.getSession(false); // Get existing session
             if (session != null) {
                 session.invalidate();  // Invalidate the session to log out
             }
             response.sendRedirect(request.getContextPath() + "/index.jsp"); // Redirect to home page
             return;
+        } else if ("checkLogin".equals(action)) {
+            // New action to check login status
+            HttpSession session = request.getSession(false);
+            boolean isLoggedIn = (session != null && session.getAttribute("customerUser") != null);
+            response.setContentType("application/json");
+            response.getWriter().write("{\"isLoggedIn\": " + isLoggedIn + "}");
+            return;
         }
-
     }
 
     private void showLoginPage(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -67,7 +73,6 @@ public class UserController extends HttpServlet {
         }
     }
 
-    // Unified login process for both Customer and Admin
     protected void processLogin(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String username = request.getParameter("username");
         String password = request.getParameter("password");
@@ -84,18 +89,21 @@ public class UserController extends HttpServlet {
         // If not admin, try to login as Customer
         Customer customer = userService.loginCustomer(username, password);
 
-if (customer != null) {
-    HttpSession session = request.getSession();
-    session.setAttribute("customerUser", customer);
-    System.out.println("Customer logged in: " + customer.getUsername()); // Debug log
-    response.sendRedirect(request.getContextPath() + "/user?action=home");
-    return;
-}
+        if (customer != null) {
+            HttpSession session = request.getSession();
+            session.setAttribute("customerUser", customer);
+            session.setAttribute("customerId", customer.getCustomerId()); // Correct method to get customerId
+ // Use the customerId from the customer table
+            System.out.println("Customer logged in: " + customer.getCustomerId()); // Debug log
+            response.sendRedirect(request.getContextPath() + "/user?action=home");
+            return;
+        }
 
         // If authentication fails, show error message and stay on login page
         request.setAttribute("errorMessage", "Invalid credentials. Please try again.");
         request.getRequestDispatcher("/WEB-INF/view/login.jsp").forward(request, response);
     }
+
 
     // Customer registration process
     protected void processCustomerRegistration(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {

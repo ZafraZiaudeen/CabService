@@ -6,13 +6,25 @@
     box-sizing: border-box;
 }
 
+html, body {
+    height: 100%;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+}
+
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     line-height: 1.6;
     color: #333;
     background-color: #f4f4f4;
+    display: flex;
+    flex-direction: column;
 }
-
+/* Main content area should take up available space */
+main {
+    flex: 1; /* This makes sure the content section expands to fill available space */
+}
 a {
     text-decoration: none;
     color: #333;
@@ -61,6 +73,7 @@ nav ul li a {
 nav ul li a:hover {
     color:   #FFC107;
 }
+
 /* Auth buttons styling */
 .auth-buttons {
     display: flex;
@@ -88,7 +101,7 @@ nav ul li a:hover {
     background-color: transparent;
     color: #000000;
     border: 2px solid #FFC107;
-    padding: 6px 14px; /* Adjust for border */
+    padding: 6px 14px;
 }
 
 .btn-outline:hover {
@@ -102,6 +115,15 @@ nav ul li a:hover {
     background-color: #FFC107;
     color: #000000;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    padding: 8px 14px; 
+     border-radius: 6px;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    text-align: center;
+    border: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .btn-primary:hover {
@@ -118,7 +140,7 @@ nav ul li a:hover {
     color: #333;
 }
 
-/*her-section*/
+/*hero-section*/
 .hero {
     position: relative;
     background-image: url('../images/hero.png');
@@ -327,6 +349,7 @@ footer {
     background-color: #333;
     color: #fff;
     padding: 3rem 1rem 1rem;
+    text-align: center;
 }
 
 .footer-content {
@@ -382,7 +405,10 @@ footer {
     border-top: 1px solid #555;
 }
 
-/* Booking and Edit Booking page styles */
+/* Ensures the footer sticks to the bottom if content is insufficient */
+footer {
+    margin-top: auto; /* This pushes the footer to the bottom of the page if there's not enough content */
+    }
 .booking-section,
 .edit-booking-section {
     max-width: 600px;
@@ -391,6 +417,7 @@ footer {
     background-color: #fff;
     border-radius: 8px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    margin-top:120px;
 }
 
 .booking-section h1,
@@ -434,6 +461,7 @@ footer {
     background-color: #fff;
     border-radius: 8px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+   margin-top:100px;
 }
 
 .booking-history h2 {
@@ -483,6 +511,133 @@ footer {
     }
 }
 
+/* Enhanced Booking Section Styling */
+.booking-section {
+    max-width: 800px;
+    margin: 120px auto 60px;
+    padding: 40px;
+    background-color: #fff;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    font-family: 'Poppins', sans-serif;
+}
+
+.booking-section h1 {
+    font-size: 28px;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 30px;
+    text-align: center;
+    position: relative;
+    padding-bottom: 15px;
+}
+
+.booking-section h1:after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 3px;
+    background-color: #FFC107;
+}
+
+/* Form Group Styling */
+.form-group {
+    margin-bottom: 25px;
+    position: relative;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+    color: #333;
+    font-size: 15px;
+}
+
+/* Select2 Customization */
+.select2-container {
+    width: 100% !important;
+}
+
+.select2-container--default .select2-selection--single {
+    height: 50px;
+    padding: 10px 15px;
+    padding-left: 45px;
+    font-size: 15px;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+    transition: all 0.3s ease;
+}
+
+.select2-container--default .select2-selection--single:focus,
+.select2-container--default.select2-container--open .select2-selection--single {
+    border-color: #FFC107;
+    box-shadow: 0 0 0 3px rgba(255, 193, 7, 0.2);
+}
+
+.select2-container--default .select2-selection--single .select2-selection__rendered {
+    line-height: 30px;
+    color: #333;
+}
+
+.select2-container--default .select2-selection--single .select2-selection__arrow {
+    height: 48px;
+}
+
+.select2-dropdown {
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+}
+
+.select2-container--default .select2-results__option--highlighted[aria-selected] {
+    background-color: #FFC107;
+    color: #000;
+}
+
+/* Add icons to form fields */
+.form-group:before {
+    font-family: 'Material Icons';
+    position: absolute;
+    left: 15px;
+    top: 42px;
+    color: #999;
+    z-index: 10;
+}
+
+.form-group:nth-child(1):before {
+    content: 'location_on';
+}
+
+.form-group:nth-child(2):before {
+    content: 'location_off';
+}
+
+.form-group:nth-child(3):before {
+    content: 'directions_car';
+}
+ .menu-toggle {
+            display: none;
+            cursor: pointer;
+            font-size: 30px;
+        }
+
+       
+/* Responsive adjustments for booking form */
+@media (max-width: 768px) {
+    .booking-section {
+        margin: 100px 20px 40px;
+        padding: 30px 20px;
+    }
+    
+    .booking-section .btn-primary {
+        padding: 10px 20px;
+    }
+}
 @media (max-width: 768px) {
     .auth-buttons {
         width: 100%;
@@ -497,4 +652,15 @@ footer {
         top: 20px;
         right: 20px;
     }
+    
+     nav ul {
+                display: none; 
+                flex-direction: column;
+                width: 100%;
+            }
+
+            nav ul.active {
+                display: flex; 
+            }
+    
 }

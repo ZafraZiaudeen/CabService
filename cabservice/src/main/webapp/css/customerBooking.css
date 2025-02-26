@@ -1,0 +1,321 @@
+@charset "UTF-8";
+
+        .booking-container {
+            max-width: 900px;
+            margin: 120px auto 60px;
+            background-color: #fff;
+            border-radius: 12px;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        
+        .booking-header {
+            background-color: #FFC107;
+            padding: 25px 40px;
+            position: relative;
+        }
+        
+        .booking-header h1 {
+            color: #000;
+            font-size: 28px;
+            font-weight: 600;
+            margin: 0;
+            padding: 0;
+        }
+        
+        .booking-header p {
+            color: rgba(0, 0, 0, 0.7);
+            margin-top: 5px;
+            font-size: 16px;
+        }
+        
+        .booking-header:after {
+            content: '';
+            position: absolute;
+            bottom: -15px;
+            left: 0;
+            right: 0;
+            height: 30px;
+            background-color: #fff;
+            border-radius: 50% 50% 0 0;
+        }
+        
+        .booking-section {
+            padding: 40px;
+            max-width: 100%;
+            margin: 0;
+            box-shadow: none;
+            border-radius: 0;
+        }
+        
+        .booking-steps {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 30px;
+            position: relative;
+        }
+        
+        .booking-steps:before {
+            content: '';
+            position: absolute;
+            top: 15px;
+            left: 40px;
+            right: 40px;
+            height: 2px;
+            background-color: #e0e0e0;
+            z-index: 1;
+        }
+        
+        .step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .step-number {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background-color: #FFC107;
+            color: #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        
+        .step-label {
+            font-size: 14px;
+            color: #333;
+            font-weight: 500;
+        }
+        
+        .form-group {
+            margin-bottom: 30px;
+            position: relative;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 500;
+            color: #333;
+            font-size: 15px;
+        }
+        
+        .form-group:before {
+            font-family: 'Material Icons';
+            position: absolute;
+            left: 15px;
+            top: 45px;
+            color: #999;
+            z-index: 10;
+        }
+        
+        .form-group:nth-child(1):before {
+            content: 'location_on';
+        }
+        
+        .form-group:nth-child(2):before {
+            content: 'location_off';
+        }
+        
+        .form-group:nth-child(3):before {
+            content: 'directions_car';
+        }
+        
+        .select2-container--default .select2-selection--single {
+            height: 55px;
+            padding: 13px 15px 13px 45px;
+            font-size: 15px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+            transition: all 0.3s ease;
+        }
+        
+        .select2-container--default .select2-selection--single:focus,
+        .select2-container--default.select2-container--open .select2-selection--single {
+            border-color: #FFC107;
+            box-shadow: 0 0 0 3px rgba(255, 193, 7, 0.2);
+        }
+        
+        .select2-container--default .select2-selection--single .select2-selection__rendered {
+            line-height: 30px;
+            color: #333;
+        }
+        
+        .select2-container--default .select2-selection--single .select2-selection__arrow {
+            height: 53px;
+        }
+        
+        .select2-dropdown {
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        }
+        
+        .select2-container--default .select2-results__option--highlighted[aria-selected] {
+            background-color: #FFC107;
+            color: #000;
+        }
+        
+        .form-footer {
+            margin-top: 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .booking-info {
+            color: #666;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .booking-info .material-icons {
+            margin-right: 5px;
+            color: #FFC107;
+        }
+        
+        .btn.btn-primary {
+            background-color: #FFC107;
+            color: #000;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 500;
+            font-size: 16px;
+            padding: 12px 30px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 10px rgba(255, 193, 7, 0.3);
+            width: auto;
+            margin-top: 0;
+        }
+        
+        .btn.btn-primary .material-icons {
+            margin-right: 8px;
+        }
+        
+        .btn.btn-primary:hover {
+            background-color: #FFD54F;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px rgba(255, 193, 7, 0.4);
+        }
+        
+        .booking-features {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 40px;
+            padding-top: 30px;
+            border-top: 1px solid #eee;
+        }
+        
+        .booking-feature {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            max-width: 150px;
+        }
+        
+        .booking-feature .material-icons {
+            font-size: 30px;
+            color: #FFC107;
+            margin-bottom: 10px;
+            background-color: rgba(255, 193, 7, 0.1);
+            padding: 10px;
+            border-radius: 50%;
+        }
+        
+        .booking-feature h4 {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        
+        .booking-feature p {
+            font-size: 12px;
+            color: #666;
+            line-height: 1.4;
+        }
+        
+        @media (max-width: 768px) {
+            .booking-container {
+                margin: 100px 15px 40px;
+            }
+            
+            .booking-header, .booking-section {
+                padding: 25px 20px;
+            }
+            
+            .booking-steps {
+                margin-bottom: 20px;
+            }
+            
+            .booking-steps:before {
+                left: 20px;
+                right: 20px;
+            }
+            
+            .form-footer {
+                flex-direction: column;
+                gap: 20px;
+            }
+            
+            .booking-features {
+                flex-wrap: wrap;
+                gap: 20px;
+                justify-content: center;
+            }
+            
+            .booking-feature {
+                flex: 0 0 40%;
+            }
+        }
+        
+        /* Animation for form elements */
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .booking-steps, .form-group, .form-footer, .booking-features {
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInUp 0.5s forwards;
+        }
+        
+        .booking-steps {
+            animation-delay: 0.1s;
+        }
+        
+        .form-group:nth-child(1) {
+            animation-delay: 0.2s;
+        }
+        
+        .form-group:nth-child(2) {
+            animation-delay: 0.3s;
+        }
+        
+        .form-group:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+        
+        .form-footer {
+            animation-delay: 0.5s;
+        }
+        
+        .booking-features {
+            animation-delay: 0.6s;
+        }
