@@ -47,4 +47,7 @@ public class BillingService {
     public void updateBilling(Billing billing) throws SQLException {
         billingDAO.updateBilling(billing);
     }
+    public void removePaymentDetails(int bookingId) throws SQLException {
+        billingDAO.removePaymentDetails(bookingId);
+    }
 }

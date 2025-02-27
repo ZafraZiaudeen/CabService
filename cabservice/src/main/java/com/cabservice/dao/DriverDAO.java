@@ -188,5 +188,13 @@ public class DriverDAO {
         return drivers;
     }
 
-
+    public void updateDriverAvailability(int driverId, boolean availability) throws SQLException {
+        String query = "UPDATE driver SET availability = ? WHERE id = ?";
+        try (Connection conn = DBConnectionFactory.getConnection();
+             PreparedStatement ps = conn.prepareStatement(query)) {
+            ps.setBoolean(1, availability);
+            ps.setInt(2, driverId);
+            ps.executeUpdate();
+        }
+    }
 }

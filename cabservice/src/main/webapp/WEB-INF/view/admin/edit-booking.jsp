@@ -3,6 +3,7 @@
 <%@ page import="com.cabservice.model.*" %>
 <%@ page import="com.cabservice.service.*" %>
 <%@ page import="com.cabservice.dao.*" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <!DOCTYPE html>
 <html>
 <head>
@@ -10,119 +11,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Edit Booking - Cab Service</title>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', sans-serif;
-        }
-
-        body { background: #f5f6fa; }
-
-        .main-content {
-            margin-left: 260px;
-            padding: 20px;
-        }
-
-        .booking-form {
-            max-width: 600px;
-            margin: 20px auto;
-            background: #fff;
-            padding: 24px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 500;
-            color: #2d3436;
-        }
-
-        .form-control {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #dfe6e9;
-            border-radius: 6px;
-            font-size: 14px;
-        }
-
-        .form-control:focus {
-            outline: none;
-            border-color: #0984e3;
-            box-shadow: 0 0 0 3px rgba(9, 132, 227, 0.1);
-        }
-
-        .section-title {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            margin-bottom: 16px;
-            color: #2d3436;
-            font-size: 18px;
-        }
-
-        .btn {
-            padding: 10px 20px;
-            border-radius: 6px;
-            font-size: 14px;
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            border: none;
-        }
-
-        .btn-primary {
-            background: #0984e3;
-            color: white;
-        }
-
-        .btn-secondary {
-            background: #e2e8f0;
-            color: #64748b;
-        }
-
-        .form-footer {
-            margin-top: 24px;
-            padding-top: 16px;
-            border-top: 1px solid #dfe6e9;
-            display: flex;
-            justify-content: flex-end;
-            gap: 12px;
-        }
-
-        .message {
-            padding: 12px;
-            border-radius: 6px;
-            margin-bottom: 16px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .success { background: #00b894; color: white; }
-        .error { background: #d63031; color: white; }
-
-        @media (max-width: 768px) {
-            .main-content { margin-left: 0; }
-            .form-footer { flex-direction: column; }
-            .btn { width: 100%; justify-content: center; }
-        }
-    </style>
+    <link rel="stylesheet" href="<c:url value='/css/adminBooking.css'/>">
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/css/select2.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+   
 </head>
 <body>
-     <jsp:include page="Sidebar.jsp" />
+    <jsp:include page="Sidebar.jsp" />
 
     <main class="main-content">
-        <!-- Display Success Message -->
-        <%
+        <% 
             String successMessage = (String) request.getAttribute("success");
             String errorMessage = (String) request.getAttribute("error");
             if (successMessage != null) {
@@ -138,117 +36,318 @@
             </div>
         <% } %>
 
-        <!-- Edit Booking Form -->
-       <form class="booking-form" action="/cabservice/booking?action=update" method="post">
-   <input type="hidden" name="booking_id" value="<%= request.getAttribute("booking") != null ? ((Booking) request.getAttribute("booking")).getId() : "" %>">
+        <%
+            int bookingId = Integer.parseInt(request.getParameter("bookingId"));
+            Booking booking = null;
+            try (Connection conn = DBConnectionFactory.getConnection()) {
+                BookingDAO bookingDAO = new BookingDAO(conn);
+                booking = bookingDAO.getBookingById(bookingId);
+                if (booking == null) {
+                    request.setAttribute("error", "Booking not found.");
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+                request.setAttribute("error", "Error retrieving booking details.");
+            }
+            request.setAttribute("booking", booking);
+        %>
 
-            <div class="section-title">
-                <span class="material-icons">person</span>
-                Customer Information
+        <div class="booking-container">
+            <div class="map-container">
+                <div id="map"></div>
             </div>
-          
-            <!-- Customer Information -->
-            <div class="form-group">
-                <label for="customer_id">Select Customer</label>
-                <select class="form-control" id="customer_id" name="customer_id" required>
-                    <option value="">Select Customer</option>
-                    <%
-                        Booking booking = (Booking) request.getAttribute("booking");
-                        String selectedCustomerId = booking != null ? String.valueOf(booking.getCustomerId()) : "";
-                        try (Connection conn = DBConnectionFactory.getConnection()) {
-                            BookingDAO bookingDAO = new BookingDAO(conn);
-                            List<Map<String, String>> customers = bookingDAO.getCustomers();
-                            for (Map<String, String> customer : customers) {
-                    %>
-                    
-                        <option value="<%= customer.get("customerId") %>" <%= customer.get("customerId").equals(selectedCustomerId) ? "selected" : "" %>>
-                            <%= customer.get("name") %> - <%= customer.get("phoneNumber") %>
-                        </option>
-                    <% } } catch (SQLException e) { e.printStackTrace(); } %>
-                </select>
-            </div>
+            <div class="booking-section">
+                <form class="booking-form" action="<%= request.getContextPath() %>/booking?action=edit" method="post">
+                    <input type="hidden" id="bookingId" name="bookingId" value="<%= booking != null ? booking.getId() : "" %>">
+                    <input type="hidden" id="distance" name="distance_km" value="<%= booking != null ? booking.getDistanceKm() : 0 %>">
 
-            <!-- Trip Details -->
-            <div class="form-group">
-                <label for="pickupLocation">Pickup Location</label>
-                <select class="form-control" id="pickupLocation" name="pickup_location" required>
-                    <option value="">Select Pickup Location</option>
-                    <%
-                        String selectedPickupLocation = booking != null ? booking.getPickupLocation() : "";
-                        try (Connection conn = DBConnectionFactory.getConnection()) {
-                            BookingDAO bookingDAO = new BookingDAO(conn);
-                            List<String> locations = bookingDAO.getLocations();
-                            for (String location : locations) {
-                    %>
-                        <option value="<%= location %>" <%= location.equals(selectedPickupLocation) ? "selected" : "" %>><%= location %></option>
-                    <% } } catch (SQLException e) { e.printStackTrace(); } %>
-                </select>
-            </div>
+                    <div class="section-title">
+                        <span class="material-icons">person</span>
+                        Customer Information
+                    </div>
+                    <div class="form-group">
+                        <label for="customer_id">Select Customer</label>
+                        <select class="form-control select2" id="customer_id" name="customer_id" required>
+                            <option value="">Select Customer</option>
+                            <%
+                                String selectedCustomerId = booking != null ? String.valueOf(booking.getCustomerId()) : "";
+                                try (Connection conn = DBConnectionFactory.getConnection()) {
+                                    BookingDAO bookingDAO = new BookingDAO(conn);
+                                    List<Map<String, String>> customers = bookingDAO.getCustomers();
+                                    for (Map<String, String> customer : customers) {
+                            %>
+                                <option value="<%= customer.get("customerId") %>" <%= customer.get("customerId").equals(selectedCustomerId) ? "selected" : "" %>>
+                                    <%= customer.get("name") %> - <%= customer.get("phoneNumber") %>
+                                </option>
+                            <% } } catch (SQLException e) { e.printStackTrace(); } %>
+                        </select>
+                    </div>
 
-            <div class="form-group">
-                <label for="dropoffLocation">Drop-off Location</label>
-                <select class="form-control" id="dropoffLocation" name="dropoff_location" required>
-                    <option value="">Select Drop-off Location</option>
-                    <%
-                        String selectedDropoffLocation = booking != null ? booking.getDropoffLocation() : "";
-                        try (Connection conn = DBConnectionFactory.getConnection()) {
-                            BookingDAO bookingDAO = new BookingDAO(conn);
-                            List<String> locations = bookingDAO.getLocations();
-                            for (String location : locations) {
-                    %>
-                        <option value="<%= location %>" <%= location.equals(selectedDropoffLocation) ? "selected" : "" %>><%= location %></option>
-                    <% } } catch (SQLException e) { e.printStackTrace(); } %>
-                </select>
-            </div>
+                    <div class="section-title">
+                        <span class="material-icons">location_on</span>
+                        Trip Details
+                    </div>
+                    <div class="form-group">
+                        <label for="pickup_location">Pickup Location</label>
+                        <input type="text" class="form-control" id="pickup_location" name="pickup_location" 
+                               value="<%= booking != null ? booking.getPickupLocation() : "" %>" required placeholder="Type or click on map">
+                    </div>
 
-            <!-- Vehicle Selection -->
-            <div class="form-group">
-                <label for="vehicle_id">Select Vehicle</label>
-                <select class="form-control" id="vehicle_id" name="vehicle_id" required>
-                    <option value="">Select Vehicle</option>
-                    <%
-                        String selectedVehicleId = booking != null ? String.valueOf(booking.getVehicleId()) : "";
-                        try (Connection conn = DBConnectionFactory.getConnection()) {
-                            BookingDAO bookingDAO = new BookingDAO(conn);
-                            List<Map<String, String>> vehicles = bookingDAO.getAvailableVehicles();
-                            for (Map<String, String> vehicle : vehicles) {
-                    %>
-                        <option value="<%= vehicle.get("vehicleId") %>" <%= vehicle.get("vehicleId").equals(selectedVehicleId) ? "selected" : "" %>>
-                            <%= vehicle.get("model") %> - <%= vehicle.get("plateNumber") %>
-                            (Rate: Rs.<%= vehicle.get("ratePerKm") %>/km)
-                        </option>
-                    <% } } catch (SQLException e) { e.printStackTrace(); } %>
-                </select>
-            </div>
+                    <div class="form-group">
+                        <label for="dropoff_location">Drop-off Location</label>
+                        <input type="text" class="form-control" id="dropoff_location" name="dropoff_location" 
+                               value="<%= booking != null ? booking.getDropoffLocation() : "" %>" required placeholder="Type or click on map">
+                    </div>
 
-            <div class="form-footer">
-                <button type="submit" class="btn btn-primary">
-                    <span class="material-icons">check</span>
-                    Update Booking
-                </button>
+                    <div class="distance-display">
+                        <span class="material-icons">straighten</span>
+                        Distance: <span id="distance-value"><%= booking != null ? booking.getDistanceKm() : 0 %></span> km
+                    </div>
+
+                    <div class="section-title">
+                        <span class="material-icons">directions_car</span>
+                        Vehicle Selection
+                    </div>
+                    <div class="form-group">
+                        <label for="vehicle_id">Select Vehicle</label>
+                        <select class="form-control select2" id="vehicle_id" name="vehicle_id" required>
+                            <option value="">Select Vehicle</option>
+                            <%
+                                String selectedVehicleId = booking != null ? String.valueOf(booking.getVehicleId()) : "";
+                                try (Connection conn = DBConnectionFactory.getConnection()) {
+                                    BookingDAO bookingDAO = new BookingDAO(conn);
+                                    List<Map<String, String>> vehicles = bookingDAO.getAvailableVehicles();
+                                    for (Map<String, String> vehicle : vehicles) {
+                            %>
+                                <option value="<%= vehicle.get("vehicleId") %>" <%= vehicle.get("vehicleId").equals(selectedVehicleId) ? "selected" : "" %>>
+                                    <%= vehicle.get("model") %> - <%= vehicle.get("plateNumber") %> (Rate: Rs.<%= vehicle.get("ratePerKm") %>/km)
+                                </option>
+                            <% } } catch (SQLException e) { e.printStackTrace(); } %>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="status">Status</label>
+                        <select class="form-control" id="status" name="status" required>
+                            <option value="Pending" <%= booking != null && "Pending".equals(booking.getStatus()) ? "selected" : "" %>>Pending</option>
+                            <option value="Cancelled" <%= booking != null && "Cancelled".equals(booking.getStatus()) ? "selected" : "" %>>Cancelled</option>
+
+                        </select>
+                    </div>
+
+                    <div class="form-footer">
+                        <button type="submit" class="btn btn-primary">
+                            <span class="material-icons">check</span>
+                            Update Booking
+                        </button>
+                    </div>
+                </form>
             </div>
-        </form>
+        </div>
     </main>
-</body>
-<script>
-    document.querySelector(".booking-form").addEventListener("submit", function(event) {
-      
 
-        let form = this;
-        let formData = new FormData(form);
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/js/select2.min.js"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var map = L.map('map').setView([7.8731, 80.7718], 7); // Center of Sri Lanka
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
 
-        fetch(form.action, {
-            method: "POST",
-            body: formData
-        })
-        .then(response => response.text())
-        .then(data => {
-            let bookingId = document.querySelector("input[name='booking_id']").value;
-            window.location.href = "<%= request.getContextPath() %>/billing?action=edit&id=" + bookingId;
-        })
-        .catch(error => console.error("Error:", error));
+        var pickupMarker = null;
+        var dropMarker = null;
+        var routeLine = null;
+        var distanceValueElement = document.getElementById('distance-value');
+        var distanceField = document.getElementById('distance');
+
+        function calculateDistance() {
+            if (pickupMarker && dropMarker) {
+                var pickup = pickupMarker.getLatLng();
+                var drop = dropMarker.getLatLng();
+                if (routeLine) map.removeLayer(routeLine);
+                routeLine = L.polyline([pickup, drop], { color: '#0984e3', weight: 4 }).addTo(map);
+                var bounds = L.latLngBounds([pickup, drop]);
+                map.fitBounds(bounds, { padding: [50, 50] });
+                var distance = pickup.distanceTo(drop) / 1000; // Distance in km
+                distanceValueElement.textContent = distance.toFixed(1);
+                distanceField.value = distance.toFixed(1);
+                return distance;
+            }
+            return 0;
+        }
+
+        map.on('click', function(e) {
+            var lat = e.latlng.lat;
+            var lng = e.latlng.lng;
+            fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&countrycodes=LK`)
+                .then(response => response.json())
+                .then(data => {
+                    if (!pickupMarker) {
+                        document.getElementById('pickup_location').value = data.display_name;
+                        pickupMarker = L.marker([lat, lng], { draggable: true }).addTo(map);
+                        pickupMarker.on('dragend', updatePickupFromMarker);
+                    } else if (!dropMarker) {
+                        document.getElementById('dropoff_location').value = data.display_name;
+                        dropMarker = L.marker([lat, lng], {
+                            draggable: true,
+                            icon: L.icon({
+                                iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
+                                iconSize: [25, 41],
+                                iconAnchor: [12, 41]
+                            })
+                        }).addTo(map);
+                        dropMarker.on('dragend', updateDropFromMarker);
+                    }
+                    calculateDistance();
+                });
+        });
+
+        function updatePickupFromMarker(e) {
+            var position = e.target.getLatLng();
+            fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${position.lat}&lon=${position.lng}&countrycodes=LK`)
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('pickup_location').value = data.display_name;
+                    calculateDistance();
+                });
+        }
+
+        function updateDropFromMarker(e) {
+            var position = e.target.getLatLng();
+            fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${position.lat}&lon=${position.lng}&countrycodes=LK`)
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('dropoff_location').value = data.display_name;
+                    calculateDistance();
+                });
+        }
+
+        function setupAddressSearch(input, isPickup) {
+            input.addEventListener('input', function() {
+                clearTimeout(input.dataset.timeout);
+                input.dataset.timeout = setTimeout(function() {
+                    var query = input.value;
+                    if (query.length > 3) {
+                        fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&countrycodes=LK`)
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.length > 0) {
+                                    var lat = parseFloat(data[0].lat);
+                                    var lng = parseFloat(data[0].lon);
+                                    if (isPickup) {
+                                        if (pickupMarker) map.removeLayer(pickupMarker);
+                                        pickupMarker = L.marker([lat, lng], { draggable: true }).addTo(map);
+                                        pickupMarker.on('dragend', updatePickupFromMarker);
+                                    } else {
+                                        if (dropMarker) map.removeLayer(dropMarker);
+                                        dropMarker = L.marker([lat, lng], {
+                                            draggable: true,
+                                            icon: L.icon({
+                                                iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
+                                                iconSize: [25, 41],
+                                                iconAnchor: [12, 41]
+                                            })
+                                        }).addTo(map);
+                                        dropMarker.on('dragend', updateDropFromMarker);
+                                    }
+                                    map.setView([lat, lng], 15);
+                                    calculateDistance();
+                                }
+                            });
+                    }
+                }, 100);
+            });
+        }
+
+        function initializeMapFromPrefilledData() {
+            var pickupLocation = document.getElementById('pickup_location').value;
+            var dropoffLocation = document.getElementById('dropoff_location').value;
+
+            if (pickupLocation && dropoffLocation) {
+                fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(pickupLocation)}&countrycodes=LK`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.length > 0) {
+                            var lat = parseFloat(data[0].lat);
+                            var lng = parseFloat(data[0].lon);
+                            pickupMarker = L.marker([lat, lng], { draggable: true }).addTo(map);
+                            pickupMarker.on('dragend', updatePickupFromMarker);
+
+                            fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(dropoffLocation)}&countrycodes=LK`)
+                                .then(response => response.json())
+                                .then(data => {
+                                    if (data.length > 0) {
+                                        var lat = parseFloat(data[0].lat);
+                                        var lng = parseFloat(data[0].lon);
+                                        dropMarker = L.marker([lat, lng], {
+                                            draggable: true,
+                                            icon: L.icon({
+                                                iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
+                                                iconSize: [25, 41],
+                                                iconAnchor: [12, 41]
+                                            })
+                                        }).addTo(map);
+                                        dropMarker.on('dragend', updateDropFromMarker);
+                                        calculateDistance();
+                                    }
+                                });
+                        }
+                    });
+            } else if (pickupLocation) {
+                fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(pickupLocation)}&countrycodes=LK`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.length > 0) {
+                            var lat = parseFloat(data[0].lat);
+                            var lng = parseFloat(data[0].lon);
+                            pickupMarker = L.marker([lat, lng], { draggable: true }).addTo(map);
+                            pickupMarker.on('dragend', updatePickupFromMarker);
+                            map.setView([lat, lng], 15);
+                        }
+                    });
+            }
+        }
+
+        setupAddressSearch(document.getElementById('pickup_location'), true);
+        setupAddressSearch(document.getElementById('dropoff_location'), false);
+
+        $('#booking-form').on('submit', function(e) {
+            var pickup = $('#pickup_location').val();
+            var dropoff = $('#dropoff_location').val();
+            var vehicleId = $('#vehicle_id').val();
+            var customerId = $('#customer_id').val();
+            var distance = parseFloat($('#distance').val());
+            var status = $('#status').val();
+
+            if (!pickup || !dropoff || !vehicleId || !customerId || !status) {
+                e.preventDefault();
+                alert("Please fill in all required fields.");
+                return false;
+            }
+            if (pickup === dropoff) {
+                e.preventDefault();
+                alert("Pickup and drop-off locations cannot be the same.");
+                return false;
+            }
+            if (distance <= 0) {
+                e.preventDefault();
+                alert("Please select valid locations to calculate the distance.");
+                return false;
+            }
+        });
+
+        $('.select2').select2({
+            placeholder: "Select an option",
+            allowClear: true,
+            width: '100%'
+        });
+
+        setTimeout(function() { map.invalidateSize(); }, 500);
+        initializeMapFromPrefilledData();
     });
-</script>
-
-
+    </script>
+</body>
 </html>
+

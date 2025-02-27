@@ -30,34 +30,29 @@ public class BookingDAO {
     public List<Map<String, String>> getAvailableVehicles() throws SQLException {
         List<Map<String, String>> vehicles = new ArrayList<>();
         String sql = """
-                SELECT v.id, v.plate_number, v.model, v.rate_per_km, v.status, d.id AS driver_id
-                FROM vehicle v
-                LEFT JOIN driver_vehicle dv ON v.id = dv.vehicle_id
-                LEFT JOIN driver d ON dv.driver_id = d.id
-                WHERE (v.status = 'Available' OR (v.status = 'In Use' AND d.availability = TRUE))
-            """;
+            SELECT v.id, v.plate_number, v.model, v.rate_per_km, v.status, d.id AS driver_id
+            FROM vehicle v
+            INNER JOIN driver_vehicle dv ON v.id = dv.vehicle_id
+            INNER JOIN driver d ON dv.driver_id = d.id
+            WHERE v.status = 'In Use' AND d.availability = TRUE
+        """;
+
         try (Connection conn = DBConnectionFactory.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql);
              ResultSet rs = stmt.executeQuery()) {
-
             while (rs.next()) {
-            	 Map<String, String> vehicle = new HashMap<>();
-                 vehicle.put("vehicleId", rs.getString("id"));
-                 vehicle.put("plateNumber", rs.getString("plate_number"));
-                 vehicle.put("model", rs.getString("model"));
-                 vehicle.put("ratePerKm", rs.getString("rate_per_km"));
-                 vehicle.put("status", rs.getString("status"));
-                 vehicle.put("driverId", rs.getString("driver_id"));
-                 vehicles.add(vehicle);
+                Map<String, String> vehicle = new HashMap<>();
+                vehicle.put("vehicleId", rs.getString("id"));
+                vehicle.put("plateNumber", rs.getString("plate_number"));
+                vehicle.put("model", rs.getString("model"));
+                vehicle.put("ratePerKm", rs.getString("rate_per_km"));
+                vehicle.put("status", rs.getString("status"));
+                vehicle.put("driverId", rs.getString("driver_id"));
+                vehicles.add(vehicle);
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
-            throw e; // Re-throw the exception to handle it in the controller
         }
-
         return vehicles;
     }
-    
     public double getDistance(String fromLocation, String toLocation) throws SQLException {
         // Try to find distance directly (from -> to)
         String sql = "SELECT distance_km FROM distance WHERE (from_location = ? AND to_location = ?) OR (from_location = ? AND to_location = ?)";
@@ -219,10 +214,10 @@ public class BookingDAO {
         return null;
     }
 
-    // Method to update booking details
+    // Modify updateBooking method to include pickup and dropoff
     public boolean updateBooking(Booking booking) throws SQLException {
         String sql = """
-            UPDATE bookings SET customer_id = ?, pickup_location = ?, dropoff_location = ?, vehicle_id = ?
+            UPDATE bookings SET customer_id = ?, pickup_location = ?, dropoff_location = ?, vehicle_id = ?, distance_km = ?
             WHERE id = ?
         """;
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -230,13 +225,12 @@ public class BookingDAO {
             stmt.setString(2, booking.getPickupLocation());
             stmt.setString(3, booking.getDropoffLocation());
             stmt.setInt(4, booking.getVehicleId());
-            stmt.setInt(5, booking.getId());
-            stmt.executeUpdate();
-            
-            return stmt.executeUpdate() > 0; 
+            stmt.setDouble(5, booking.getDistanceKm());
+            stmt.setInt(6, booking.getId());
+            return stmt.executeUpdate() > 0;
         }
-    
     }
+    
     
     public Map<String, String> getCustomerById(int customerId) throws SQLException {
         String sql = """
@@ -320,10 +314,10 @@ public class BookingDAO {
         List<Map<String, Object>> bookingHistory = new ArrayList<>();
         String sql = """
             SELECT b.id AS booking_id, b.booked_at, b.pickup_location, b.dropoff_location, b.status,
-                   bi.total_amount, bi.payment_type
+                   b.vehicle_id, bi.total_amount, bi.payment_type
             FROM bookings b
             LEFT JOIN billing bi ON b.id = bi.booking_id
-            WHERE b.customer_id = ? 
+            WHERE b.customer_id = ?
             ORDER BY b.booked_at DESC
         """;
 
@@ -338,6 +332,7 @@ public class BookingDAO {
                 booking.put("pickup_location", rs.getString("pickup_location"));
                 booking.put("dropoff_location", rs.getString("dropoff_location"));
                 booking.put("status", rs.getString("status"));
+                booking.put("vehicle_id", rs.getInt("vehicle_id")); // Added vehicle_id
                 booking.put("total_amount", rs.getDouble("total_amount"));
                 booking.put("payment_type", rs.getString("payment_type"));
                 bookingHistory.add(booking);
@@ -370,5 +365,130 @@ public class BookingDAO {
             stmt.executeUpdate();
         }
     }
- 
+    
+    public List<Map<String, Object>> getAllBookingsWithCustomerDetails() throws SQLException {
+        List<Map<String, Object>> bookings = new ArrayList<>();
+        String sql = """
+            SELECT 
+                b.id AS booking_id, 
+                b.booking_number, 
+                b.customer_id, 
+                b.driver_id, 
+                b.vehicle_id, 
+                b.pickup_location, 
+                b.dropoff_location, 
+                b.distance_km, 
+                b.status, 
+                b.booked_at, 
+                u.name AS customer_name, 
+                u.phoneNumber AS customer_phone,
+                bi.final_amount AS final_amount, 
+                bi.payment_type AS payment_type, 
+                v.plate_number AS vehicle_plate, 
+                v.model AS vehicle_model, 
+                v.rate_per_km AS vehicle_rate_per_km
+            FROM bookings b
+            INNER JOIN customer c ON b.customer_id = c.id
+            INNER JOIN users u ON c.user_id = u.id
+            LEFT JOIN billing bi ON b.id = bi.booking_id
+            INNER JOIN vehicle v ON b.vehicle_id = v.id
+            ORDER BY b.booked_at DESC
+        """;
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                Map<String, Object> booking = new HashMap<>();
+                booking.put("bookingId", rs.getInt("booking_id"));
+                booking.put("bookingNumber", rs.getString("booking_number"));
+                booking.put("customerId", rs.getInt("customer_id"));
+                booking.put("driverId", rs.getInt("driver_id"));
+                booking.put("vehicleId", rs.getInt("vehicle_id"));
+                booking.put("pickupLocation", rs.getString("pickup_location"));
+                booking.put("dropoffLocation", rs.getString("dropoff_location"));
+                booking.put("distanceKm", rs.getDouble("distance_km"));
+                booking.put("status", rs.getString("status")); // Only set once
+                booking.put("bookedAt", rs.getTimestamp("booked_at"));
+                booking.put("customerName", rs.getString("customer_name"));
+                booking.put("customerPhone", rs.getString("customer_phone"));
+                booking.put("finalAmount", rs.getObject("final_amount") != null ? rs.getDouble("final_amount") : null);
+                booking.put("paymentType", rs.getString("payment_type"));
+                booking.put("vehiclePlate", rs.getString("vehicle_plate"));
+                booking.put("vehicleModel", rs.getString("vehicle_model"));
+                booking.put("vehicleRatePerKm", rs.getDouble("vehicle_rate_per_km"));
+                bookings.add(booking);
+            }
+        }
+        return bookings;
+    }
+    
+    public void updateBookingStatus(int bookingId, String status) throws SQLException {
+        String sql;
+        if ("Completed".equals(status)) {
+            sql = "UPDATE bookings SET status = ?, completed_at = NOW() WHERE id = ?";
+        } else {
+            sql = "UPDATE bookings SET status = ? WHERE id = ?";
+        }
+        
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, status);
+            stmt.setInt(2, bookingId);
+            stmt.executeUpdate();
+        }
+    }
+    
+    public List<Map<String, Object>> getPendingBooking() throws SQLException {
+        List<Map<String, Object>> bookings = new ArrayList<>();
+        String sql = """
+            SELECT 
+                b.id AS booking_id, 
+                b.booking_number, 
+                b.customer_id, 
+                b.driver_id, 
+                b.vehicle_id, 
+                b.pickup_location, 
+                b.dropoff_location, 
+                b.distance_km, 
+                b.status, 
+                b.booked_at, 
+                u.name AS customer_name, 
+                u.phoneNumber AS customer_phone,
+                bi.final_amount AS final_amount, 
+                bi.payment_type AS payment_type, 
+                v.plate_number AS vehicle_plate, 
+                v.model AS vehicle_model, 
+                v.rate_per_km AS vehicle_rate_per_km
+            FROM bookings b
+            INNER JOIN customer c ON b.customer_id = c.id
+            INNER JOIN users u ON c.user_id = u.id
+            LEFT JOIN billing bi ON b.id = bi.booking_id
+            INNER JOIN vehicle v ON b.vehicle_id = v.id
+            WHERE b.status = 'Pending'  -- Added filter for Pending status
+            ORDER BY b.booked_at DESC
+        """;
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                Map<String, Object> booking = new HashMap<>();
+                booking.put("bookingId", rs.getInt("booking_id"));
+                booking.put("bookingNumber", rs.getString("booking_number"));
+                booking.put("customerId", rs.getInt("customer_id"));
+                booking.put("driverId", rs.getInt("driver_id"));
+                booking.put("vehicleId", rs.getInt("vehicle_id"));
+                booking.put("pickupLocation", rs.getString("pickup_location"));
+                booking.put("dropoffLocation", rs.getString("dropoff_location"));
+                booking.put("distanceKm", rs.getDouble("distance_km"));
+                booking.put("status", rs.getString("status"));
+                booking.put("bookedAt", rs.getTimestamp("booked_at"));
+                booking.put("customerName", rs.getString("customer_name"));
+                booking.put("customerPhone", rs.getString("customer_phone"));
+                booking.put("finalAmount", rs.getObject("final_amount") != null ? rs.getDouble("final_amount") : null);
+                booking.put("paymentType", rs.getString("payment_type")); // Added payment_type
+                booking.put("vehiclePlate", rs.getString("vehicle_plate"));
+                booking.put("vehicleModel", rs.getString("vehicle_model"));
+                booking.put("vehicleRatePerKm", rs.getDouble("vehicle_rate_per_km"));
+                bookings.add(booking);
+            }
+        }
+        return bookings;
+    }
 }

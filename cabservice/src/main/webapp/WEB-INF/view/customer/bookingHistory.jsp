@@ -12,7 +12,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
     <link rel="stylesheet" href="<c:url value='/css/styles.css'/>">
-<link rel="stylesheet" href="<c:url value='/css/bookingHistory.css'/>">
+    <link rel="stylesheet" href="<c:url value='/css/bookingHistory.css'/>">
 </head>
 <body>
     <jsp:include page="/Header.jsp" />
@@ -50,116 +50,134 @@
 
         <%-- Display booking history if available --%>
         <% 
-    List<Map<String, Object>> bookingHistory = (List<Map<String, Object>>) request.getAttribute("bookingHistory");
-
-    if (bookingHistory != null && !bookingHistory.isEmpty()) {
-        int count = 1;
-%>
-    <div class="filters">
-        <button class="filter-button active">All Bookings</button>
-        <button class="filter-button">Active</button>
-        <button class="filter-button">Completed</button>
-        <button class="filter-button">Cancelled</button>
-    </div>
-    
-    <div class="booking-card">
-        <div class="table-wrapper">
-            <table class="booking-table">
-                <thead>
-                    <tr>
-                        <th>Booking ID</th>
-                        <th>Date & Time</th>
-                        <th>Route</th>
-                        <th>Status</th>
-                        <th>Amount</th>
-                        <th>Payment</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <%-- Iterate over each booking and display the details --%>
-                    <%
-                        for (Map<String, Object> booking : bookingHistory) {
-                            String status = (String) booking.get("status");
-                            String statusClass = "";
-                            
-                            if (status.equalsIgnoreCase("completed")) {
-                                statusClass = "status-completed";
-                            } else if (status.equalsIgnoreCase("active")) {
-                                statusClass = "status-active";
-                            } else if (status.equalsIgnoreCase("cancelled")) {
-                                statusClass = "status-cancelled";
-                            } else {
-                                statusClass = "status-pending";
-                            }
-                            
-                            String paymentType = (String) booking.get("payment_type");
-                            String paymentIcon = paymentType != null && paymentType.equalsIgnoreCase("Card") ? "credit_card" : "local_atm";
-
-                            // Check if booking is cancellable (Pending and within 5 minutes)
-                            boolean canCancel = "Completed".equalsIgnoreCase(status);
-                            if (canCancel) {
-                                Timestamp bookedAt = (Timestamp) booking.get("booked_at");
-                                long currentTime = System.currentTimeMillis();
-                                long bookedTime = bookedAt.getTime();
-                                long diffInMinutes = (currentTime - bookedTime) / (1000 * 60);
-                                canCancel = diffInMinutes <= 5;
-                            }
-                    %>
-                        <tr>
-                            <td data-label="Booking ID" class="booking-id">#<%= count %></td> 
-                            <td data-label="Date & Time"><%= booking.get("booked_at") %></td>
-                            <td data-label="Route">
-                                <%= booking.get("pickup_location") %> 
-                                <span class="material-icons" style="font-size: 16px; vertical-align: middle;">arrow_forward</span> 
-                                <%= booking.get("dropoff_location") %>
-                            </td>
-                            <td data-label="Status">
-                                <span class="status-badge <%= statusClass %>"><%= status %></span>
-                            </td>
-                            <td data-label="Amount" class="amount">Rs.<%= booking.get("total_amount") %></td>
-                            <td data-label="Payment">
-                                <span class="payment-type">
-                                    <span class="material-icons"><%= paymentIcon %></span>
-                                    <%= paymentType != null ? paymentType : "N/A" %>
-                                </span>
-                            </td>
-                            <td data-label="Actions">
-                                <div class="booking-actions">
-                                    <button class="btn-action btn-view cancel-booking <%= canCancel ? "" : "disabled" %>" 
-                                            data-booking-id="<%= booking.get("booking_id") %>" 
-                                            title="<%= canCancel ? "Cancel Booking" : "Cancellation not allowed" %>">
-                                        <span class="material-icons">cancel</span>
-                                    </button>
-                                </div>
-                            </td>
-                        </tr>
-                    <%
-                            count++;
-                        }
-                    %>
-                </tbody>
-            </table>
+            List<Map<String, Object>> bookingHistory = (List<Map<String, Object>>) request.getAttribute("bookingHistory");
+            if (bookingHistory != null && !bookingHistory.isEmpty()) {
+                int count = 1;
+        %>
+        <div class="filters">
+            <button class="filter-button active" data-filter="all">All Bookings</button>
+            <button class="filter-button" data-filter="pending">Pending</button>
+            <button class="filter-button" data-filter="ongoing">Active</button>
+            <button class="filter-button" data-filter="completed">Completed</button>
+            <button class="filter-button" data-filter="cancelled">Cancelled</button>
         </div>
-    </div>
-<%
-    } else {
-%>
-    <div class="empty-state">
-        <span class="material-icons">directions_car</span>
-        <h3>No Booking History Found</h3>
-        <p>You haven't made any bookings yet. Start your journey with us by booking your first ride.</p>
-        <a href="<%= request.getContextPath() %>/customerBooking" class="btn-primary">
-            <span class="material-icons">add</span>
-            Book a Ride
-        </a>
-    </div>
-<%
-    }
-%>
+        
+        <div class="booking-card">
+            <div class="table-wrapper">
+                <table class="booking-table">
+                    <thead>
+                        <tr>
+                            <th>Booking ID</th>
+                            <th>Date & Time</th>
+                            <th>Route</th>
+                            <th>Status</th>
+                            <th>Amount</th>
+                            <th>Payment</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <%-- Iterate over each booking and display the details --%>
+                        <%
+                            for (Map<String, Object> booking : bookingHistory) {
+                                String status = (String) booking.get("status");
+                                String statusClass = "";
+                                
+                                if (status.equalsIgnoreCase("completed")) {
+                                    statusClass = "status-completed";
+                                } else if (status.equalsIgnoreCase("ongoing")) {
+                                    statusClass = "status-active";
+                                } else if (status.equalsIgnoreCase("cancelled")) {
+                                    statusClass = "status-cancelled";
+                                } else {
+                                    statusClass = "status-pending";
+                                }
+                                
+                                String paymentType = (String) booking.get("payment_type");
+                                String paymentIcon = paymentType != null && paymentType.equalsIgnoreCase("Card") ? "credit_card" : "local_atm";
+
+                                // Check if booking is cancellable (Pending or Ongoing within 5 minutes)
+                                boolean canCancel = "Pending".equalsIgnoreCase(status) || "Ongoing".equalsIgnoreCase(status);
+                                if (canCancel) {
+                                    Timestamp bookedAt = (Timestamp) booking.get("booked_at");
+                                    long currentTime = System.currentTimeMillis();
+                                    long bookedTime = bookedAt.getTime();
+                                    long diffInMinutes = (currentTime - bookedTime) / (1000 * 60);
+                                    canCancel = diffInMinutes <= 5;
+                                }
+                        %>
+                            <tr>
+                                <td data-label="Booking ID" class="booking-id">#<%= count %></td> 
+                                <td data-label="Date & Time"><%= booking.get("booked_at") %></td>
+                                <td data-label="Route">
+                                    <%= booking.get("pickup_location") %> 
+                                    <span class="material-icons" style="font-size: 16px; vertical-align: middle;">arrow_forward</span> 
+                                    <%= booking.get("dropoff_location") %>
+                                </td>
+                                <td data-label="Status">
+                                    <span class="status-badge <%= statusClass %>"><%= status %></span>
+                                </td>
+                                <td data-label="Amount" class="amount">
+                                    Rs.<%= booking.get("total_amount") != null ? String.format("%.2f", booking.get("total_amount")) : "N/A" %>
+                                </td>
+                                <td data-label="Payment">
+                                    <span class="payment-type">
+                                        <span class="material-icons"><%= paymentIcon %></span>
+                                        <%= paymentType != null ? paymentType : "N/A" %>
+                                    </span>
+                                </td>
+                                <td data-label="Actions">
+                                    <div class="booking-actions">
+                                        <button class="btn-action btn-view cancel-booking <%= canCancel ? "" : "disabled" %>" 
+                                                data-booking-id="<%= booking.get("booking_id") %>" 
+                                                title="<%= canCancel ? "Cancel Booking" : "Cancellation not allowed" %>">
+                                            <span class="material-icons">cancel</span>
+                                        </button>
+                                        <% if ("Pending".equalsIgnoreCase(status)) { %>
+                                            <button class="btn-action btn-pay" 
+                                                    data-booking-id="<%= booking.get("booking_id") %>"
+                                                    onclick="payBooking(<%= booking.get("booking_id") %>)"
+                                                    title="Pay for this booking">
+                                                <span class="material-icons">payment</span>
+                                                Pay
+                                            </button>
+                                        <% } %>
+                                        <% if ("Ongoing".equalsIgnoreCase(status)) { %>
+                                            <button class="btn-action btn-complete" 
+                                                    data-booking-id="<%= booking.get("booking_id") %>"
+                                                    title="Mark as Completed">
+                                                <span class="material-icons">check_circle</span>
+                                            </button>
+                                        <% } %>
+                                    </div>
+                                </td>
+                            </tr>
+                        <%
+                                count++;
+                            }
+                        %>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <%
+            } else {
+        %>
+        <div class="empty-state">
+            <span class="material-icons">directions_car</span>
+            <h3>No Booking History Found</h3>
+            <p>You haven't made any bookings yet. Start your journey with us by booking your first ride.</p>
+            <a href="<%= request.getContextPath() %>/customerBooking" class="btn-primary">
+                <span class="material-icons">add</span>
+                Book a Ride
+            </a>
+        </div>
+        <%
+            }
+        %>
     </main>
 
-    <!-- Confirmation Popover -->
+    <!-- Confirmation Popover for Cancellation -->
     <div class="popover-overlay" id="cancelPopover">
         <div class="confirmation-popover">
             <div class="popover-header">
@@ -190,19 +208,34 @@
                     filterButtons.forEach(btn => btn.classList.remove('active'));
                     this.classList.add('active');
                     
-                    const filter = this.textContent.toLowerCase();
+                    const filter = this.getAttribute('data-filter');
                     const rows = document.querySelectorAll('.booking-table tbody tr');
                     
                     rows.forEach(row => {
                         const statusCell = row.querySelector('td:nth-child(4)');
                         const statusText = statusCell.textContent.trim().toLowerCase();
                         
-                        if (filter === 'all bookings' || statusText.includes(filter)) {
+                        if (filter === 'all' || 
+                            (filter === 'pending' && statusText === 'pending') || 
+                            (filter === 'ongoing' && statusText === 'ongoing') || 
+                            (filter === 'completed' && statusText === 'completed') || 
+                            (filter === 'cancelled' && statusText === 'cancelled')) {
                             row.style.display = '';
                         } else {
                             row.style.display = 'none';
                         }
                     });
+                });
+            });
+
+            // Complete booking functionality
+            const completeButtons = document.querySelectorAll('.btn-complete');
+            completeButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const bookingId = this.getAttribute('data-booking-id');
+                    if (confirm('Are you sure you want to mark this ride as completed?')) {
+                        window.location.href = '<%= request.getContextPath() %>/booking/complete?id=' + bookingId;
+                    }
                 });
             });
 
@@ -238,6 +271,11 @@
                 }
             });
         });
+
+        // Function to navigate to billing.jsp for payment
+        function payBooking(bookingId) {
+            window.location.href = '<%= request.getContextPath() %>/customerBilling?action=view&booking_id=' + bookingId;
+        }
     </script>
 </body>
 </html>

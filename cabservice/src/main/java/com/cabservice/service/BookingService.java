@@ -78,14 +78,31 @@ public class BookingService {
         return bookingDAO.getBookingHistoryWithPaymentDetails(customerId);
     }
 
- // In BookingService.java
+ // Modify cancelBooking method
     public boolean cancelBooking(int bookingId) throws SQLException {
         if (bookingDAO.canCancelBooking(bookingId)) {
-            bookingDAO.cancelBooking(bookingId); 
-            billingDAO.removePaymentDetails(bookingId); 
+            // Update booking status
+            bookingDAO.cancelBooking(bookingId);
+            
+            // Update billing status and remove payment details
+            Billing billing = billingDAO.getBillingByBookingId(bookingId);
+            if (billing != null) {
+                billingDAO.updateBillingStatusByBookingId(bookingId, "Cancelled", billing.getPaymentType(), null, null, null);
+                billingDAO.removePaymentDetails(bookingId);
+            }
             return true;
         }
-        return false; // Cancellation not allowed (beyond 5 minutes)
+        return false;
+    }
+    public List<Map<String, Object>> getAllBookingsWithCustomerDetails() throws SQLException {
+        return bookingDAO.getAllBookingsWithCustomerDetails();
     }
     
+    public void updateBookingStatus(int bookingId, String status) throws SQLException {
+        bookingDAO.updateBookingStatus(bookingId, status);
+    }
+    
+    public List<Map<String, Object>> getPendingBookings() throws SQLException {
+        return bookingDAO.getPendingBooking();
+    }
 }

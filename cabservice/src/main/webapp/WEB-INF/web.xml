@@ -94,6 +94,18 @@
   	<description></description>
   	<servlet-class>com.cabservice.controller.RoutesController</servlet-class>
   </servlet>
+  <servlet>
+  	<servlet-name>CustomerHelpController</servlet-name>
+  	<display-name>CustomerHelpController</display-name>
+  	<description></description>
+  	<servlet-class>com.cabservice.controller.CustomerHelpController</servlet-class>
+  </servlet>
+  <servlet>
+  	<servlet-name>CompleteBookingController</servlet-name>
+  	<display-name>CompleteBookingController</display-name>
+  	<description></description>
+  	<servlet-class>com.cabservice.controller.CompleteBookingController</servlet-class>
+  </servlet>
   
  
   <servlet-mapping>
@@ -155,6 +167,14 @@
   <servlet-mapping>
   	<servlet-name>RoutesController</servlet-name>
   	<url-pattern>/RoutesController</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+  	<servlet-name>CustomerHelpController</servlet-name>
+  	<url-pattern>/CustomerHelpController</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+  	<servlet-name>CompleteBookingController</servlet-name>
+  	<url-pattern>/CompleteBookingController</url-pattern>
   </servlet-mapping>
   
   

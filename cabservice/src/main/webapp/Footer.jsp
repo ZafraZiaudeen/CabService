@@ -5,9 +5,51 @@
 <head>
 <meta charset="UTF-8">
 <title>Insert title here</title>
+<style>
+    .floating-help-button {
+        position: fixed;
+        bottom: 30px;
+        right: 30px;
+        z-index: 99;
+    }
+    
+    .floating-help-button a {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 56px;
+        height: 56px;
+        border-radius: 50%;
+        background-color: #FFC107;
+        color: #000;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        transition: all 0.3s ease;
+    }
+    
+    .floating-help-button a:hover {
+        background-color: #FFD54F;
+        transform: translateY(-3px);
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+    }
+    
+    .floating-help-button .material-icons {
+        font-size: 24px;
+    }
+    
+    @media (max-width: 768px) {
+        .floating-help-button {
+            bottom: 20px;
+            right: 20px;
+        }
+    }
+</style>
 </head>
 <body>
-
+<div class="floating-help-button">
+    <a href="<%= request.getContextPath() %>/customerHelp" title="Get Help">
+        <span class="material-icons">help_outline</span>
+    </a>
+</div>
     <footer>
         <div class="footer-content">
             <div class="footer-section">
