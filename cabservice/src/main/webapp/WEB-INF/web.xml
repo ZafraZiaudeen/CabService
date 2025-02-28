@@ -53,12 +53,6 @@
   	<servlet-class>com.cabservice.controller.BookingController</servlet-class>
   </servlet>
   <servlet>
-  	<servlet-name>DistanceController</servlet-name>
-  	<display-name>DistanceController</display-name>
-  	<description></description>
-  	<servlet-class>com.cabservice.controller.DistanceController</servlet-class>
-  </servlet>
-  <servlet>
   	<servlet-name>SystemConfigController</servlet-name>
   	<display-name>SystemConfigController</display-name>
   	<description></description>
@@ -88,13 +82,7 @@
   	<description></description>
   	<servlet-class>com.cabservice.controller.CancelBookingController</servlet-class>
   </servlet>
-  <servlet>
-  	<servlet-name>RoutesController</servlet-name>
-  	<display-name>RoutesController</display-name>
-  	<description></description>
-  	<servlet-class>com.cabservice.controller.RoutesController</servlet-class>
-  </servlet>
-  <servlet>
+    <servlet>
   	<servlet-name>CustomerHelpController</servlet-name>
   	<display-name>CustomerHelpController</display-name>
   	<description></description>
@@ -112,8 +100,6 @@
   	<description></description>
   	<servlet-class>com.cabservice.controller.BookingHistoryController</servlet-class>
   </servlet>
-  
- 
   <servlet-mapping>
   	<servlet-name>UserController</servlet-name>
   	<url-pattern>/UserController</url-pattern>
@@ -146,10 +132,7 @@
   	<servlet-name>BookingController</servlet-name>
   	<url-pattern>/BookingController</url-pattern>
   </servlet-mapping>
-  <servlet-mapping>
-  	<servlet-name>DistanceController</servlet-name>
-  	<url-pattern>/DistanceController</url-pattern>
-  </servlet-mapping>
+  
   <servlet-mapping>
   	<servlet-name>SystemConfigController</servlet-name>
   	<url-pattern>/SystemConfigController</url-pattern>
@@ -169,10 +152,6 @@
   <servlet-mapping>
   	<servlet-name>CancelBookingController</servlet-name>
   	<url-pattern>/CancelBookingController</url-pattern>
-  </servlet-mapping>
-  <servlet-mapping>
-  	<servlet-name>RoutesController</servlet-name>
-  	<url-pattern>/RoutesController</url-pattern>
   </servlet-mapping>
   <servlet-mapping>
   	<servlet-name>CustomerHelpController</servlet-name>

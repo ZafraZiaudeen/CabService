@@ -197,4 +197,29 @@ public class DriverDAO {
             ps.executeUpdate();
         }
     }
+    
+    public int getTotalDriversCount() throws SQLException {
+        String query = "SELECT COUNT(*) AS total FROM driver";
+        try (Connection conn = DBConnectionFactory.getConnection();
+             PreparedStatement ps = conn.prepareStatement(query);
+             ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) {
+                return rs.getInt("total");
+            }
+        }
+        return 0;
+    }
+
+    //  get the count of available drivers
+    public int getAvailableDriversCount() throws SQLException {
+        String query = "SELECT COUNT(*) AS available FROM driver WHERE availability = true";
+        try (Connection conn = DBConnectionFactory.getConnection();
+             PreparedStatement ps = conn.prepareStatement(query);
+             ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) {
+                return rs.getInt("available");
+            }
+        }
+        return 0;
+    }
 }

@@ -12,12 +12,11 @@ import com.cabservice.model.Billing;
 import com.cabservice.model.Booking;
 import com.cabservice.dao.DBConnectionFactory;
 public class BookingService {
-	private final BookingDAO bookingDAO; 
-    private final BillingDAO billingDAO;
+	private final BookingDAO bookingDAO;
+    private final BillingDAO billingDAO;;
     public BookingService(Connection conn) {
-        this.bookingDAO = new BookingDAO(conn);
+    	this.bookingDAO = new BookingDAO(conn);
         this.billingDAO = new BillingDAO(conn);
-    
     }
 
     public List<String> getCustomerSuggestions(String input) throws SQLException {
@@ -135,5 +134,52 @@ public class BookingService {
     
     public List<Map<String, Object>> getOngoingBookings() throws SQLException {
         return bookingDAO.getOngoingBookings();
+    }
+    
+    public int getTotalBookingsCount() throws SQLException {
+        return bookingDAO.getTotalBookingsCount();
+    }
+    
+    public double getMonthlyBookingGrowthPercentage(int currentYear, int currentMonth) throws SQLException {
+        int currentMonthCount = bookingDAO.getBookingsCountForMonth(currentYear, currentMonth);
+        int previousMonth = currentMonth - 1;
+        int previousYear = currentYear;
+        if (previousMonth < 1) {
+            previousMonth = 12;
+            previousYear--;
+        }
+        int previousMonthCount = bookingDAO.getBookingsCountForMonth(previousYear, previousMonth);
+
+        if (previousMonthCount == 0) {
+            return currentMonthCount > 0 ? 100.0 : 0.0; 
+        }
+
+        double growth = ((double) (currentMonthCount - previousMonthCount) / previousMonthCount) * 100;
+        return growth;
+    }
+    
+    public int getPendingBookingsCount() throws SQLException {
+        return bookingDAO.getPendingBookingsCount();
+    }
+
+    public int getOngoingBookingsCount() throws SQLException {
+        return bookingDAO.getOngoingBookingsCount();
+    }
+
+    public int getCurrentBookingsCount() throws SQLException {
+        return getPendingBookingsCount() + getOngoingBookingsCount();
+    }
+    
+    public int getCompletedBookingsCount() throws SQLException {
+        return bookingDAO.getCompletedBookingsCount();
+    }
+
+    public int getCancelledBookingsCount() throws SQLException {
+        return bookingDAO.getCancelledBookingsCount();
+    }
+    
+
+    public List<Map<String, Object>> getRecentBookingsLast3Days() throws SQLException {
+        return bookingDAO.getRecentBookingsLast3Days();
     }
 }

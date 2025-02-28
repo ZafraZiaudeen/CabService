@@ -142,7 +142,7 @@
 
                         <button type="submit" class="submit-button">
                             <span class="material-icons">credit_card</span>
-                            Pay ₹<%= billing != null ? String.format("%.2f", billing.getFinalAmount()) : "0.00" %>
+                            Pay Rs.<%= billing != null ? String.format("%.2f", billing.getFinalAmount()) : "0.00" %>
                         </button>
                     </form>
 

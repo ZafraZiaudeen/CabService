@@ -13,7 +13,6 @@ public class BookingDAO {
         this.conn = conn;
     }
 
-    // Add this getter method to expose the connection
     public Connection getConnection() {
         return conn;
     }
@@ -633,4 +632,114 @@ public class BookingDAO {
             }
         }
     }
+    
+    public int getTotalBookingsCount() throws SQLException {
+        String sql = "SELECT COUNT(*) AS total FROM bookings";
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return rs.getInt("total");
+            }
+        }
+        return 0; 
+    }
+    
+    public int getBookingsCountForMonth(int year, int month) throws SQLException {
+        String sql = "SELECT COUNT(*) AS monthly_total FROM bookings WHERE YEAR(booked_at) = ? AND MONTH(booked_at) = ?";
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, year);
+            stmt.setInt(2, month);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return rs.getInt("monthly_total");
+            }
+        }
+        return 0;
+    }
+    
+    public int getPendingBookingsCount() throws SQLException {
+        String sql = "SELECT COUNT(*) AS pending FROM bookings WHERE status = 'Pending'";
+        
+        try (Connection conn = DBConnectionFactory.getConnection(); 
+             PreparedStatement stmt = conn.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
+            if (rs.next()) {
+                return rs.getInt("pending");
+            }
+        }
+        return 0;
+    }
+    public int getOngoingBookingsCount() throws SQLException {
+        String sql = "SELECT COUNT(*) AS ongoing FROM bookings WHERE status = 'Ongoing'";
+        try (Connection conn = DBConnectionFactory.getConnection(); 
+                PreparedStatement stmt = conn.prepareStatement(sql);
+                ResultSet rs = stmt.executeQuery()) {
+               if (rs.next()) {
+                   return rs.getInt("ongoing");
+               }
+           }
+           return 0;
+       }
+    public int getCompletedBookingsCount() throws SQLException {
+        String sql = "SELECT COUNT(*) AS completed FROM bookings WHERE status = 'Completed'";
+        try (Connection conn = DBConnectionFactory.getConnection(); 
+                PreparedStatement stmt = conn.prepareStatement(sql);
+                ResultSet rs = stmt.executeQuery()) {
+               if (rs.next()) {
+                return rs.getInt("completed");
+            }
+        }
+        return 0;
+    }
+
+    // New method for Cancelled bookings count
+    public int getCancelledBookingsCount() throws SQLException {
+        String sql = "SELECT COUNT(*) AS cancelled FROM bookings WHERE status = 'Cancelled'";
+        try (Connection conn = DBConnectionFactory.getConnection(); 
+                PreparedStatement stmt = conn.prepareStatement(sql);
+                ResultSet rs = stmt.executeQuery()) {
+               if (rs.next()) {
+                return rs.getInt("cancelled");
+            }
+        }
+        return 0;
+    }
+    
+    public List<Map<String, Object>> getRecentBookingsLast3Days() throws SQLException {
+        List<Map<String, Object>> bookings = new ArrayList<>();
+        String sql = """
+            SELECT 
+                b.booking_number AS booking_id,
+                u.name AS customer_name,
+                d.name AS driver_name,
+                b.status,
+                COALESCE(bi.final_amount, 0.00) AS amount
+            FROM bookings b
+            INNER JOIN customer c ON b.customer_id = c.id
+            INNER JOIN users u ON c.user_id = u.id
+            INNER JOIN driver d ON b.driver_id = d.id
+            LEFT JOIN billing bi ON b.id = bi.booking_id
+            WHERE b.booked_at >= DATE_SUB(NOW(), INTERVAL 3 DAY)
+            ORDER BY b.booked_at DESC
+            LIMIT 5
+        """;
+
+        try (Connection conn = DBConnectionFactory.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
+
+            while (rs.next()) {
+                Map<String, Object> booking = new HashMap<>();
+                booking.put("bookingId", rs.getString("booking_id"));
+                booking.put("customerName", rs.getString("customer_name"));
+                booking.put("driverName", rs.getString("driver_name"));
+                booking.put("status", rs.getString("status"));
+                booking.put("amount", rs.getDouble("amount"));
+                bookings.add(booking);
+                
+            }
+        }
+        return bookings;
+    }
+
 }

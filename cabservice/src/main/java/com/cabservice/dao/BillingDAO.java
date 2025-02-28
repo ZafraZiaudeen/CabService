@@ -40,28 +40,28 @@ public class BillingDAO {
             stmt.setDouble(4, billing.getDiscount());
             stmt.setDouble(5, billing.getFinalAmount());
 
-            // Set card details only if payment type is "Card"
+           
             if ("Card".equals(billing.getPaymentType())) {
                 stmt.setString(6, billing.getCardNumber());
                 stmt.setString(7, billing.getCvv());
                 stmt.setString(8, billing.getExpiryDate());
             } else {
-                stmt.setNull(6, java.sql.Types.VARCHAR);  // Null if not a card payment
+                stmt.setNull(6, java.sql.Types.VARCHAR);  
                 stmt.setNull(7, java.sql.Types.VARCHAR);
                 stmt.setNull(8, java.sql.Types.VARCHAR);
             }
 
-            stmt.setString(9, billing.getPaymentType());  // Ensure payment_type is set
+            stmt.setString(9, billing.getPaymentType()); 
 
             int rowsAffected = stmt.executeUpdate();
             if (rowsAffected > 0) {
                 ResultSet rs = stmt.getGeneratedKeys();
                 if (rs.next()) {
-                    return rs.getInt(1);  // Return the generated billing ID
+                    return rs.getInt(1);  
                 }
             }
         }
-        return -1;  // Return -1 if no ID is generated (error case)
+        return -1;  
     }
 
     
@@ -91,10 +91,10 @@ public class BillingDAO {
         String sql;
         
         if ("Card".equals(paymentType)) {
-            // If payment type is Card, we also need to update card details
+           
             sql = "UPDATE billing SET status = ?, payment_type = ?, card_number = ?, cvv = ?, expiry_date = ? WHERE id = ?";
         } else {
-            // If payment type is not Card, only update status and payment type
+        
             sql = "UPDATE billing SET status = ?, payment_type = ? WHERE id = ?";
         }
 
@@ -103,7 +103,7 @@ public class BillingDAO {
             stmt.setString(2, paymentType);
 
             if ("Card".equals(paymentType)) {
-                // Set the card details only if payment type is Card
+           
                 stmt.setString(3, cardNumber);
                 stmt.setString(4, cvv);
                 stmt.setString(5, expiryDate);
@@ -121,10 +121,10 @@ public class BillingDAO {
         String sql;
         
         if ("Card".equals(paymentType)) {
-            // If payment type is Card, update payment type and card details
+           
             sql = "UPDATE billing SET status = ?, payment_type = ?, card_number = ?, cvv = ?, expiry_date = ? WHERE booking_id = ?";
         } else {
-            // If payment type is not Card, update payment type without card details
+           
             sql = "UPDATE billing SET status = ?, payment_type = ? WHERE booking_id = ?";
         }
 
@@ -133,13 +133,13 @@ public class BillingDAO {
             stmt.setString(2, paymentType);
 
             if ("Card".equals(paymentType)) {
-                // Set the card details if payment type is Card
+               
                 stmt.setString(3, cardNumber);
                 stmt.setString(4, cvv);
-                stmt.setString(5, expiryDate); // expiry_date is now a VARCHAR
-                stmt.setInt(6, bookingId);  // Set the booking_id as the last parameter
+                stmt.setString(5, expiryDate); 
+                stmt.setInt(6, bookingId);  
             } else {
-                stmt.setInt(3, bookingId);  // Set the booking_id for the Cash payment case
+                stmt.setInt(3, bookingId); 
             }
 
             stmt.executeUpdate();
@@ -149,7 +149,7 @@ public class BillingDAO {
     public void updateBookingStatus(int bookingId, String status) throws SQLException {
         String sql;
         
-        // If status is 'Completed', update completed_at
+        
         if ("Completed".equals(status)) {
             sql = "UPDATE bookings SET status = ?, completed_at = NOW() WHERE id = ?";
         } else {
@@ -160,12 +160,11 @@ public class BillingDAO {
             stmt.setString(1, status);
             stmt.setInt(2, bookingId);
             
-            // Execute the update
+         
             stmt.executeUpdate();
         }
     }
-
-    // Add this method to get billing by booking ID
+    
     public Billing getBillingByBookingId(int bookingId) throws SQLException {
         String sql = "SELECT * FROM billing WHERE booking_id = ?";
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -204,12 +203,39 @@ public class BillingDAO {
         }
     }
     
- // In BillingDAO.java
+
     public void removePaymentDetails(int bookingId) throws SQLException {
         String sql = "UPDATE billing SET card_number = NULL, cvv = NULL, expiry_date = NULL WHERE booking_id = ?";
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, bookingId);
             stmt.executeUpdate();
         }
+    }
+    
+
+    public double getRevenueByPaymentType(String paymentType) throws SQLException {
+        String sql = "SELECT SUM(final_amount) AS total FROM billing WHERE payment_type = ?";
+        try (Connection conn = DBConnectionFactory.getConnection(); 
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, paymentType); 
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getDouble("total");
+                }
+            }
+        }
+        return 0.0; 
+    }
+
+public double getTotalRevenue() throws SQLException {
+        String sql = "SELECT SUM(final_amount) AS total FROM billing";
+        try (Connection conn = DBConnectionFactory.getConnection(); 
+                PreparedStatement stmt = conn.prepareStatement(sql);
+                ResultSet rs = stmt.executeQuery()) {
+            if (rs.next()) {
+                return rs.getDouble("total");
+            }
+        }
+        return 0.0;
     }
 }

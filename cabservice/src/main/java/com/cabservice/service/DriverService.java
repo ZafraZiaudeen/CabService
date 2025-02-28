@@ -3,6 +3,7 @@ package com.cabservice.service;
 import com.cabservice.dao.DriverDAO;
 import com.cabservice.model.Driver;
 
+import java.sql.SQLException;
 import java.util.List;
 
 public class DriverService {
@@ -10,7 +11,6 @@ public class DriverService {
     private DriverDAO driverDAO;
 
     public DriverService() {
-        // Initialize the DriverDAO instance
         driverDAO = new DriverDAO();
     }
 
@@ -61,5 +61,11 @@ public class DriverService {
         return driverDAO.getAvailableDrivers();
     }
 
-    
+    public int getTotalDriversCount() throws SQLException {
+        return driverDAO.getTotalDriversCount();
+    }
+
+    public int getAvailableDriversCount() throws SQLException {
+        return driverDAO.getAvailableDriversCount();
+    }
 }

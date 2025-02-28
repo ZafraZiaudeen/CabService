@@ -50,4 +50,16 @@ public class BillingService {
     public void removePaymentDetails(int bookingId) throws SQLException {
         billingDAO.removePaymentDetails(bookingId);
     }
+    
+    public double getCardRevenue() throws SQLException {
+        return billingDAO.getRevenueByPaymentType("Card");
+    }
+
+    public double getCashRevenue() throws SQLException {
+        return billingDAO.getRevenueByPaymentType("Cash");
+    }
+
+    public double getTotalRevenue() throws SQLException {
+        return billingDAO.getTotalRevenue();
+    }
 }

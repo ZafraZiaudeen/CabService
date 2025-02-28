@@ -3,6 +3,7 @@ package com.cabservice.service;
 import com.cabservice.dao.VehicleDAO;
 import com.cabservice.model.Vehicle;
 
+import java.sql.SQLException;
 import java.util.List;
 
 public class VehicleService {
@@ -44,4 +45,7 @@ public class VehicleService {
         return vehicleDAO.getAvailableVehicles();
     }
 
+    public int getTotalVehicleCount() throws SQLException {
+        return vehicleDAO.getTotalVehicleCount();
+    }
 }

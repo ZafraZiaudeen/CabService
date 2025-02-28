@@ -190,5 +190,17 @@ public class VehicleDAO {
         }
         return vehicles;
     }
-
+    
+    
+    public int getTotalVehicleCount() throws SQLException {
+        String query = "SELECT COUNT(*) AS total FROM vehicle";
+        try (Connection conn = DBConnectionFactory.getConnection();
+             PreparedStatement ps = conn.prepareStatement(query);
+             ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) {
+                return rs.getInt("total");
+            }
+        }
+        return 0;
+    }
 }

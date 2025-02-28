@@ -215,4 +215,16 @@ public class CustomerDAO {
         }
         return customers;
     }
+    
+    public int getTotalCustomerCount() throws SQLException {
+        String sql = "SELECT COUNT(*) AS total FROM customer";
+        try (Connection conn = DBConnectionFactory.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
+            if (rs.next()) {
+                return rs.getInt("total");
+            }
+        }
+        return 0;
+    }
 }

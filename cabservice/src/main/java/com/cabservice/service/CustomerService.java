@@ -2,6 +2,8 @@ package com.cabservice.service;
 
 import com.cabservice.dao.CustomerDAO;
 import com.cabservice.model.Customer;
+
+import java.sql.SQLException;
 import java.util.List;
 
 public class CustomerService {
@@ -29,6 +31,8 @@ public class CustomerService {
     public boolean updateCustomer(int customerId, String name, String address, String phoneNumber, String username, String nic) {
         return customerDAO.updateCustomer(customerId, name, address, phoneNumber, username, nic);
     }
-
+    public int getTotalCustomerCount() throws SQLException {
+        return customerDAO.getTotalCustomerCount();
+    }
 
 }
