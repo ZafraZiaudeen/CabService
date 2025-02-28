@@ -106,6 +106,12 @@
   	<description></description>
   	<servlet-class>com.cabservice.controller.CompleteBookingController</servlet-class>
   </servlet>
+  <servlet>
+  	<servlet-name>BookingHistoryController</servlet-name>
+  	<display-name>BookingHistoryController</display-name>
+  	<description></description>
+  	<servlet-class>com.cabservice.controller.BookingHistoryController</servlet-class>
+  </servlet>
   
  
   <servlet-mapping>
@@ -175,6 +181,10 @@
   <servlet-mapping>
   	<servlet-name>CompleteBookingController</servlet-name>
   	<url-pattern>/CompleteBookingController</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+  	<servlet-name>BookingHistoryController</servlet-name>
+  	<url-pattern>/BookingHistoryController</url-pattern>
   </servlet-mapping>
   
   

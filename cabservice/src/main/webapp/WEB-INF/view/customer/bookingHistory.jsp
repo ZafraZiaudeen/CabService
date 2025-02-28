@@ -2,6 +2,15 @@
 <%@ page import="java.util.List" %>
 <%@ page import="java.util.Map" %>
 <%@ page import="java.sql.Timestamp" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%
+    // Check if the user is authenticated
+    HttpSession sessionCheck = request.getSession(false);
+    if (sessionCheck == null || sessionCheck.getAttribute("customerUser") == null) {
+        response.sendRedirect(request.getContextPath() + "/user?action=login");
+        return;
+    }
+%>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -10,7 +19,6 @@
     <title>Your Booking History - CabService</title>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
     <link rel="stylesheet" href="<c:url value='/css/styles.css'/>">
     <link rel="stylesheet" href="<c:url value='/css/bookingHistory.css'/>">
 </head>

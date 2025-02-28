@@ -44,22 +44,7 @@
                         
                     </ul>
                 </li>
-                  <li class="menu-item">
-                    <a href="#" class="has-submenu">
-                        <span class="material-icons">pin_drop</span>
-                        <span class="nav-text">Distance</span>
-                        <span class="material-icons dropdown-icon">expand_more</span>
-                    </a>
-                    <ul class="submenu">
-                        <li><a href="<%= request.getContextPath() %>/distance?action=list">
-                            <span class="nav-text">Manage Distances</span>
-                        </a></li>
-                        <li><a href="<%= request.getContextPath() %>/distance?action=add">
-                            <span class="nav-text">Add Distance</span>
-                        </a></li>
-                        
-                    </ul>
-                </li>
+                  
                 <li class="menu-item">
                     <a href="#" class="has-submenu">
                         <span class="material-icons">book_online</span>
@@ -71,11 +56,16 @@
                             <span class="nav-text">New Booking</span>
                         </a></li>
                         <li><a href="<%= request.getContextPath() %>/booking?action=pending">
-                            <span class="nav-text">Active Bookings</span>
+                            <span class="nav-text">Pending Bookings</span>
+                        </a></li>
+                         <li><a href="<%= request.getContextPath() %>/booking?action=ongoing">
+                            <span class="nav-text">Ongoing Bookings</span>
                         </a></li>
                         <li><a href="<%= request.getContextPath() %>/booking?action=manage">
                             <span class="nav-text">Booking History</span>
                         </a></li>
+                        
+                        
                     </ul>
                 </li>
                 <li class="menu-item">

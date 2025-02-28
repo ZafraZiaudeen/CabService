@@ -1,6 +1,7 @@
 package com.cabservice.service;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
@@ -9,7 +10,7 @@ import com.cabservice.dao.BillingDAO;
 import com.cabservice.dao.BookingDAO;
 import com.cabservice.model.Billing;
 import com.cabservice.model.Booking;
-
+import com.cabservice.dao.DBConnectionFactory;
 public class BookingService {
 	private final BookingDAO bookingDAO; 
     private final BillingDAO billingDAO;
@@ -66,7 +67,33 @@ public class BookingService {
     }
     
     public boolean deleteBooking(int bookingId) throws SQLException {
-        return bookingDAO.deleteBooking(bookingId);
+        Booking booking = bookingDAO.getBookingById(bookingId);
+        if (booking == null) {
+            return false;
+        }
+        
+        // Start a transaction using the existing connection
+        Connection conn = bookingDAO.getConnection(); // Use the getter method
+        boolean autoCommit = conn.getAutoCommit();
+        conn.setAutoCommit(false);
+        try {
+            boolean deleted = bookingDAO.deleteBooking(bookingId);
+            Billing billing = billingDAO.getBillingByBookingId(bookingId);
+            if (billing != null) {
+                String deleteBillingSql = "DELETE FROM billing WHERE booking_id = ?";
+                try (PreparedStatement stmt = conn.prepareStatement(deleteBillingSql)) {
+                    stmt.setInt(1, bookingId);
+                    stmt.executeUpdate();
+                }
+            }
+            conn.commit();
+            return deleted;
+        } catch (SQLException e) {
+            conn.rollback();
+            throw e;
+        } finally {
+            conn.setAutoCommit(autoCommit);
+        }
     }
 
     public List<Booking> getBookingHistoryByCustomerId(int customerId) throws SQLException {
@@ -80,8 +107,8 @@ public class BookingService {
  // Modify cancelBooking method
     public boolean cancelBooking(int bookingId) throws SQLException {
         if (bookingDAO.canCancelBooking(bookingId)) {
-            // Update booking status
-            bookingDAO.cancelBooking(bookingId);
+            // Update booking status to Cancelled and driver availability
+            bookingDAO.updateBookingStatus(bookingId, "Cancelled"); 
             
             // Update billing status and remove payment details
             Billing billing = billingDAO.getBillingByBookingId(bookingId);
@@ -104,5 +131,9 @@ public class BookingService {
     
     public List<Map<String, Object>> getPendingBookings() throws SQLException {
         return bookingDAO.getPendingBooking();
+    }
+    
+    public List<Map<String, Object>> getOngoingBookings() throws SQLException {
+        return bookingDAO.getOngoingBookings();
     }
 }

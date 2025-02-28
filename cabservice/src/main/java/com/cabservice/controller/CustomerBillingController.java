@@ -72,7 +72,7 @@ public class CustomerBillingController extends HttpServlet {
                     int customerId = Integer.parseInt(customerIdStr);
                     List<Map<String, Object>> bookingHistory = bookingService.getBookingHistoryWithPaymentDetails(customerId);
                     request.setAttribute("bookingHistory", bookingHistory);
-                    request.getRequestDispatcher("/WEB-INF/view/customer/bookingHistory.jsp").forward(request, response);
+                    response.sendRedirect(request.getContextPath() + "/booking/history");
                 } else {
                     request.setAttribute("error", "Invalid customer ID.");
                     request.getRequestDispatcher("/WEB-INF/view/customer/billing.jsp").forward(request, response);

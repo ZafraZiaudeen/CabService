@@ -76,7 +76,7 @@ public class CancelBookingController extends HttpServlet {
             BookingService bookingService = new BookingService(conn);
             List<Map<String, Object>> bookingHistory = bookingService.getBookingHistoryWithPaymentDetails(customerId);
             request.setAttribute("bookingHistory", bookingHistory);
-            request.getRequestDispatcher("/WEB-INF/view/customer/bookingHistory.jsp").forward(request, response);
+            response.sendRedirect(request.getContextPath() + "/booking/history");
         } catch (SQLException e) {
             throw new ServletException("Failed to retrieve booking history", e);
         }

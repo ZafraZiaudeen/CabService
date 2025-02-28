@@ -7,10 +7,15 @@ import com.cabservice.model.Billing;
 import com.cabservice.model.Booking;
 
 public class BookingDAO {
-    private Connection conn;
+	private Connection conn;
 
     public BookingDAO(Connection conn) {
         this.conn = conn;
+    }
+
+    // Add this getter method to expose the connection
+    public Connection getConnection() {
+        return conn;
     }
 
     public List<String> getCustomerSuggestions(String input) throws SQLException {
@@ -283,14 +288,55 @@ public class BookingDAO {
         return null; // Return null if no vehicle is found
     }
 
-    
     public boolean deleteBooking(int bookingId) throws SQLException {
-        String sql = "DELETE FROM bookings WHERE id = ?";
-        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setInt(1, bookingId);
-            int affectedRows = stmt.executeUpdate();
-            return affectedRows > 0;
+        // First, retrieve the driver and vehicle IDs associated with the booking
+        String selectSql = "SELECT driver_id, vehicle_id FROM bookings WHERE id = ?";
+        int driverId = -1;
+        int vehicleId = -1;
+
+        try (PreparedStatement selectStmt = conn.prepareStatement(selectSql)) {
+            selectStmt.setInt(1, bookingId);
+            ResultSet rs = selectStmt.executeQuery();
+            if (rs.next()) {
+                driverId = rs.getInt("driver_id");
+                vehicleId = rs.getInt("vehicle_id");
+            }
         }
+
+        // Delete the booking
+        String deleteSql = "DELETE FROM bookings WHERE id = ?";
+        boolean deleted = false;
+        try (PreparedStatement deleteStmt = conn.prepareStatement(deleteSql)) {
+            deleteStmt.setInt(1, bookingId);
+            int affectedRows = deleteStmt.executeUpdate();
+            deleted = affectedRows > 0;
+        }
+
+        // If booking was successfully deleted and we have a valid driverId and vehicleId, check and update availability
+        if (deleted && driverId != -1 && vehicleId != -1) {
+            // Check if there are any other Pending or Ongoing bookings for this driver or vehicle
+            String checkSql = """
+                SELECT COUNT(*) 
+                FROM bookings 
+                WHERE (driver_id = ? OR vehicle_id = ?) 
+                AND status IN ('Pending', 'Ongoing')
+            """;
+            try (PreparedStatement checkStmt = conn.prepareStatement(checkSql)) {
+                checkStmt.setInt(1, driverId);
+                checkStmt.setInt(2, vehicleId);
+                ResultSet rs = checkStmt.executeQuery();
+                if (rs.next() && rs.getInt(1) == 0) {
+                    // No other active bookings, so set driver availability to true
+                    String updateSql = "UPDATE driver SET availability = TRUE WHERE id = ?";
+                    try (PreparedStatement updateStmt = conn.prepareStatement(updateSql)) {
+                        updateStmt.setInt(1, driverId);
+                        updateStmt.executeUpdate();
+                    }
+                }
+            }
+        }
+
+        return deleted;
     }
 
     public List<Booking> getBookingHistoryByCustomerId(int customerId) throws SQLException {
@@ -501,7 +547,62 @@ public class BookingDAO {
         }
         return bookings;
     }
-    
+ 
+    public List<Map<String, Object>> getOngoingBookings() throws SQLException {
+        List<Map<String, Object>> bookings = new ArrayList<>();
+        String sql = """
+            SELECT 
+                b.id AS booking_id, 
+                b.booking_number, 
+                b.customer_id, 
+                b.driver_id, 
+                b.vehicle_id, 
+                b.pickup_location, 
+                b.dropoff_location, 
+                b.distance_km, 
+                b.status, 
+                b.booked_at, 
+                u.name AS customer_name, 
+                u.phoneNumber AS customer_phone,
+                bi.final_amount AS final_amount, 
+                bi.payment_type AS payment_type, 
+                v.plate_number AS vehicle_plate, 
+                v.model AS vehicle_model, 
+                v.rate_per_km AS vehicle_rate_per_km
+            FROM bookings b
+            INNER JOIN customer c ON b.customer_id = c.id
+            INNER JOIN users u ON c.user_id = u.id
+            LEFT JOIN billing bi ON b.id = bi.booking_id
+            INNER JOIN vehicle v ON b.vehicle_id = v.id
+            WHERE b.status = 'Ongoing'
+            ORDER BY b.booked_at DESC
+        """;
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                Map<String, Object> booking = new HashMap<>();
+                booking.put("bookingId", rs.getInt("booking_id"));
+                booking.put("bookingNumber", rs.getString("booking_number"));
+                booking.put("customerId", rs.getInt("customer_id"));
+                booking.put("driverId", rs.getInt("driver_id"));
+                booking.put("vehicleId", rs.getInt("vehicle_id"));
+                booking.put("pickupLocation", rs.getString("pickup_location"));
+                booking.put("dropoffLocation", rs.getString("dropoff_location"));
+                booking.put("distanceKm", rs.getDouble("distance_km"));
+                booking.put("status", rs.getString("status"));
+                booking.put("bookedAt", rs.getTimestamp("booked_at"));
+                booking.put("customerName", rs.getString("customer_name"));
+                booking.put("customerPhone", rs.getString("customer_phone"));
+                booking.put("finalAmount", rs.getObject("final_amount") != null ? rs.getDouble("final_amount") : null);
+                booking.put("paymentType", rs.getString("payment_type"));
+                booking.put("vehiclePlate", rs.getString("vehicle_plate"));
+                booking.put("vehicleModel", rs.getString("vehicle_model"));
+                booking.put("vehicleRatePerKm", rs.getDouble("vehicle_rate_per_km"));
+                bookings.add(booking);
+            }
+        }
+        return bookings;
+    }
  // In BookingDAO.java
     public void updateDriverAndVehicleAvailability(int bookingId, String newStatus) throws SQLException {
         if ("Pending".equalsIgnoreCase(newStatus) || "Ongoing".equalsIgnoreCase(newStatus)) {
