@@ -11,9 +11,8 @@ import com.cabservice.model.Billing;
 import com.cabservice.model.Booking;
 
 public class BookingService {
-	private BookingDAO bookingDAO;
-    private BillingDAO billingDAO;
-
+	private final BookingDAO bookingDAO; 
+    private final BillingDAO billingDAO;
     public BookingService(Connection conn) {
         this.bookingDAO = new BookingDAO(conn);
         this.billingDAO = new BillingDAO(conn);
@@ -99,6 +98,7 @@ public class BookingService {
     }
     
     public void updateBookingStatus(int bookingId, String status) throws SQLException {
+       
         bookingDAO.updateBookingStatus(bookingId, status);
     }
     

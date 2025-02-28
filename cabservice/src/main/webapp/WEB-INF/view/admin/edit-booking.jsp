@@ -14,7 +14,6 @@
     <link rel="stylesheet" href="<c:url value='/css/adminBooking.css'/>">
     <link href="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/css/select2.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-   
 </head>
 <body>
     <jsp:include page="Sidebar.jsp" />
@@ -39,15 +38,22 @@
         <%
             int bookingId = Integer.parseInt(request.getParameter("bookingId"));
             Booking booking = null;
+            Map<String, String> bookedVehicle = null;
             try (Connection conn = DBConnectionFactory.getConnection()) {
                 BookingDAO bookingDAO = new BookingDAO(conn);
                 booking = bookingDAO.getBookingById(bookingId);
                 if (booking == null) {
                     request.setAttribute("error", "Booking not found.");
+                } else {
+                    // Fetch the vehicle tied to this booking
+                    bookedVehicle = bookingDAO.getVehicleById(booking.getVehicleId());
+                    if (bookedVehicle == null) {
+                        request.setAttribute("error", "Vehicle for this booking not found.");
+                    }
                 }
             } catch (SQLException e) {
                 e.printStackTrace();
-                request.setAttribute("error", "Error retrieving booking details.");
+                request.setAttribute("error", "Error retrieving booking or vehicle details.");
             }
             request.setAttribute("booking", booking);
         %>
@@ -117,6 +123,10 @@
                                 try (Connection conn = DBConnectionFactory.getConnection()) {
                                     BookingDAO bookingDAO = new BookingDAO(conn);
                                     List<Map<String, String>> vehicles = bookingDAO.getAvailableVehicles();
+                                    // Ensure the booked vehicle is included in the list
+                                    if (bookedVehicle != null && !vehicles.stream().anyMatch(v -> v.get("vehicleId").equals(selectedVehicleId))) {
+                                        vehicles.add(bookedVehicle);
+                                    }
                                     for (Map<String, String> vehicle : vehicles) {
                             %>
                                 <option value="<%= vehicle.get("vehicleId") %>" <%= vehicle.get("vehicleId").equals(selectedVehicleId) ? "selected" : "" %>>
@@ -129,9 +139,9 @@
                     <div class="form-group">
                         <label for="status">Status</label>
                         <select class="form-control" id="status" name="status" required>
+                            <option value="Completed" <%= booking != null && "Completed".equals(booking.getStatus()) ? "selected" : "" %>>Completed</option>
                             <option value="Pending" <%= booking != null && "Pending".equals(booking.getStatus()) ? "selected" : "" %>>Pending</option>
                             <option value="Cancelled" <%= booking != null && "Cancelled".equals(booking.getStatus()) ? "selected" : "" %>>Cancelled</option>
-
                         </select>
                     </div>
 
@@ -350,4 +360,3 @@
     </script>
 </body>
 </html>
-

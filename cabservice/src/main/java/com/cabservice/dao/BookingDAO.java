@@ -34,11 +34,16 @@ public class BookingDAO {
             FROM vehicle v
             INNER JOIN driver_vehicle dv ON v.id = dv.vehicle_id
             INNER JOIN driver d ON dv.driver_id = d.id
-            WHERE v.status = 'In Use' AND d.availability = TRUE
+            WHERE v.status = 'In Use' 
+            AND d.availability = TRUE
+            AND NOT EXISTS (
+                SELECT 1 FROM bookings b 
+                WHERE b.vehicle_id = v.id 
+                AND b.status IN ('Pending', 'Ongoing')
+            )
         """;
 
-        try (Connection conn = DBConnectionFactory.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql);
+        try (PreparedStatement stmt = conn.prepareStatement(sql);
              ResultSet rs = stmt.executeQuery()) {
             while (rs.next()) {
                 Map<String, String> vehicle = new HashMap<>();
@@ -128,13 +133,15 @@ public class BookingDAO {
             stmt.setDouble(7, booking.getDistanceKm());
             stmt.executeUpdate();
 
-            // Retrieve the generated booking ID
             ResultSet rs = stmt.getGeneratedKeys();
             if (rs.next()) {
-                return rs.getInt(1); // Return the generated booking ID
+                int bookingId = rs.getInt(1);
+                // Immediately mark driver as unavailable
+                updateDriverAndVehicleAvailability(bookingId, "Pending");
+                return bookingId;
             }
         }
-        return -1; // Return -1 if the booking ID could not be retrieved
+        return -1;
     }
     public List<String> getLocations() throws SQLException {
         List<String> locations = new ArrayList<>();
@@ -434,6 +441,9 @@ public class BookingDAO {
             stmt.setInt(2, bookingId);
             stmt.executeUpdate();
         }
+        
+        // Update driver and vehicle availability based on new status
+        updateDriverAndVehicleAvailability(bookingId, status);
     }
     
     public List<Map<String, Object>> getPendingBooking() throws SQLException {
@@ -490,5 +500,36 @@ public class BookingDAO {
             }
         }
         return bookings;
+    }
+    
+ // In BookingDAO.java
+    public void updateDriverAndVehicleAvailability(int bookingId, String newStatus) throws SQLException {
+        if ("Pending".equalsIgnoreCase(newStatus) || "Ongoing".equalsIgnoreCase(newStatus)) {
+            String sql = """
+                UPDATE driver d
+                INNER JOIN bookings b ON d.id = b.driver_id
+                SET d.availability = FALSE
+                WHERE b.id = ? AND b.status IN ('Pending', 'Ongoing')
+            """;
+            try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+                stmt.setInt(1, bookingId);
+                stmt.executeUpdate();
+            }
+            
+            // Vehicle status is already 'In Use' by default in getAvailableVehicles(),
+            // so no additional update is needed unless you want to enforce it explicitly.
+        } else if ("Completed".equalsIgnoreCase(newStatus) || "Cancelled".equalsIgnoreCase(newStatus)) {
+            // When booking ends, make driver available again
+            String sql = """
+                UPDATE driver d
+                INNER JOIN bookings b ON d.id = b.driver_id
+                SET d.availability = TRUE
+                WHERE b.id = ?
+            """;
+            try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+                stmt.setInt(1, bookingId);
+                stmt.executeUpdate();
+            }
+        }
     }
 }
