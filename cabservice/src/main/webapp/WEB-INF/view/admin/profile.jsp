@@ -1,4 +1,4 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" isELIgnored="false"%>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,9 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Profile - Dashboard</title>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-     <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+    <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
     <link rel="stylesheet" href="<c:url value='/css/adminProfile.css'/>">
-
 </head>
 <body>
     <jsp:include page="Sidebar.jsp" />
@@ -17,9 +16,16 @@
             <h1 class="page-title">Profile Settings</h1>
         </div>
 
+        <c:if test="${not empty message}">
+            <p class="success-message">${message}</p>
+        </c:if>
+        <c:if test="${not empty error}">
+            <p class="error-message">${error}</p>
+        </c:if>
+
         <div class="profile-grid">
             <div class="profile-card">
-                <h2 class="profile-name">John Doe</h2>
+                <h2 class="profile-name">${admin.name}</h2>
                 <p class="profile-role">System Administrator</p>
             </div>
 
@@ -34,51 +40,44 @@
                     <div class="tab-panel active" id="overview">
                         <div class="detail-row">
                             <div class="detail-label">Full Name</div>
-                            <div class="detail-value">John Doe</div>
+                            <div class="detail-value">${admin.name}</div>
                         </div>
                         <div class="detail-row">
-                            <div class="detail-label">Email</div>
-                            <div class="detail-value">john.doe@example.com</div>
+                            <div class="detail-label">Username</div> 
+                            <div class="detail-value">${admin.username}</div>
                         </div>
                         <div class="detail-row">
                             <div class="detail-label">Phone</div>
-                            <div class="detail-value">+1 (234) 567-8900</div>
+                            <div class="detail-value">${admin.phoneNumber}</div>
                         </div>
                         <div class="detail-row">
                             <div class="detail-label">Address</div>
-                            <div class="detail-value">123 Admin Street, Dashboard City, 12345</div>
+                            <div class="detail-value">${admin.address}</div>
                         </div>
                         <div class="detail-row">
                             <div class="detail-label">Role</div>
                             <div class="detail-value">System Administrator</div>
                         </div>
-                        <div class="detail-row">
-                            <div class="detail-label">About</div>
-                            <div class="detail-value">Experienced system administrator with a focus on maintaining and optimizing enterprise-level applications.</div>
-                        </div>
                     </div>
 
                     <div class="tab-panel" id="edit">
-                        <form id="profileForm">
+                        <form id="profileForm" method="post" action="adminProfile">
+                            <input type="hidden" name="action" value="updateProfile">
                             <div class="form-group">
                                 <label class="form-label" for="fullName">Full Name</label>
-                                <input type="text" class="form-control" id="fullName" value="John Doe">
+                                <input type="text" class="form-control" id="fullName" name="fullName" value="${admin.name}">
                             </div>
                             <div class="form-group">
-                                <label class="form-label" for="email">Email</label>
-                                <input type="email" class="form-control" id="email" value="john.doe@example.com">
+                                <label class="form-label" for="username">Username</label> <!-- Changed from email to username -->
+                                <input type="text" class="form-control" id="username" name="username" value="${admin.username}">
                             </div>
                             <div class="form-group">
                                 <label class="form-label" for="phone">Phone</label>
-                                <input type="tel" class="form-control" id="phone" value="+1 (234) 567-8900">
+                                <input type="tel" class="form-control" id="phone" name="phone" value="${admin.phoneNumber}">
                             </div>
                             <div class="form-group">
                                 <label class="form-label" for="address">Address</label>
-                                <input type="text" class="form-control" id="address" value="123 Admin Street, Dashboard City, 12345">
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label" for="about">About</label>
-                                <textarea class="form-control" id="about">Experienced system administrator with a focus on maintaining and optimizing enterprise-level applications.</textarea>
+                                <input type="text" class="form-control" id="address" name="address" value="${admin.address}">
                             </div>
                             <button type="submit" class="btn btn-primary">
                                 <span class="material-icons">save</span>
@@ -88,11 +87,12 @@
                     </div>
 
                     <div class="tab-panel" id="password">
-                        <form id="passwordForm">
+                        <form id="passwordForm" method="post" action="adminProfile">
+                            <input type="hidden" name="action" value="updatePassword">
                             <div class="form-group">
                                 <label class="form-label" for="currentPassword">Current Password</label>
                                 <div class="password-field">
-                                    <input type="password" class="form-control" id="currentPassword">
+                                    <input type="password" class="form-control" id="currentPassword" name="currentPassword">
                                     <button type="button" class="password-toggle">
                                         <span class="material-icons">visibility</span>
                                     </button>
@@ -101,7 +101,7 @@
                             <div class="form-group">
                                 <label class="form-label" for="newPassword">New Password</label>
                                 <div class="password-field">
-                                    <input type="password" class="form-control" id="newPassword">
+                                    <input type="password" class="form-control" id="newPassword" name="newPassword">
                                     <button type="button" class="password-toggle">
                                         <span class="material-icons">visibility</span>
                                     </button>
@@ -110,7 +110,7 @@
                             <div class="form-group">
                                 <label class="form-label" for="confirmPassword">Confirm New Password</label>
                                 <div class="password-field">
-                                    <input type="password" class="form-control" id="confirmPassword">
+                                    <input type="password" class="form-control" id="confirmPassword" name="confirmPassword">
                                     <button type="button" class="password-toggle">
                                         <span class="material-icons">visibility</span>
                                     </button>
@@ -129,7 +129,6 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Tab Navigation
             const tabButtons = document.querySelectorAll('.tab-button');
             const tabPanels = document.querySelectorAll('.tab-panel');
 
@@ -143,7 +142,6 @@
                 });
             });
 
-            // Password Visibility Toggle
             const passwordToggles = document.querySelectorAll('.password-toggle');
             passwordToggles.forEach(toggle => {
                 toggle.addEventListener('click', () => {
@@ -158,47 +156,6 @@
                     }
                 });
             });
-
-            // Form Submissions
-            document.getElementById('profileForm').addEventListener('submit', (e) => {
-                e.preventDefault();
-                alert('Profile updated successfully!');
-            });
-
-            document.getElementById('passwordForm').addEventListener('submit', (e) => {
-                e.preventDefault();
-                const newPassword = document.getElementById('newPassword').value;
-                const confirmPassword = document.getElementById('confirmPassword').value;
-                if (newPassword !== confirmPassword) {
-                    alert('New passwords do not match!');
-                    return;
-                }
-                alert('Password updated successfully!');
-            });
-
-            // Sync with sidebar collapse
-            const sidebar = document.getElementById('sidebar');
-            const toggleBtn = document.getElementById('toggleBtn');
-            const body = document.body;
-
-            toggleBtn.addEventListener('click', () => {
-                body.classList.toggle('sidebar-collapsed');
-            });
-
-           
-            if (sidebar.classList.contains('collapsed')) {
-                body.classList.add('sidebar-collapsed');
-            }
-
-            // Handle resize
-            function handleResize() {
-                if (window.innerWidth <= 768) {
-                    body.classList.add('sidebar-collapsed');
-                }
-            }
-
-            window.addEventListener('resize', handleResize);
-            handleResize();
         });
     </script>
 </body>

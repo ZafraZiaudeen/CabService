@@ -1,8 +1,11 @@
 package com.cabservice.service;
 
+import java.sql.SQLException;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import org.mindrot.jbcrypt.BCrypt;
 
 import com.cabservice.dao.UserDAO;
 import com.cabservice.model.Admin;
@@ -24,7 +27,6 @@ public class UserService {
         this(new UserDAO());
     }
 
-    // Singleton instance with lazy initialization
     public static UserService getInstance() {
         if (instance == null) {
             synchronized (UserService.class) {
@@ -85,6 +87,25 @@ public class UserService {
             return null;
         }
     }
+    
+    public boolean updateAdminPassword(int adminId, String currentPassword, String newPassword) {
+        try {
+            Admin admin = userDAO.getAdminById(adminId); 
+            if (admin != null && BCrypt.checkpw(currentPassword, admin.getPassword())) {
+                String hashedNewPassword = BCrypt.hashpw(newPassword, BCrypt.gensalt());
+                admin.setPassword(hashedNewPassword);
+                userDAO.updateAdminPassword(admin); 
+                LOGGER.info("Admin password updated successfully for: " + admin.getUsername());
+                return true;
+            } else {
+                LOGGER.warning("Current password incorrect or admin not found.");
+                return false;
+            }
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Error updating admin password for admin ID: " + adminId, e);
+            return false;
+        }
+    }
 
     // Update Admin details (since only one admin exists)
     public void updateAdminDetails(Admin admin) {
@@ -95,4 +116,14 @@ public class UserService {
             LOGGER.log(Level.SEVERE, "Error updating admin details for user ID: " + admin.getUserId(), e);
         }
     }
+    
+    public Admin getAdminById(int adminId) {
+        try {
+            return userDAO.getAdminById(adminId);
+        } catch (SQLException e) {
+            LOGGER.log(Level.SEVERE, "Error fetching admin by ID: " + adminId, e);
+            return null;
+        }
+    }
+    
 }

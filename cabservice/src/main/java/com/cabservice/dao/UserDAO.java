@@ -128,7 +128,7 @@ public class UserDAO {
 
     // Update existing Admin details
     public void updateAdminDetails(Admin admin) {
-        String updateQuery = "UPDATE users SET name = ?, address = ?, phoneNumber = ?, username = ? WHERE id = ? AND role = 'ADMIN'";
+        String updateQuery = "UPDATE users SET name = ?, address = ?, phoneNumber = ?, username = ? WHERE id = ? AND role = 'Admin'";
 
         try (Connection connection = DBConnectionFactory.getConnection();
              PreparedStatement statement = connection.prepareStatement(updateQuery)) {
@@ -166,7 +166,7 @@ public class UserDAO {
                 String username = resultSet.getString("username");
                 String password = resultSet.getString("password");
                 String role = resultSet.getString("role");
-                String nic = resultSet.getString("NIC"); // NULL for Admins
+                String nic = resultSet.getString("NIC"); 
 
                 if ("ADMIN".equalsIgnoreCase(role)) {
                     users.add(new Admin(id, name, address, phoneNumber, username, password, id));  // Fixed constructor
@@ -221,4 +221,45 @@ public class UserDAO {
         return null; // Return null if authentication fails
     }
 
+    public Admin getAdminById(int adminId) throws SQLException {
+        String query = "SELECT * FROM users WHERE id = ? AND role = 'Admin'";
+        try (Connection connection = DBConnectionFactory.getConnection();
+             PreparedStatement stmt = connection.prepareStatement(query)) {
+            stmt.setInt(1, adminId);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return new Admin(
+                        rs.getInt("id"),
+                        rs.getString("name"),
+                        rs.getString("address"),
+                        rs.getString("phoneNumber"),
+                        rs.getString("username"),
+                        rs.getString("password"),
+                        adminId
+                    );
+                }
+            }
+        } catch (SQLException e) {
+            LOGGER.log(Level.SEVERE, "Error fetching admin by ID: " + adminId, e);
+            throw e;
+        }
+        return null;
+    }
+
+   
+    public void updateAdminPassword(Admin admin) throws SQLException {
+        String query = "UPDATE users SET password = ? WHERE id = ? AND role = 'Admin'";
+        try (Connection connection = DBConnectionFactory.getConnection();
+             PreparedStatement stmt = connection.prepareStatement(query)) {
+            stmt.setString(1, admin.getPassword());
+            stmt.setInt(2, admin.getUserId());
+            int rowsUpdated = stmt.executeUpdate();
+            if (rowsUpdated == 0) {
+                throw new SQLException("Password update failed. No matching admin found.");
+            }
+        } catch (SQLException e) {
+            LOGGER.log(Level.SEVERE, "Error updating admin password for ID: " + admin.getUserId(), e);
+            throw e;
+        }
+    }
 }
