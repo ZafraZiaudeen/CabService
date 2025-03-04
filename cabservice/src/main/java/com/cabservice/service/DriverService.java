@@ -51,7 +51,6 @@ public class DriverService {
         return driverDAO.updateDriver(driver);
     }
 
-    // Method to delete a driver
     public boolean deleteDriver(int driverId) {
         return driverDAO.deleteDriver(driverId);
     }

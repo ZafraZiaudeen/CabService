@@ -5,15 +5,14 @@
     <meta charset="UTF-8">
     <title>Sidebar</title>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    
-     <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+    <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
     <link rel="stylesheet" href="<c:url value='/css/sidebar.css'/>">
 </head>
 <body>
+    <jsp:include page="help-icon.jsp" />
     <div class="sidebar" id="sidebar">
         <div class="logo-container">
-           
-            <h2 class="site-title">CabService</h2>
+            <h2 class="site-title">Mega City Cab</h2>
             <button class="toggle-btn" id="toggleBtn">
                 <span class="material-icons">menu</span>
             </button>
@@ -21,9 +20,7 @@
         <nav class="nav-menu">
             <ul>
                 <li class="menu-item">
-                    <li><a href="<%= request.getContextPath() %>/dashboard">
-
-
+                    <a href="<%= request.getContextPath() %>/dashboard">
                         <span class="material-icons">dashboard</span>
                         <span class="nav-text">Dashboard</span>
                     </a>
@@ -41,10 +38,8 @@
                         <li><a href="<%= request.getContextPath() %>/customer?action=add">
                             <span class="nav-text">Add Customer</span>
                         </a></li>
-                        
                     </ul>
                 </li>
-                  
                 <li class="menu-item">
                     <a href="#" class="has-submenu">
                         <span class="material-icons">book_online</span>
@@ -58,14 +53,12 @@
                         <li><a href="<%= request.getContextPath() %>/booking?action=pending">
                             <span class="nav-text">Pending Bookings</span>
                         </a></li>
-                         <li><a href="<%= request.getContextPath() %>/booking?action=ongoing">
+                        <li><a href="<%= request.getContextPath() %>/booking?action=ongoing">
                             <span class="nav-text">Ongoing Bookings</span>
                         </a></li>
                         <li><a href="<%= request.getContextPath() %>/booking?action=manage">
                             <span class="nav-text">Booking History</span>
                         </a></li>
-                        
-                        
                     </ul>
                 </li>
                 <li class="menu-item">
@@ -104,8 +97,7 @@
                         </a></li>
                     </ul>
                 </li>
-                
-                 <li class="menu-item">
+                <li class="menu-item">
                     <a href="#" class="has-submenu">
                         <span class="material-icons">settings</span>
                         <span class="nav-text">Tax/Discount</span>
@@ -118,26 +110,23 @@
                         <li><a href="<%= request.getContextPath() %>/system-config?action=add">
                             <span class="nav-text">Add Tax</span>
                         </a></li>
-                      
                     </ul>
                 </li>
-               
-                 <li class="menu-item">
+                <li class="menu-item">
                     <a href="<%= request.getContextPath() %>/assignment?action=list">
-                     <span class="material-icons">assignment_ind</span>
+                        <span class="material-icons">assignment_ind</span>
                         <span class="nav-text">Assign Vehicle-Driver</span>
                     </a>
                 </li>
-               
-               
-                
             </ul>
         </nav>
         <div class="sidebar-footer">
-            <div class="user-info">
-                <img src="/placeholder.svg?height=32&width=32" alt="User Avatar" class="user-avatar">
-                <span class="nav-text">Admin User</span>
-            </div>
+            
+            <!-- User Settings Button -->
+            <a href="<%= request.getContextPath() %>/adminProfile" class="settings-btn">
+                <span class="material-icons">manage_accounts</span>
+                <span class="nav-text">User Settings</span>
+            </a>
             <a href="<%= request.getContextPath() %>/logout" class="logout-btn">
                 <span class="material-icons">logout</span>
                 <span class="nav-text">Logout</span>
@@ -157,7 +146,6 @@
             toggleBtn.addEventListener('click', function() {
                 sidebar.classList.toggle('collapsed');
                 
-                // Handle title and text visibility with transition
                 if (sidebar.classList.contains('collapsed')) {
                     navText.forEach(text => {
                         text.style.opacity = '0';
@@ -166,7 +154,7 @@
                     siteTitle.style.opacity = '0';
                     siteTitle.style.width = '0';
                     
-                    // Close all submenus when collapsing sidebar
+                    // Close all submenus when collapsing
                     document.querySelectorAll('.submenu').forEach(submenu => {
                         submenu.classList.remove('expanded');
                     });
@@ -188,7 +176,6 @@
                 trigger.addEventListener('click', function(e) {
                     e.preventDefault();
                     
-                    // Don't toggle submenu if sidebar is collapsed
                     if (sidebar.classList.contains('collapsed')) {
                         return;
                     }
@@ -197,7 +184,6 @@
                     const submenu = this.nextElementSibling;
                     const isExpanded = menuItem.classList.contains('active');
 
-                    // Close all other submenus
                     document.querySelectorAll('.menu-item').forEach(item => {
                         if (item !== menuItem) {
                             item.classList.remove('active');
@@ -207,11 +193,8 @@
                         }
                     });
 
-                    // Toggle current submenu
                     menuItem.classList.toggle('active');
                     submenu.classList.toggle('expanded');
-
-                    // Update dropdown icon
                     const dropdownIcon = this.querySelector('.dropdown-icon');
                     dropdownIcon.textContent = isExpanded ? 'expand_more' : 'expand_less';
                 });
@@ -220,21 +203,15 @@
             // Handle submenu item clicks
             document.querySelectorAll('.submenu a').forEach(item => {
                 item.addEventListener('click', function(e) {
-                    e.stopPropagation(); // Prevent triggering parent click events
-                    
-                    // Remove active class from all menu items
-                    document.querySelectorAll('.submenu a').forEach(link => {
-                        link.classList.remove('active');
-                    });
-                    
-                    // Add active class to clicked item
+                    e.stopPropagation();
+                    document.querySelectorAll('.submenu a').forEach(link => link.classList.remove('active'));
                     this.classList.add('active');
                 });
             });
 
-            // Handle responsive behavior
+            // Responsive behavior
             function handleResize() {
-                if (window.innerWidth <= 768) {
+                if (window.innerWidth <= 768 && !sidebar.classList.contains('collapsed')) {
                     sidebar.classList.add('collapsed');
                     navText.forEach(text => {
                         text.style.opacity = '0';
@@ -242,25 +219,15 @@
                     });
                     siteTitle.style.opacity = '0';
                     siteTitle.style.width = '0';
-                    
-                    // Close all submenus
                     document.querySelectorAll('.submenu').forEach(submenu => {
                         submenu.classList.remove('expanded');
                     });
                     document.querySelectorAll('.menu-item').forEach(item => {
                         item.classList.remove('active');
                     });
-                } else if (!sidebar.classList.contains('collapsed')) {
-                    navText.forEach(text => {
-                        text.style.opacity = '1';
-                        text.style.width = 'auto';
-                    });
-                    siteTitle.style.opacity = '1';
-                    siteTitle.style.width = 'auto';
                 }
             }
 
-            // Initial check and event listener for window resize
             handleResize();
             window.addEventListener('resize', handleResize);
         });

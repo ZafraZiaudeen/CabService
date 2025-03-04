@@ -602,7 +602,7 @@ public class BookingDAO {
         }
         return bookings;
     }
- // In BookingDAO.java
+ 
     public void updateDriverAndVehicleAvailability(int bookingId, String newStatus) throws SQLException {
         if ("Pending".equalsIgnoreCase(newStatus) || "Ongoing".equalsIgnoreCase(newStatus)) {
             String sql = """

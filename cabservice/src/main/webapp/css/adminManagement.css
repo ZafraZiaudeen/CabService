@@ -48,7 +48,7 @@
             color: #4a5568;
         }
         .add-button {
-            background-color: #0984e3;
+            background-color: #FFC107;
             color: white;
             border: none;
             padding: 10px 20px;
@@ -61,7 +61,7 @@
             transition: background-color 0.2s;
         }
         .add-button:hover {
-            background-color: #0773c5;
+            background-color: #FFA000;
         }
         .section-table {
             background-color: white;

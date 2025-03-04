@@ -72,7 +72,7 @@ public class BookingService {
         }
         
         // Start a transaction using the existing connection
-        Connection conn = bookingDAO.getConnection(); // Use the getter method
+        Connection conn = bookingDAO.getConnection();
         boolean autoCommit = conn.getAutoCommit();
         conn.setAutoCommit(false);
         try {

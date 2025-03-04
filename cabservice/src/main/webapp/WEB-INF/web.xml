@@ -100,6 +100,18 @@
   	<description></description>
   	<servlet-class>com.cabservice.controller.BookingHistoryController</servlet-class>
   </servlet>
+  <servlet>
+  	<servlet-name>AdminHelpController</servlet-name>
+  	<display-name>AdminHelpController</display-name>
+  	<description></description>
+  	<servlet-class>com.cabservice.controller.AdminHelpController</servlet-class>
+  </servlet>
+  <servlet>
+  	<servlet-name>AdminProfileController</servlet-name>
+  	<display-name>AdminProfileController</display-name>
+  	<description></description>
+  	<servlet-class>com.cabservice.controller.AdminProfileController</servlet-class>
+  </servlet>
   <servlet-mapping>
   	<servlet-name>UserController</servlet-name>
   	<url-pattern>/UserController</url-pattern>
@@ -164,6 +176,14 @@
   <servlet-mapping>
   	<servlet-name>BookingHistoryController</servlet-name>
   	<url-pattern>/BookingHistoryController</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+  	<servlet-name>AdminHelpController</servlet-name>
+  	<url-pattern>/AdminHelpController</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+  	<servlet-name>AdminProfileController</servlet-name>
+  	<url-pattern>/AdminProfileController</url-pattern>
   </servlet-mapping>
   
   
