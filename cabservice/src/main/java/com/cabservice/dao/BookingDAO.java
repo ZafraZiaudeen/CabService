@@ -206,7 +206,6 @@ public class BookingDAO {
         }
     }
     
-    // Method to get booking by ID (for edit-booking.jsp)
     public Booking getBookingById(int bookingId) throws SQLException {
         String sql = "SELECT * FROM bookings WHERE id = ?";
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -215,10 +214,15 @@ public class BookingDAO {
             if (rs.next()) {
                 Booking booking = new Booking();
                 booking.setId(rs.getInt("id"));
+                booking.setBookingNumber(rs.getString("booking_number"));
                 booking.setCustomerId(rs.getInt("customer_id"));
+                booking.setDriverId(rs.getInt("driver_id"));
+                booking.setVehicleId(rs.getInt("vehicle_id"));
                 booking.setPickupLocation(rs.getString("pickup_location"));
                 booking.setDropoffLocation(rs.getString("dropoff_location"));
-                booking.setVehicleId(rs.getInt("vehicle_id"));
+                booking.setDistanceKm(rs.getDouble("distance_km"));
+                booking.setStatus(rs.getString("status"));
+                booking.setBookedAt(rs.getTimestamp("booked_at"));
                 return booking;
             }
         }

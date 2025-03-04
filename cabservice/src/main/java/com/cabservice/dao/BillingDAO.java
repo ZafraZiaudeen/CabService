@@ -80,6 +80,7 @@ public class BillingDAO {
                 billing.setFinalAmount(rs.getDouble("final_amount"));
                 billing.setGeneratedAt(rs.getTimestamp("generated_at"));
                 billing.setPaymentType(rs.getString("payment_type"));
+                billing.setStatus(rs.getString("status"));
                 return billing;
             }
         }
@@ -180,6 +181,7 @@ public class BillingDAO {
                 billing.setFinalAmount(rs.getDouble("final_amount"));
                 billing.setGeneratedAt(rs.getTimestamp("generated_at"));
                 billing.setPaymentType(rs.getString("payment_type"));
+                billing.setStatus(rs.getString("status"));
                 return billing;
             }
         }

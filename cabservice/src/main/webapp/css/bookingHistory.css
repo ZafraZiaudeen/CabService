@@ -451,5 +451,17 @@
     background-color: rgba(46, 125, 50, 0.1);
     color: #2e7d32;
 }
-        
+        .btn-receipt {
+    background-color: #4CAF50; /* Green for receipt */
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    cursor: pointer;
+    border-radius: 4px;
+    margin-left: 5px;
+}
+
+.btn-receipt:hover {
+    background-color: #45a049;
+}
  

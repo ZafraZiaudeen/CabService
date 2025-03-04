@@ -4,7 +4,6 @@
 <%@ page import="java.sql.Timestamp" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%
-    // Check if the user is authenticated
     HttpSession sessionCheck = request.getSession(false);
     if (sessionCheck == null || sessionCheck.getAttribute("customerUser") == null) {
         response.sendRedirect(request.getContextPath() + "/user?action=login");
@@ -34,7 +33,6 @@
             <p class="page-subtitle">View and manage all your past and upcoming rides</p>
         </div>
 
-        <%-- Display success message if any --%>
         <% 
             String message = (String) request.getAttribute("message");
             if (message != null) {
@@ -45,7 +43,6 @@
             </div>
         <% } %>
 
-        <%-- Display error messages if any --%>
         <% 
             String error = (String) request.getAttribute("error");
             if (error != null) {
@@ -56,7 +53,6 @@
             </div>
         <% } %>
 
-        <%-- Display booking history if available --%>
         <% 
             List<Map<String, Object>> bookingHistory = (List<Map<String, Object>>) request.getAttribute("bookingHistory");
             if (bookingHistory != null && !bookingHistory.isEmpty()) {
@@ -85,8 +81,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <%-- Iterate over each booking and display the details --%>
-                        <%
+                        <% 
                             for (Map<String, Object> booking : bookingHistory) {
                                 String status = (String) booking.get("status");
                                 String statusClass = "";
@@ -104,7 +99,6 @@
                                 String paymentType = (String) booking.get("payment_type");
                                 String paymentIcon = paymentType != null && paymentType.equalsIgnoreCase("Card") ? "credit_card" : "local_atm";
 
-                                // Check if booking is cancellable (Pending or Ongoing within 5 minutes)
                                 boolean canCancel = "Pending".equalsIgnoreCase(status) || "Ongoing".equalsIgnoreCase(status);
                                 if (canCancel) {
                                     Timestamp bookedAt = (Timestamp) booking.get("booked_at");
@@ -157,10 +151,18 @@
                                                 <span class="material-icons">check_circle</span>
                                             </button>
                                         <% } %>
+                                        <!-- Add Receipt Button -->
+                                        <button class="btn-action btn-receipt" 
+                                                data-booking-id="<%= booking.get("booking_id") %>"
+                                                onclick="generateReceipt(<%= booking.get("booking_id") %>)"
+                                                title="Download Receipt">
+                                            <span class="material-icons">receipt</span>
+                                            Print
+                                        </button>
                                     </div>
                                 </td>
                             </tr>
-                        <%
+                        <% 
                                 count++;
                             }
                         %>
@@ -168,7 +170,7 @@
                 </table>
             </div>
         </div>
-        <%
+        <% 
             } else {
         %>
         <div class="empty-state">
@@ -180,12 +182,11 @@
                 Book a Ride
             </a>
         </div>
-        <%
+        <% 
             }
         %>
     </main>
 
-    <!-- Confirmation Popover for Cancellation -->
     <div class="popover-overlay" id="cancelPopover">
         <div class="confirmation-popover">
             <div class="popover-header">
@@ -208,7 +209,6 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Filter functionality
             const filterButtons = document.querySelectorAll('.filter-button');
             
             filterButtons.forEach(button => {
@@ -236,7 +236,6 @@
                 });
             });
 
-            // Complete booking functionality
             const completeButtons = document.querySelectorAll('.btn-complete');
             completeButtons.forEach(button => {
                 button.addEventListener('click', function() {
@@ -247,7 +246,6 @@
                 });
             });
 
-            // Cancel booking confirmation
             const cancelButtons = document.querySelectorAll('.cancel-booking:not(.disabled)');
             const popoverOverlay = document.getElementById('cancelPopover');
             const cancelYesBtn = document.getElementById('cancelYes');
@@ -280,9 +278,13 @@
             });
         });
 
-        // Function to navigate to billing.jsp for payment
         function payBooking(bookingId) {
             window.location.href = '<%= request.getContextPath() %>/customerBilling?action=view&booking_id=' + bookingId;
+        }
+
+        // Function to generate receipt
+        function generateReceipt(bookingId) {
+            window.location.href = '<%= request.getContextPath() %>/customerBilling?action=generateReceipt&booking_id=' + bookingId;
         }
     </script>
 </body>

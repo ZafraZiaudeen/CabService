@@ -15,9 +15,18 @@ public class Billing {
 	private String cvv;
     private String expiryDate;
     private String paymentType;
+    private String status;
 
     
-    public String getCardNumber() {
+    public String getStatus() {
+		return status;
+	}
+
+	public void setStatus(String status) {
+		this.status = status;
+	}
+
+	public String getCardNumber() {
 		return cardNumber;
 	}
 
