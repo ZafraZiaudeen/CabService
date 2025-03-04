@@ -22,19 +22,19 @@ public class AdminProfileController extends HttpServlet {
     }
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        HttpSession session = request.getSession();
-        Admin admin = (Admin) session.getAttribute("adminUser");
-        
-        if (admin == null) {
+        HttpSession session = request.getSession(false); // Don't create a new session
+        if (session == null || session.getAttribute("adminUser") == null) {
             response.sendRedirect(request.getContextPath() + "/user?action=login");
             return;
         }
 
-        // Fetch the latest admin details from the database using userId
+        Admin admin = (Admin) session.getAttribute("adminUser");
+
+        // Fetch the latest admin details from the database
         try {
-            admin = userService.getAdminById(admin.getUserId()); // Add this method in UserService
+            admin = userService.getAdminById(admin.getUserId());
             if (admin == null) {
-                session.invalidate(); // Invalidate session if admin no longer exists
+                session.invalidate();
                 response.sendRedirect(request.getContextPath() + "/user?action=login");
                 return;
             }
@@ -43,44 +43,57 @@ public class AdminProfileController extends HttpServlet {
             request.setAttribute("error", "Error fetching admin details: " + e.getMessage());
         }
 
-        request.setAttribute("admin", admin); // Set for JSP
+        request.setAttribute("admin", admin);
         request.getRequestDispatcher("/WEB-INF/view/admin/profile.jsp").forward(request, response);
     }
 
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        HttpSession session = request.getSession();
-        Admin admin = (Admin) session.getAttribute("adminUser");
-        if (admin == null) {
+        HttpSession session = request.getSession(false);
+        if (session == null || session.getAttribute("adminUser") == null) {
             response.sendRedirect(request.getContextPath() + "/user?action=login");
             return;
         }
 
+        Admin admin = (Admin) session.getAttribute("adminUser");
         String action = request.getParameter("action");
+
         if ("updateProfile".equals(action)) {
             admin.setName(request.getParameter("fullName"));
             admin.setUsername(request.getParameter("username"));
             admin.setPhoneNumber(request.getParameter("phone"));
             admin.setAddress(request.getParameter("address"));
-            userService.updateAdminDetails(admin);
-            session.setAttribute("adminUser", admin); // Update session
-            request.setAttribute("message", "Profile updated successfully!");
+            admin.setEmail(request.getParameter("email")); // Added email field
+
+            try {
+                userService.updateAdminDetails(admin);
+                session.setAttribute("adminUser", admin);
+                request.setAttribute("message", "Profile updated successfully!");
+            } catch (Exception e) {
+                request.setAttribute("error", "Error updating profile: " + e.getMessage());
+            }
         } else if ("updatePassword".equals(action)) {
             String currentPassword = request.getParameter("currentPassword");
             String newPassword = request.getParameter("newPassword");
             String confirmPassword = request.getParameter("confirmPassword");
+
             if (!newPassword.equals(confirmPassword)) {
                 request.setAttribute("error", "New passwords do not match!");
-            } else if (userService.updateAdminPassword(admin.getUserId(), currentPassword, newPassword)) {
-                // Fetch updated admin after password change
-                admin = userService.getAdminById(admin.getUserId());
-                session.setAttribute("adminUser", admin);
-                request.setAttribute("message", "Password updated successfully!");
             } else {
-                request.setAttribute("error", "Current password is incorrect!");
+                try {
+                    if (userService.updateAdminPassword(admin.getUserId(), currentPassword, newPassword)) {
+                        admin = userService.getAdminById(admin.getUserId());
+                        session.setAttribute("adminUser", admin);
+                        request.setAttribute("message", "Password updated successfully!");
+                    } else {
+                        request.setAttribute("error", "Current password is incorrect!");
+                    }
+                } catch (Exception e) {
+                    request.setAttribute("error", "Error updating password: " + e.getMessage());
+                }
             }
         }
 
-        request.setAttribute("admin", admin); // Set for JSP
+        request.setAttribute("admin", admin);
         request.getRequestDispatcher("/WEB-INF/view/admin/profile.jsp").forward(request, response);
     }
 }

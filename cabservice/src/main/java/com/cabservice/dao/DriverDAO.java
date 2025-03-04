@@ -4,7 +4,8 @@ import com.cabservice.model.Driver;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
-
+import java.util.logging.Level;
+import java.util.logging.Logger;
 public class DriverDAO {
 
     // Constructor
@@ -81,15 +82,47 @@ public class DriverDAO {
             ps.setString(3, driver.getLicenseNumber());
             ps.setString(4, driver.getPhoneNumber());
             ps.setInt(5, driver.getExperience());
-            ps.setBoolean(6, driver.isAvailability());
+            // Set availability to true by default for new drivers
+            ps.setBoolean(6, true);
 
             int rowsAffected = ps.executeUpdate();
             return rowsAffected > 0;
 
         } catch (SQLException e) {
             e.printStackTrace();
+            return false;
         }
+    }
+    
+ // Check if NIC already exists
+    public boolean isNicExists(String nic) {
+        String query = "SELECT COUNT(*) FROM driver WHERE nic = ?";
+        try (Connection conn = DBConnectionFactory.getConnection();
+             PreparedStatement ps = conn.prepareStatement(query)) {
+            ps.setString(1, nic);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1) > 0;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
 
+    // Check if license number already exists
+    public boolean isLicenseNumberExists(String licenseNumber) {
+        String query = "SELECT COUNT(*) FROM driver WHERE licenseNumber = ?";
+        try (Connection conn = DBConnectionFactory.getConnection();
+             PreparedStatement ps = conn.prepareStatement(query)) {
+            ps.setString(1, licenseNumber);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1) > 0;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
         return false;
     }
 
@@ -117,24 +150,65 @@ public class DriverDAO {
 
         return false;
     }
-
-    // Method to delete a driver by ID
+ // Method to delete a driver by ID
     public boolean deleteDriver(int driverId) {
-        String query = "DELETE FROM driver WHERE id = ?";
+        String findVehiclesQuery = "SELECT vehicle_id FROM driver_vehicle WHERE driver_id = ?";
+        String updateVehicleQuery = "UPDATE vehicle SET status = 'Available' WHERE id = ?";
+        String deleteDriverVehicleQuery = "DELETE FROM driver_vehicle WHERE driver_id = ?";
+        String deleteDriverQuery = "DELETE FROM driver WHERE id = ?";
 
-        try (Connection conn = DBConnectionFactory.getConnection();
-             PreparedStatement ps = conn.prepareStatement(query)) {
+        try (Connection conn = DBConnectionFactory.getConnection()) {
+            conn.setAutoCommit(false); // Start transaction
 
-            ps.setInt(1, driverId);
+            // Step 1: Find all vehicles assigned to the driver
+            List<Integer> vehicleIds = new ArrayList<>();
+            try (PreparedStatement psFind = conn.prepareStatement(findVehiclesQuery)) {
+                psFind.setInt(1, driverId);
+                ResultSet rs = psFind.executeQuery();
+                while (rs.next()) {
+                    vehicleIds.add(rs.getInt("vehicle_id"));
+                }
+            }
 
-            int rowsAffected = ps.executeUpdate();
-            return rowsAffected > 0;
+            // Step 2: Update the status of assigned vehicles to "Available"
+            try (PreparedStatement psUpdate = conn.prepareStatement(updateVehicleQuery)) {
+                for (Integer vehicleId : vehicleIds) {
+                    psUpdate.setInt(1, vehicleId);
+                    psUpdate.executeUpdate();
+                }
+            }
+
+            // Step 3: Delete driver-vehicle assignments
+            try (PreparedStatement psDeleteDV = conn.prepareStatement(deleteDriverVehicleQuery)) {
+                psDeleteDV.setInt(1, driverId);
+                psDeleteDV.executeUpdate();
+            }
+
+            // Step 4: Delete the driver
+            int driverRows = 0;
+            try (PreparedStatement psDelete = conn.prepareStatement(deleteDriverQuery)) {
+                psDelete.setInt(1, driverId);
+                driverRows = psDelete.executeUpdate();
+            }
+
+            if (driverRows > 0) {
+                conn.commit();
+                return true;
+            } else {
+                conn.rollback();
+                return false;
+            }
 
         } catch (SQLException e) {
             e.printStackTrace();
+            try {
+                Connection conn = DBConnectionFactory.getConnection();
+                conn.rollback();
+            } catch (SQLException rollbackEx) {
+                rollbackEx.printStackTrace();
+            }
+            return false;
         }
-
-        return false;
     }
     
     public List<Driver> getAvailableDrivers() {

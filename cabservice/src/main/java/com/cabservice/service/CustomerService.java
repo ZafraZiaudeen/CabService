@@ -17,22 +17,26 @@ public class CustomerService {
         return customerDAO.getAllCustomers();
     }
     
-    public void deleteCustomer(int customerId) {
-        customerDAO.deleteCustomer(customerId);
+    public boolean deleteCustomer(int customerId) {
+        return customerDAO.deleteCustomer(customerId);
     }
-    public boolean addCustomer(String name, String address, String phoneNumber, String username, String hashedPassword, String role, String nic) {
-        return customerDAO.insertCustomer(name, address, phoneNumber, username, hashedPassword, role, nic);
+
+   
+    public boolean addCustomer(String name, String address, String phoneNumber, String username, 
+                             String hashedPassword, String role, String email, String nic) {
+        return customerDAO.insertCustomer(name, address, phoneNumber, username, hashedPassword, role, email, nic);
     }
     
     public Customer getCustomerById(int customerId) {
         return customerDAO.getCustomerById(customerId);
     }
 
-    public boolean updateCustomer(int customerId, String name, String address, String phoneNumber, String username, String nic) {
-        return customerDAO.updateCustomer(customerId, name, address, phoneNumber, username, nic);
+    public boolean updateCustomer(int customerId, String name, String address, String phoneNumber, 
+                                String username, String email, String nic) {
+        return customerDAO.updateCustomer(customerId, name, address, phoneNumber, username, email, nic);
     }
+
     public int getTotalCustomerCount() throws SQLException {
         return customerDAO.getTotalCustomerCount();
     }
-
 }

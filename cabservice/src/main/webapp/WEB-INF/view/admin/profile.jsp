@@ -51,6 +51,10 @@
                             <div class="detail-value">${admin.phoneNumber}</div>
                         </div>
                         <div class="detail-row">
+                            <div class="detail-label">Email</div>
+                            <div class="detail-value">${admin.email}</div>
+                        </div>
+                        <div class="detail-row">
                             <div class="detail-label">Address</div>
                             <div class="detail-value">${admin.address}</div>
                         </div>
@@ -74,6 +78,10 @@
                             <div class="form-group">
                                 <label class="form-label" for="phone">Phone</label>
                                 <input type="tel" class="form-control" id="phone" name="phone" value="${admin.phoneNumber}">
+                            </div>
+                              <div class="form-group">
+                                <label class="form-label" for="phone">Phone</label>
+                                <input type="email" class="form-control" id="email" name="email" value="${admin.email}">
                             </div>
                             <div class="form-group">
                                 <label class="form-label" for="address">Address</label>

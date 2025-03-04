@@ -126,4 +126,31 @@ public class UserService {
         }
     }
     
+    public boolean isUsernameTaken(String username) {
+        try {
+            return userDAO.isUsernameTaken(username);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public boolean isEmailTaken(String email) {
+        try {
+            return userDAO.isEmailTaken(email);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public boolean isNICTaken(String nic) {
+        try {
+            return userDAO.isNICTaken(nic);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+    
 }

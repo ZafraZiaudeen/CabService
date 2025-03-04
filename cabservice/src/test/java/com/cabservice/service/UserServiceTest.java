@@ -28,7 +28,11 @@ public class UserServiceTest {
     public void setUp() throws Exception {
         MockitoAnnotations.openMocks(this);
         resetSingleton();
-        userService = UserService.getInstance(mockUserDAO);  // Initialize UserService with mocked DAO
+        userService = UserService.getInstance();
+        // Inject the mock DAO using reflection
+        Field userDAOField = UserService.class.getDeclaredField("userDAO");
+        userDAOField.setAccessible(true);
+        userDAOField.set(userService, mockUserDAO);
     }
 
     // Reset the singleton instance before each test
@@ -39,13 +43,14 @@ public class UserServiceTest {
     }
 
     @Test
-    public void testAddCustomer() throws Exception {
+    public void testAddCustomer() throws SQLException {
         // Arrange: Create a customer to be added
         Customer customer = new Customer(0, "John Doe", "123 Main St", "1234567890", 
-                                         "johndoe33", "password123", "CUSTOMER", 0, "987654321V");
+                                         "johndoe33", "password123", "CUSTOMER", "john@example.com", 
+                                         0, "987654321V");
 
         // Mock the behavior of UserDAO's addUser method to return a generated userId
-        when(mockUserDAO.addUser(any(User.class))).thenReturn(1);
+        when(mockUserDAO.addUser(any(Customer.class))).thenReturn(1);
 
         // Act: Add user via UserService
         int userId = userService.addUser(customer);
@@ -53,16 +58,15 @@ public class UserServiceTest {
         // Assert: Check if the returned userId is correct
         assertEquals(1, userId);
 
-        // Verify that addUser was called exactly once
+        // Verify that addUser was called exactly once with the customer
         verify(mockUserDAO, times(1)).addUser(customer);
-
-        // Remove verification for addCustomerDetails() since it's now part of addUser()
     }
 
     @Test
     public void testAddAdmin_NotAllowed() throws SQLException {
         // Arrange: Create an Admin user (should not be added dynamically)
-        Admin admin = new Admin(2, "Admin User", "Admin Address", "1234567890", "admin12", "adminpass", 100);
+        Admin admin = new Admin(2, "Admin User", "Admin Address", "1234567890", 
+                               "admin12", "adminpass", "admin@example.com", 100);
 
         // Act: Attempt to add admin
         int userId = userService.addUser(admin);
@@ -78,8 +82,10 @@ public class UserServiceTest {
     public void testGetAllUsers() throws SQLException {
         // Arrange: Mock list of users to return
         List<User> mockUsers = Arrays.asList(
-            new Customer(1, "John Doe", "123 Main St", "1234567890", "johndoe33", "password123", "CUSTOMER", 1, "987654321V"),
-            new Admin(2, "Admin User", "Admin Address", "1234567890", "admin12", "adminpass", 100)
+            new Customer(1, "John Doe", "123 Main St", "1234567890", "johndoe33", 
+                         "password123", "CUSTOMER", "john@example.com", 1, "987654321V"),
+            new Admin(2, "Admin User", "Admin Address", "1234567890", "admin12", 
+                      "adminpass", "admin@example.com", 100)
         );
 
         when(mockUserDAO.getAllUsers()).thenReturn(mockUsers);
@@ -90,6 +96,8 @@ public class UserServiceTest {
         // Assert: Check if users are returned
         assertNotNull(users);
         assertEquals(2, users.size());
+        assertEquals("johndoe33", users.get(0).getUsername());
+        assertEquals("admin12", users.get(1).getUsername());
         verify(mockUserDAO, times(1)).getAllUsers();
     }
 }

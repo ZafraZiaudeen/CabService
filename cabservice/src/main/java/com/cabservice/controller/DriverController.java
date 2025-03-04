@@ -69,12 +69,18 @@ public class DriverController extends HttpServlet {
             int experience = Integer.parseInt(request.getParameter("experience"));
             boolean availability = Boolean.parseBoolean(request.getParameter("availability"));
 
-            boolean success = driverService.addDriver(name, nic, licenseNumber, phoneNumber, experience, availability);
+           
 
-            if (success) {
-                response.sendRedirect(request.getContextPath() + "/driver?action=list");
-            } else {
-                request.setAttribute("errorMessage", "Error adding driver.");
+            try {
+                boolean success = driverService.addDriver(name, nic, licenseNumber, phoneNumber, experience, availability);
+                if (success) {
+                    response.sendRedirect(request.getContextPath() + "/driver?action=list");
+                } else {
+                    request.setAttribute("errorMessage", "Error adding driver.");
+                    request.getRequestDispatcher("/WEB-INF/view/admin/add-driver.jsp").forward(request, response);
+                }
+            } catch (IllegalArgumentException e) {
+                request.setAttribute("errorMessage", e.getMessage());
                 request.getRequestDispatcher("/WEB-INF/view/admin/add-driver.jsp").forward(request, response);
             }
         } else if ("update".equals(action)) {

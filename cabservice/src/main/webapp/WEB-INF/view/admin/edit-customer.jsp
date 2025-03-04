@@ -2,7 +2,6 @@
 <%@ page import="com.cabservice.model.Customer" %>
 
 <%
-  
     Customer customer = (Customer) request.getAttribute("customer");
 
     if (customer == null) {
@@ -17,8 +16,16 @@
     <meta charset="UTF-8">
     <title>Edit Customer - Cab Service</title>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-  <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+    <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
     <link rel="stylesheet" href="<c:url value='/css/adminAdd.css'/>">
+    <style>
+        .error-message {
+            color: red;
+            margin-bottom: 15px;
+            font-size: 14px;
+            text-align: center;
+        }
+    </style>
 </head>
 <body>
     <!-- Include the sidebar -->
@@ -26,13 +33,28 @@
 
     <main class="main-content" id="mainContent">
         <div class="page-header">
-            
             <h1 class="page-title">Edit Customer</h1>
         </div>
 
+        <% 
+            String successMessage = (String) request.getAttribute("success");
+            String errorMessage = (String) request.getAttribute("error");
+            if (successMessage != null) {
+        %>
+            <div class="message success">
+                <span class="material-icons">check_circle</span>
+                <%= successMessage %>
+            </div>
+        <% } else if (errorMessage != null) { %>
+            <div class="message error">
+                <span class="material-icons">error</span>
+                <%= errorMessage %>
+            </div>
+        <% } %>
+
         <form class="section-form" id="customerForm" action="<%= request.getContextPath() %>/customer" method="post">
             <input type="hidden" name="action" value="update">
-            <input type="hidden" name="customerId" value="<%= customer.getUserId() %>">
+            <input type="hidden" name="customerId" value="<%= customer.getCustomerId() %>"> <!-- Changed to getCustomerId -->
 
             <div class="form-grid">
                 <div class="form-field">
@@ -48,6 +70,11 @@
                 <div class="form-field">
                     <label for="phone">Phone Number *</label>
                     <input type="tel" id="phone" name="phone" value="<%= customer.getPhoneNumber() %>" required>
+                </div>
+
+                <div class="form-field">
+                    <label for="email">Email *</label>
+                    <input type="email" id="email" name="email" value="<%= customer.getEmail() %>" required>
                 </div>
 
                 <div class="form-field">

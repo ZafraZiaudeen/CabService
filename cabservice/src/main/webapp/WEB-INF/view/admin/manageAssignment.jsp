@@ -19,6 +19,12 @@
 <body>
     <!-- Include the sidebar -->
     <jsp:include page="Sidebar.jsp" />
+ <c:if test="${not empty message}">
+            <p class="success-message">${message}</p>
+        </c:if>
+        <c:if test="${not empty error}">
+            <p class="error-message">${error}</p>
+        </c:if>
 
     <main class="main-content" id="mainContent">
         <div class="page-header">

@@ -1,3 +1,4 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -61,6 +62,10 @@
             color: #007bff;
             text-decoration: none;
         }
+        .error-message {
+            color: red;
+            margin-top: 10px;
+        }
     </style>
 </head>
 <body>
@@ -81,6 +86,10 @@
                     <input type="text" id="phone" name="phoneNumber" required>
                 </div>
                 <div class="input-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" name="email" required>
+                </div>
+                <div class="input-group">
                     <label for="nic">NIC</label>
                     <input type="text" id="nic" name="nic" required>
                 </div>
@@ -95,7 +104,21 @@
                 <button type="submit">Register</button>
             </form>
             <p>Already have an account? <a href="user?action=login">Login</a></p>
+            <% if (request.getAttribute("errorMessage") != null) { %>
+                <p class="error-message"><%= request.getAttribute("errorMessage") %></p>
+            <% } %>
         </div>
     </main>
 </body>
+
+<script>
+    document.getElementById("registrationForm").addEventListener("submit", function(event) {
+        const email = document.getElementById("email").value;
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            alert("Please enter a valid email address.");
+            event.preventDefault();
+        }
+    });
+</script>
 </html>

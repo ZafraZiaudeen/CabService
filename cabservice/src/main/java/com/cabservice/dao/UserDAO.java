@@ -14,19 +14,64 @@ import com.cabservice.model.Customer;
 
 public class UserDAO {
     private static final Logger LOGGER = Logger.getLogger(UserDAO.class.getName());
+    
+ // Check if username already exists
+    public boolean isUsernameTaken(String username) throws SQLException {
+        String query = "SELECT COUNT(*) FROM users WHERE username = ?";
+        try (Connection connection = DBConnectionFactory.getConnection();
+             PreparedStatement stmt = connection.prepareStatement(query)) {
+            stmt.setString(1, username);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1) > 0;
+                }
+            }
+        }
+        return false;
+    }
+
+    // Check if email already exists
+    public boolean isEmailTaken(String email) throws SQLException {
+        String query = "SELECT COUNT(*) FROM users WHERE email = ?";
+        try (Connection connection = DBConnectionFactory.getConnection();
+             PreparedStatement stmt = connection.prepareStatement(query)) {
+            stmt.setString(1, email);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1) > 0;
+                }
+            }
+        }
+        return false;
+    }
+
+    // Check if NIC already exists
+    public boolean isNICTaken(String nic) throws SQLException {
+        String query = "SELECT COUNT(*) FROM customer WHERE NIC = ?";
+        try (Connection connection = DBConnectionFactory.getConnection();
+             PreparedStatement stmt = connection.prepareStatement(query)) {
+            stmt.setString(1, nic);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1) > 0;
+                }
+            }
+        }
+        return false;
+    }
 
     public int addUser(User user) throws SQLException {
         if (user instanceof Admin) {
             throw new SQLException("Admin cannot be added dynamically.");
         }
 
-        String userQuery = "INSERT INTO users (name, address, phoneNumber, username, password, role) VALUES (?, ?, ?, ?, ?, ?)";
+        String userQuery = "INSERT INTO users (name, address, phoneNumber, username, password, role, email) VALUES (?, ?, ?, ?, ?, ?, ?)";
         String customerQuery = "INSERT INTO customer (user_id, NIC) VALUES (?, ?)";
         
         int userId = -1;
 
         try (Connection connection = DBConnectionFactory.getConnection()) {
-            connection.setAutoCommit(false);  // Start transaction
+            connection.setAutoCommit(false);
 
             try (PreparedStatement userStatement = connection.prepareStatement(userQuery, Statement.RETURN_GENERATED_KEYS)) {
                 userStatement.setString(1, user.getName());
@@ -35,9 +80,9 @@ public class UserDAO {
                 userStatement.setString(4, user.getUsername());
                 userStatement.setString(5, user.getPassword());
                 userStatement.setString(6, user.getRole());
+                userStatement.setString(7, user.getEmail());
                 userStatement.executeUpdate();
 
-                // Retrieve generated user_id
                 try (ResultSet generatedKeys = userStatement.getGeneratedKeys()) {
                     if (generatedKeys.next()) {
                         userId = generatedKeys.getInt(1);
@@ -45,7 +90,6 @@ public class UserDAO {
                 }
             }
 
-            // If user is a customer, insert into the customer table
             if (userId > 0 && user instanceof Customer) {
                 try (PreparedStatement statement = connection.prepareStatement(customerQuery)) {
                     statement.setInt(1, userId);
@@ -54,7 +98,7 @@ public class UserDAO {
                 }
             }
 
-            connection.commit();  // Commit transaction
+            connection.commit();
             return userId;
         } catch (SQLException e) {
             LOGGER.log(Level.SEVERE, "Error adding user and customer details", e);
@@ -62,7 +106,6 @@ public class UserDAO {
         }
     }
 
-    // Add customer details to customer table
     public void addCustomerDetails(Customer customer) throws SQLException {
         String customerQuery = "INSERT INTO customer (user_id, NIC) VALUES (?, ?)";
         int customerId = -1;
@@ -70,28 +113,24 @@ public class UserDAO {
         try (Connection connection = DBConnectionFactory.getConnection();
              PreparedStatement statement = connection.prepareStatement(customerQuery, Statement.RETURN_GENERATED_KEYS)) {
 
-            statement.setInt(1, customer.getUserId());  // Use the user_id as the foreign key
+            statement.setInt(1, customer.getUserId());  
             statement.setString(2, customer.getNic());
             statement.executeUpdate();
 
-            // Retrieve the generated customer_id
             try (ResultSet generatedKeys = statement.getGeneratedKeys()) {
                 if (generatedKeys.next()) {
-                    customerId = generatedKeys.getInt(1);  // Get the generated customer_id
+                    customerId = generatedKeys.getInt(1); 
                 }
             }
-
-            // Set the customerId to the customer object
             customer.setCustomerId(customerId);
         }
     }
     
     public Admin loginAdmin(String username, String password) {
-    	String userQuery = "SELECT * FROM users WHERE username = ? AND role = 'Admin'";
-        String adminQuery = "SELECT id FROM admin WHERE fk_admin_user_id = ?"; 
+        String userQuery = "SELECT * FROM users WHERE username = ? AND role = 'Admin'";
+        String adminQuery = "SELECT id FROM admin WHERE fk_admin_user_id = ?";
 
-
-        try (Connection connection = DBConnectionFactory.getConnection()) { // Keep connection open for both queries
+        try (Connection connection = DBConnectionFactory.getConnection()) { 
             try (PreparedStatement userStmt = connection.prepareStatement(userQuery)) {
                 userStmt.setString(1, username);
                 ResultSet userRs = userStmt.executeQuery();
@@ -103,8 +142,8 @@ public class UserDAO {
                     String address = userRs.getString("address");
                     String phoneNumber = userRs.getString("phoneNumber");
                     String storedUsername = userRs.getString("username");
+                    String email = userRs.getString("email");
 
-                    // Validate password using BCrypt
                     if (BCrypt.checkpw(password, hashedPassword)) {
                         try (PreparedStatement adminStmt = connection.prepareStatement(adminQuery)) {
                             adminStmt.setInt(1, userId);
@@ -112,9 +151,7 @@ public class UserDAO {
 
                             if (adminRs.next()) {
                                 int adminId = adminRs.getInt("id");
-
-                                // Return the authenticated Admin object
-                                return new Admin(userId, name, address, phoneNumber, storedUsername, hashedPassword, adminId);
+                                return new Admin(userId, name, address, phoneNumber, storedUsername, hashedPassword, email, adminId);
                             }
                         }
                     }
@@ -123,12 +160,12 @@ public class UserDAO {
         } catch (SQLException e) {
             LOGGER.log(Level.SEVERE, "Error during Admin login", e);
         }
-        return null; // Return null if authentication fails
+        return null;
     }
 
-    // Update existing Admin details
+    // Fixed parameter index bug
     public void updateAdminDetails(Admin admin) {
-        String updateQuery = "UPDATE users SET name = ?, address = ?, phoneNumber = ?, username = ? WHERE id = ? AND role = 'Admin'";
+        String updateQuery = "UPDATE users SET name = ?, address = ?, phoneNumber = ?, username = ?, email = ? WHERE id = ? AND role = 'Admin'";
 
         try (Connection connection = DBConnectionFactory.getConnection();
              PreparedStatement statement = connection.prepareStatement(updateQuery)) {
@@ -137,7 +174,8 @@ public class UserDAO {
             statement.setString(2, admin.getAddress());
             statement.setString(3, admin.getPhoneNumber());
             statement.setString(4, admin.getUsername());
-            statement.setInt(5, admin.getUserId());
+            statement.setString(5, admin.getEmail());
+            statement.setInt(6, admin.getUserId());
 
             int rowsUpdated = statement.executeUpdate();
             if (rowsUpdated == 0) {
@@ -148,10 +186,9 @@ public class UserDAO {
         }
     }
 
-    // Retrieve all users (Admins & Customers)
     public List<User> getAllUsers() throws SQLException {
         List<User> users = new ArrayList<>();
-        String query = "SELECT u.id, u.name, u.address, u.phoneNumber, u.username, u.password, u.role, c.NIC " +
+        String query = "SELECT u.id, u.name, u.address, u.phoneNumber, u.username, u.password, u.role, u.email, c.NIC " +
                        "FROM users u LEFT JOIN customer c ON u.id = c.user_id";
 
         try (Connection connection = DBConnectionFactory.getConnection();
@@ -166,12 +203,13 @@ public class UserDAO {
                 String username = resultSet.getString("username");
                 String password = resultSet.getString("password");
                 String role = resultSet.getString("role");
-                String nic = resultSet.getString("NIC"); 
+                String email = resultSet.getString("email");
+                String nic = resultSet.getString("NIC");
 
                 if ("ADMIN".equalsIgnoreCase(role)) {
-                    users.add(new Admin(id, name, address, phoneNumber, username, password, id));  // Fixed constructor
+                    users.add(new Admin(id, name, address, phoneNumber, username, password, email, id));
                 } else if ("CUSTOMER".equalsIgnoreCase(role)) {
-                    users.add(new Customer(id, name, address, phoneNumber, username, password, "CUSTOMER", id, nic));
+                    users.add(new Customer(id, name, address, phoneNumber, username, password, "CUSTOMER", email, id, nic));
                 }
             }
         }
@@ -179,10 +217,9 @@ public class UserDAO {
     }
     
     public Customer loginCustomer(String username, String password) {
-        String userQuery = "SELECT * FROM users WHERE username = ? AND role = 'Customer'"; 
+        String userQuery = "SELECT * FROM users WHERE username = ? AND role = 'Customer'";
 
         try (Connection connection = DBConnectionFactory.getConnection()) {
-            // Query the users table to find a customer with the given username
             try (PreparedStatement userStmt = connection.prepareStatement(userQuery)) {
                 userStmt.setString(1, username);
                 ResultSet userRs = userStmt.executeQuery();
@@ -194,10 +231,9 @@ public class UserDAO {
                     String address = userRs.getString("address");
                     String phoneNumber = userRs.getString("phoneNumber");
                     String storedUsername = userRs.getString("username");
+                    String email = userRs.getString("email");
 
-                    // Validate password using BCrypt
                     if (BCrypt.checkpw(password, hashedPassword)) {
-                        // Fetch the customer details from the customer table
                         String customerQuery = "SELECT id, NIC FROM customer WHERE user_id = ?";
 
                         try (PreparedStatement customerStmt = connection.prepareStatement(customerQuery)) {
@@ -205,11 +241,9 @@ public class UserDAO {
                             ResultSet customerRs = customerStmt.executeQuery();
 
                             if (customerRs.next()) {
-                                int customerId = customerRs.getInt("id");  // Get the correct customerId
+                                int customerId = customerRs.getInt("id");
                                 String nic = customerRs.getString("NIC");
-
-                                // Return the authenticated Customer object
-                                return new Customer(userId, name, address, phoneNumber, storedUsername, hashedPassword, "Customer", customerId, nic);
+                                return new Customer(userId, name, address, phoneNumber, storedUsername, hashedPassword, "Customer", email, customerId, nic);
                             }
                         }
                     }
@@ -218,7 +252,7 @@ public class UserDAO {
         } catch (SQLException e) {
             LOGGER.log(Level.SEVERE, "Error during Customer login", e);
         }
-        return null; // Return null if authentication fails
+        return null;
     }
 
     public Admin getAdminById(int adminId) throws SQLException {
@@ -235,6 +269,7 @@ public class UserDAO {
                         rs.getString("phoneNumber"),
                         rs.getString("username"),
                         rs.getString("password"),
+                        rs.getString("email"),
                         adminId
                     );
                 }
@@ -246,7 +281,6 @@ public class UserDAO {
         return null;
     }
 
-   
     public void updateAdminPassword(Admin admin) throws SQLException {
         String query = "UPDATE users SET password = ? WHERE id = ? AND role = 'Admin'";
         try (Connection connection = DBConnectionFactory.getConnection();

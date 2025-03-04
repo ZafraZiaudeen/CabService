@@ -9,9 +9,12 @@ public class User {
     private String username;
     private String password;
     private String role;
+    private String email;
     
     // Full constructor with all attributes
-    public User(int userId, String name, String address, String phoneNumber, String username, String password, String role) {
+ // Corrected constructor with 8 parameters including email
+    public User(int userId, String name, String address, String phoneNumber, String username, 
+                String password, String role, String email) {
         this.userId = userId;
         this.name = name;
         this.address = address;
@@ -19,9 +22,11 @@ public class User {
         this.username = username;
         this.password = password;
         this.role = role;
+        this.email = email;
     }
     
-    // Constructor with key attributes (name, username, and password)
+  
+	// Constructor with key attributes (name, username, and password)
     public User(int userId, String name, String username, String password) {
         this.userId = userId;
         this.name = name;
@@ -97,4 +102,13 @@ public class User {
     public void setRole(String role) {
         this.role = role;
     }
+    
+    public String getEmail() {
+  		return email;
+  	}
+
+  	public void setEmail(String email) {
+  		this.email = email;
+  	}
+
 }

@@ -7,7 +7,7 @@
     <meta charset="UTF-8">
     <title>Manage Customers - Cab Service</title>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-       <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+    <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
     <link rel="stylesheet" href="<c:url value='/css/adminManagement.css'/>">
 </head>
 <body>
@@ -36,6 +36,7 @@
                             <th>Name</th>
                             <th>Address</th>
                             <th>Phone</th>
+                            <th>Email</th>
                             <th>Username</th>
                             <th>NIC</th>
                             <th>Actions</th>
@@ -51,15 +52,15 @@
                             <td><%= customer.getName() %></td>
                             <td><%= customer.getAddress() %></td>
                             <td><%= customer.getPhoneNumber() %></td>
+                            <td><%= customer.getEmail() %></td>
                             <td><%= customer.getUsername() %></td>
                             <td><%= customer.getNic() %></td>
                             <td>
                                 <div class="action-buttons">
-                                   <button class="action-btn edit" onclick="editCustomer(<%= customer.getUserId() %>)">
-			    <span class="material-icons">edit</span>
-			</button>
-
-                                    <button class="action-btn delete" onclick="showDeleteModal(<%= customer.getUserId() %>)">
+                                    <button class="action-btn edit" onclick="editCustomer(<%= customer.getCustomerId() %>)">
+                                        <span class="material-icons">edit</span>
+                                    </button>
+                                    <button class="action-btn delete" onclick="showDeleteModal(<%= customer.getCustomerId() %>)">
                                         <span class="material-icons">delete</span>
                                     </button>
                                 </div>
@@ -70,7 +71,7 @@
                             } else {
                         %>
                         <tr>
-                            <td colspan="6">No customers found.</td>
+                            <td colspan="7">No customers found.</td>
                         </tr>
                         <%
                             }
@@ -99,22 +100,41 @@
     </main>
     <script>
         let customerToDelete = null;
+
         function showDeleteModal(customerId) {
             customerToDelete = customerId;
             document.getElementById('deleteModal').style.display = 'block';
         }
+
         function closeDeleteModal() {
             document.getElementById('deleteModal').style.display = 'none';
             customerToDelete = null;
         }
+
         function confirmDelete() {
             if (customerToDelete !== null) {
                 window.location.href = `customer?action=delete&customerId=${customerToDelete}`;
             }
         }
-        
+
         function editCustomer(customerId) {
             window.location.href = "<%= request.getContextPath() %>/customer?action=edit&customerId=" + customerId;
+        }
+
+        function searchCustomers() {
+            const searchValue = document.getElementById('search').value.toLowerCase();
+            const rows = document.querySelectorAll('#customersTableBody tr');
+            rows.forEach(row => {
+                const cells = row.getElementsByTagName('td');
+                let found = false;
+                for (let i = 0; i < cells.length - 1; i++) { // Exclude Actions column
+                    if (cells[i].textContent.toLowerCase().includes(searchValue)) {
+                        found = true;
+                        break;
+                    }
+                }
+                row.style.display = found ? '' : 'none';
+            });
         }
     </script>
 </body>

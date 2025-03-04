@@ -26,6 +26,12 @@ public class DriverService {
 
     // Method to save a new driver
     public boolean addDriver(String name, String nic, String licenseNumber, String phoneNumber, int experience, boolean availability) {
+    	if (driverDAO.isNicExists(nic)) {
+            throw new IllegalArgumentException("NIC '" + nic + "' already exists.");
+        }
+        if (driverDAO.isLicenseNumberExists(licenseNumber)) {
+            throw new IllegalArgumentException("License Number '" + licenseNumber + "' already exists.");
+        }
         Driver driver = new Driver();
         driver.setName(name);
         driver.setNic(nic);

@@ -25,7 +25,7 @@ public class AssignmentController extends HttpServlet {
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String action = request.getParameter("action");
-        HttpSession session = request.getSession(false); 
+        HttpSession session = request.getSession(false);
 
         if (session == null || session.getAttribute("adminUser") == null) {
             System.out.println("Redirecting: No active session found!");
@@ -47,14 +47,14 @@ public class AssignmentController extends HttpServlet {
                 case "add":
                     request.getRequestDispatcher("/WEB-INF/view/admin/add-assignment.jsp").forward(request, response);
                     break;
-               
                 default:
                     response.sendRedirect(request.getContextPath() + "/assignment?action=list");
                     break;
             }
         } catch (Exception e) {
             e.printStackTrace();
-            response.sendRedirect(request.getContextPath() + "/assignment?action=list");
+            request.setAttribute("error", "An error occurred: " + e.getMessage());
+            request.getRequestDispatcher("/WEB-INF/view/admin/manageAssignment.jsp").forward(request, response);
         }
     }
 
@@ -68,29 +68,33 @@ public class AssignmentController extends HttpServlet {
 
                 boolean success = assignmentService.assignVehicleToDriver(driverId, vehicleId);
                 if (success) {
-                    request.getSession().setAttribute("message", "Assignment successful!");
+                    request.setAttribute("message", "Assignment successful!");
                 } else {
-                    request.getSession().setAttribute("error", "Assignment failed!");
+                    request.setAttribute("error", "Assignment failed!");
                 }
-            } 
-            else if ("unassign".equals(action)) {  // ✅ Handling unassign
+            } else if ("unassign".equals(action)) {
                 int driverId = Integer.parseInt(request.getParameter("driverId"));
                 int vehicleId = Integer.parseInt(request.getParameter("vehicleId"));
 
                 boolean success = assignmentService.unassignVehicle(driverId, vehicleId);
                 if (success) {
-                    request.getSession().setAttribute("message", "Unassignment successful!");
+                    request.setAttribute("message", "Unassignment successful!");
                 } else {
-                    request.getSession().setAttribute("error", "Unassignment failed!");
+                    request.setAttribute("error", "Unassignment failed!");
                 }
             }
 
-            response.sendRedirect(request.getContextPath() + "/assignment?action=list");
+            // After setting the message/error, forward to the list page instead of redirecting
+            List<Assignment> assignments = assignmentService.getAllAssignments();
+            request.setAttribute("assignments", assignments);
+            request.getRequestDispatcher("/WEB-INF/view/admin/manageAssignment.jsp").forward(request, response);
 
         } catch (Exception e) {
             e.printStackTrace();
-            response.sendRedirect(request.getContextPath() + "/assignment?action=list");
+            request.setAttribute("error", "An error occurred: " + e.getMessage());
+            List<Assignment> assignments = assignmentService.getAllAssignments();
+            request.setAttribute("assignments", assignments);
+            request.getRequestDispatcher("/WEB-INF/view/admin/manageAssignment.jsp").forward(request, response);
         }
     }
-
 }

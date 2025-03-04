@@ -80,24 +80,53 @@ public class AssignmentDAO {
 
 
 
-    // Method to remove an assignment (unassign vehicle from driver)
+	// Method to remove an assignment (unassign vehicle from driver) and reset driver availability
     public boolean unassignVehicle(int driverId, int vehicleId) {
-        String query = "DELETE FROM driver_vehicle WHERE driver_id = ? AND vehicle_id = ?";
+        String deleteQuery = "DELETE FROM driver_vehicle WHERE driver_id = ? AND vehicle_id = ?";
+        String updateVehicleQuery = "UPDATE vehicle SET status = 'Available' WHERE id = ?";
+        String updateDriverQuery = "UPDATE driver SET availability = ? WHERE id = ?";
 
-        try (Connection conn = DBConnectionFactory.getConnection();
-             PreparedStatement ps = conn.prepareStatement(query)) {
+        try (Connection conn = DBConnectionFactory.getConnection()) {
+            conn.setAutoCommit(false); // Start transaction
 
-            ps.setInt(1, driverId);
-            ps.setInt(2, vehicleId);
+            // Step 1: Delete the assignment
+            int rowsAffected = 0;
+            try (PreparedStatement psDelete = conn.prepareStatement(deleteQuery)) {
+                psDelete.setInt(1, driverId);
+                psDelete.setInt(2, vehicleId);
+                rowsAffected = psDelete.executeUpdate();
+            }
 
-            int rowsAffected = ps.executeUpdate();
-            return rowsAffected > 0;
+            if (rowsAffected > 0) {
+                // Step 2: Update vehicle status to "Available"
+                try (PreparedStatement psUpdateVehicle = conn.prepareStatement(updateVehicleQuery)) {
+                    psUpdateVehicle.setInt(1, vehicleId);
+                    psUpdateVehicle.executeUpdate();
+                }
+
+                // Step 3: Reset driver availability to true
+                try (PreparedStatement psUpdateDriver = conn.prepareStatement(updateDriverQuery)) {
+                    psUpdateDriver.setBoolean(1, true);
+                    psUpdateDriver.setInt(2, driverId);
+                    psUpdateDriver.executeUpdate();
+                }
+
+                conn.commit();
+                return true;
+            } else {
+                conn.rollback();
+                return false;
+            }
 
         } catch (SQLException e) {
             e.printStackTrace();
+            try (Connection conn = DBConnectionFactory.getConnection()) {
+                conn.rollback();
+            } catch (SQLException rollbackEx) {
+                rollbackEx.printStackTrace();
+            }
+            return false;
         }
-
-        return false;
     }
 
     // Method to get a specific assignment by driver ID and vehicle ID
