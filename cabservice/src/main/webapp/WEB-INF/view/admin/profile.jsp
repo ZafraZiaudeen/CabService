@@ -185,7 +185,7 @@
                 body.classList.toggle('sidebar-collapsed');
             });
 
-            // Initial check
+           
             if (sidebar.classList.contains('collapsed')) {
                 body.classList.add('sidebar-collapsed');
             }
