@@ -112,6 +112,12 @@
   	<description></description>
   	<servlet-class>com.cabservice.controller.AdminProfileController</servlet-class>
   </servlet>
+  <servlet>
+  	<servlet-name>CustomerProfileController</servlet-name>
+  	<display-name>CustomerProfileController</display-name>
+  	<description></description>
+  	<servlet-class>com.cabservice.controller.CustomerProfileController</servlet-class>
+  </servlet>
   <servlet-mapping>
   	<servlet-name>UserController</servlet-name>
   	<url-pattern>/UserController</url-pattern>
@@ -184,6 +190,10 @@
   <servlet-mapping>
   	<servlet-name>AdminProfileController</servlet-name>
   	<url-pattern>/AdminProfileController</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+  	<servlet-name>CustomerProfileController</servlet-name>
+  	<url-pattern>/CustomerProfileController</url-pattern>
   </servlet-mapping>
   
   

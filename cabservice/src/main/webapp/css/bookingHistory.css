@@ -452,8 +452,8 @@
     color: #2e7d32;
 }
         .btn-receipt {
-    background-color: #4CAF50; /* Green for receipt */
-    color: white;
+   /* Green for receipt */
+    color: #333;
     border: none;
     padding: 5px 10px;
     cursor: pointer;
@@ -461,7 +461,4 @@
     margin-left: 5px;
 }
 
-.btn-receipt:hover {
-    background-color: #45a049;
-}
  

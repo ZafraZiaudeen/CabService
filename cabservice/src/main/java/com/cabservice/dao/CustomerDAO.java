@@ -291,4 +291,22 @@ public class CustomerDAO {
         }
         return 0;
     }
+    
+    public void updateCustomerPassword(int customerId, String hashedPassword) throws SQLException {
+        String query = "UPDATE users SET password = ? WHERE id = (SELECT user_id FROM customer WHERE id = ?) AND role = 'Customer'";
+        try (Connection conn = DBConnectionFactory.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setString(1, hashedPassword);
+            stmt.setInt(2, customerId);
+            int rowsUpdated = stmt.executeUpdate();
+            if (rowsUpdated == 0) {
+                LOGGER.log(Level.WARNING, "Password update failed. No matching customer found for ID: " + customerId);
+                throw new SQLException("Password update failed. No matching customer found.");
+            }
+            LOGGER.log(Level.INFO, "Successfully updated password for customer with ID: " + customerId);
+        } catch (SQLException e) {
+            LOGGER.log(Level.SEVERE, "Error updating customer password for ID: " + customerId, e);
+            throw e;
+        }
+    }
 }

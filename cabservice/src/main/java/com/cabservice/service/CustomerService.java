@@ -39,4 +39,7 @@ public class CustomerService {
     public int getTotalCustomerCount() throws SQLException {
         return customerDAO.getTotalCustomerCount();
     }
+    public void updateCustomerPassword(int customerId, String hashedPassword) throws SQLException {
+        customerDAO.updateCustomerPassword(customerId, hashedPassword);
+    }
 }

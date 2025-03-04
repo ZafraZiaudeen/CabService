@@ -29,6 +29,8 @@
                     <%
                         if (session != null && session.getAttribute("customerUser") != null) {
                     %>
+                   <span class="material-icons profile-icon" onclick="window.location.href='<%= request.getContextPath() %>/customerProfile'"
+                    title="View Profile" style="cursor: pointer;">person</span>
                         <a href="<%= request.getContextPath() %>/user?action=logout" class="btn btn-outline">Logout</a>
                     <%
                         } else {

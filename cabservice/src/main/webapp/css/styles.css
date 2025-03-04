@@ -609,17 +609,6 @@ footer {
     z-index: 10;
 }
 
-.form-group:nth-child(1):before {
-    content: 'location_on';
-}
-
-.form-group:nth-child(2):before {
-    content: 'location_off';
-}
-
-.form-group:nth-child(3):before {
-    content: 'directions_car';
-}
  .menu-toggle {
             display: none;
             cursor: pointer;
