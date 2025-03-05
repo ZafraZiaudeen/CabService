@@ -66,53 +66,63 @@
             color: red;
             margin-top: 10px;
         }
+        .success-message {
+            color: green;
+            margin-top: 10px;
+        }
     </style>
 </head>
 <body>
     <main class="container">
         <div class="form-box">
             <h2>Register</h2>
-            <form action="user?action=register" id="registrationForm" method="post">
-                <div class="input-group">
-                    <label for="name">Full Name</label>
-                    <input type="text" id="name" name="name" required>
-                </div>
-                <div class="input-group">
-                    <label for="address">Address</label>
-                    <input type="text" id="address" name="address" required>
-                </div>
-                <div class="input-group">
-                    <label for="phone">Phone Number</label>
-                    <input type="text" id="phone" name="phoneNumber" required>
-                </div>
-                <div class="input-group">
-                    <label for="email">Email</label>
-                    <input type="email" id="email" name="email" required>
-                </div>
-                <div class="input-group">
-                    <label for="nic">NIC</label>
-                    <input type="text" id="nic" name="nic" required>
-                </div>
-                <div class="input-group">
-                    <label for="username">Username</label>
-                    <input type="text" id="username" name="username" required>
-                </div>
-                <div class="input-group">
-                    <label for="password">Password</label>
-                    <input type="password" id="password" name="password" required>
-                </div>
-                <button type="submit">Register</button>
-            </form>
-            <p>Already have an account? <a href="user?action=login">Login</a></p>
+            <% if (request.getAttribute("successMessage") != null) { %>
+                <p class="success-message"><%= request.getAttribute("successMessage") %></p>
+                <p><a href="user?action=login">Click here to log in</a></p>
+            <% } else if (request.getAttribute("message") != null) { %>
+                <p class="success-message"><%= request.getAttribute("message") %></p>
+            <% } else { %>
+                <form action="user?action=register" id="registrationForm" method="post">
+                    <div class="input-group">
+                        <label for="name">Full Name</label>
+                        <input type="text" id="name" name="name" required>
+                    </div>
+                    <div class="input-group">
+                        <label for="address">Address</label>
+                        <input type="text" id="address" name="address" required>
+                    </div>
+                    <div class="input-group">
+                        <label for="phone">Phone Number</label>
+                        <input type="text" id="phone" name="phoneNumber" required>
+                    </div>
+                    <div class="input-group">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" name="email" required>
+                    </div>
+                    <div class="input-group">
+                        <label for="nic">NIC</label>
+                        <input type="text" id="nic" name="nic" required>
+                    </div>
+                    <div class="input-group">
+                        <label for="username">Username</label>
+                        <input type="text" id="username" name="username" required>
+                    </div>
+                    <div class="input-group">
+                        <label for="password">Password</label>
+                        <input type="password" id="password" name="password" required>
+                    </div>
+                    <button type="submit">Register</button>
+                </form>
+                <p>Already have an account? <a href="user?action=login">Login</a></p>
+            <% } %>
             <% if (request.getAttribute("errorMessage") != null) { %>
                 <p class="error-message"><%= request.getAttribute("errorMessage") %></p>
             <% } %>
         </div>
     </main>
 </body>
-
 <script>
-    document.getElementById("registrationForm").addEventListener("submit", function(event) {
+    document.getElementById("registrationForm")?.addEventListener("submit", function(event) {
         const email = document.getElementById("email").value;
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(email)) {

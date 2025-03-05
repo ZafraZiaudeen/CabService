@@ -370,7 +370,7 @@ public class BookingDAO {
         List<Map<String, Object>> bookingHistory = new ArrayList<>();
         String sql = """
             SELECT b.id AS booking_id, b.booked_at, b.pickup_location, b.dropoff_location, b.status,
-                   b.vehicle_id, bi.total_amount, bi.payment_type
+                   b.vehicle_id, bi.final_amount, bi.payment_type
             FROM bookings b
             LEFT JOIN billing bi ON b.id = bi.booking_id
             WHERE b.customer_id = ?
@@ -388,8 +388,8 @@ public class BookingDAO {
                 booking.put("pickup_location", rs.getString("pickup_location"));
                 booking.put("dropoff_location", rs.getString("dropoff_location"));
                 booking.put("status", rs.getString("status"));
-                booking.put("vehicle_id", rs.getInt("vehicle_id")); // Added vehicle_id
-                booking.put("total_amount", rs.getDouble("total_amount"));
+                booking.put("vehicle_id", rs.getInt("vehicle_id")); 
+                booking.put("final_amount", rs.getDouble("final_amount"));
                 booking.put("payment_type", rs.getString("payment_type"));
                 bookingHistory.add(booking);
             }

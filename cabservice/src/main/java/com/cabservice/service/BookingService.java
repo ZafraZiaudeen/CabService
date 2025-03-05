@@ -50,7 +50,7 @@ public class BookingService {
     }
 
     public int createBilling(Billing billing) throws SQLException {
-        return billingDAO.createBilling(billing);  // Ensure the DAO method returns the generated ID
+        return billingDAO.createBilling(billing);  
     }
 
     public Billing getBillingById(int billingId) throws SQLException {

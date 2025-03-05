@@ -12,266 +12,38 @@
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+    <link rel="stylesheet" href="<c:url value='/css/customerProfile.css'/>">
     <link rel="stylesheet" href="<c:url value='/css/styles.css'/>">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Inter', sans-serif;
-        }
 
-        body {
-            background-color: #f5f5f5;
-            color: #000000;
-            line-height: 1.6;
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 20px;
-        }
-
-        .main-content {
-            padding: 40px 0;
-        }
-
-        .page-header {
-            margin-top: 50px;
-            margin-bottom: 24px;
-            text-align: center;
-        }
-
-        .page-title {
-            font-size: 28px;
-            font-weight: 700;
-            color: #000000;
-            margin-bottom: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-        }
-
-        .page-title .material-icons {
-            color: #FFC107;
-            font-size: 32px;
-        }
-
-        .page-description {
-            color: #666666;
-            font-size: 16px;
-        }
-
-        .settings-container {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 24px;
-            background-color: #ffffff;
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-            padding: 20px;
-        }
-
-        @media (min-width: 768px) {
-            .settings-container {
-                grid-template-columns: 1fr;
-                max-width: 600px;
-                margin: 0 auto;
-            }
-        }
-
-        .settings-content {
-            background-color: #ffffff;
-            border-radius: 8px;
-            overflow: hidden;
-        }
-
-        .settings-section {
-            padding: 24px;
-            border-bottom: 1px solid #e0e0e0;
-        }
-
-        .settings-section:last-child {
-            border-bottom: none;
-        }
-
-        .section-title {
-            font-size: 20px;
-            font-weight: 600;
-            margin-bottom: 20px;
-            color: #000000;
-            border-left: 4px solid #FFC107;
-            padding-left: 12px;
-        }
-
-        .overview-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 20px;
-        }
-
-        .overview-table td {
-            padding: 12px;
-            border-bottom: 1px solid #e0e0e0;
-            font-size: 14px;
-        }
-
-        .overview-table td:first-child {
-            font-weight: 500;
-            color: #000000;
-            width: 30%;
-        }
-
-        .overview-table td:last-child {
-            color: #666666;
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        .form-label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 500;
-            color: #000000;
-            font-size: 14px;
-        }
-
-        .form-control {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid #cccccc;
-            border-radius: 6px;
-            font-size: 14px;
-            color: #000000;
-            background-color: #fafafa;
-            transition: all 0.2s;
-        }
-
-        .form-control:focus {
-            outline: none;
-            border-color: #FFC107;
-            box-shadow: 0 0 0 3px rgba(255, 193, 7, 0.2);
-        }
-
-        .form-hint {
-            margin-top: 6px;
-            font-size: 12px;
-            color: #666666;
-        }
-
-        .form-row {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 16px;
-        }
-
-        @media (min-width: 640px) {
-            .form-row {
-                grid-template-columns: 1fr 1fr;
-            }
-        }
-
-        .form-footer {
-            display: flex;
-            justify-content: flex-end;
-            margin-top: 24px;
-            gap: 12px;
-        }
-
-        .btn-primary {
-            padding: 12px 24px;
-            background-color: #FFC107;
-            color: #000000;
-            border: none;
-            border-radius: 6px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background-color 0.2s;
-        }
-
-        .btn-primary:hover {
-            background-color: #e0a800;
-        }
-
-        .alert {
-            padding: 12px 16px;
-            border-radius: 6px;
-            margin-bottom: 16px;
-            display: flex;
-            align-items: center;
-        }
-
-        .alert-icon {
-            margin-right: 12px;
-            font-size: 20px;
-        }
-
-        .alert-success {
-            background-color: #e6ffe6;
-            color: #006400;
-            border: 1px solid #b3ffb3;
-        }
-
-        .alert-error {
-            background-color: #ffe6e6;
-            color: #8b0000;
-            border: 1px solid #ffcccc;
-        }
-
-        .password-strength {
-            margin-top: 8px;
-        }
-
-        .strength-meter {
-            height: 4px;
-            background-color: #e0e0e0;
-            border-radius: 2px;
-            margin-top: 6px;
-            overflow: hidden;
-        }
-
-        .strength-meter-fill {
-            height: 100%;
-            border-radius: 2px;
-            transition: width 0.3s ease;
-        }
-
-        .strength-text {
-            font-size: 12px;
-            margin-top: 4px;
-            color: #666666;
-        }
-
-        .strength-weak .strength-meter-fill {
-            width: 25%;
-            background-color: #ff4d4d;
-        }
-
-        .strength-medium .strength-meter-fill {
-            width: 50%;
-            background-color: #ff9900;
-        }
-
-        .strength-good .strength-meter-fill {
-            width: 75%;
-            background-color: #FFC107;
-        }
-
-        .strength-strong .strength-meter-fill {
-            width: 100%;
-            background-color: #006400;
-        }
-    </style>
 </head>
 <body>
     <jsp:include page="/Header.jsp" />
 
     <!-- Main Content -->
     <main class="main-content">
+        <!-- Alerts at the top of main-content -->
+
+        <% if (request.getAttribute("success") != null) { %>
+         <div id="successAlert" class="alert alert-success">
+         	<div class="alert-msg-box">
+	         	<span class="material-icons alert-icon">check_circle</span>
+	             <span><%= request.getAttribute("success") %></span>
+         	</div>
+         </div>
+        <% request.removeAttribute("success"); /* Clear the attribute! */ } %>
+
+
+        <% if (request.getAttribute("error") != null) { %>
+         <div id="errorAlert" class="alert alert-error">
+         <div class="alert-msg-box">
+         	<span class="material-icons alert-icon">error</span>
+             <span><%= request.getAttribute("error") %></span>
+         </div>
+         </div>
+        <% request.removeAttribute("error"); /* Clear the attribute! */ } %>
+
+
+
         <div class="container">
             <div class="page-header">
                 <h1 class="page-title">
@@ -282,103 +54,140 @@
             </div>
 
             <div class="settings-container">
+                <!-- Settings Navigation -->
+                <div class="settings-nav">
+                    <button class="nav-item active" data-target="overview">
+                        <span class="material-icons">person</span>
+                        Profile Overview
+                    </button>
+                    <button class="nav-item" data-target="personal-info">
+                        <span class="material-icons">edit</span>
+                        Personal Information
+                    </button>
+                    <button class="nav-item" data-target="password">
+                        <span class="material-icons">lock</span>
+                        Password
+                    </button>
+                </div>
+
                 <!-- Settings Content -->
                 <div class="settings-content">
-                    <!-- Success Message -->
-                    <c:if test="${not empty success}">
-                        <div id="successAlert" class="alert alert-success">
-                            <span class="material-icons alert-icon">check_circle</span>
-                            <span id="successMessage">${success}</span>
-                        </div>
-                    </c:if>
-
-                    <!-- Error Message -->
-                    <c:if test="${not empty error}">
-                        <div id="errorAlert" class="alert alert-error">
-                            <span class="material-icons alert-icon">error</span>
-                            <span id="errorMessage">${error}</span>
-                        </div>
-                    </c:if>
-
                     <!-- Overview Section -->
-                    <div class="settings-section">
+                    <div id="overview" class="settings-section active">
                         <h2 class="section-title">Profile Overview</h2>
-                        <table class="overview-table">
-                            <tr>
-                                <td>Full Name</td>
-                                <td><%= request.getAttribute("name") != null ? request.getAttribute("name") : "Not set" %></td>
-                            </tr>
-                            <tr>
-                                <td>Username</td>
-                                <td><%= request.getAttribute("username") != null ? request.getAttribute("username") : "Not set" %></td>
-                            </tr>
-                            <tr>
-                                <td>Email</td>
-                                <td><%= request.getAttribute("email") != null ? request.getAttribute("email") : "Not set" %></td>
-                            </tr>
-                            <tr>
-                                <td>Phone Number</td>
-                                <td><%= request.getAttribute("phone") != null ? request.getAttribute("phone") : "Not set" %></td>
-                            </tr>
-                            <tr>
-                                <td>Address</td>
-                                <td><%= request.getAttribute("address") != null ? request.getAttribute("address") : "Not set" %></td>
-                            </tr>
-                            <tr>
-                                <td>NIC</td>
-                                <td><%= request.getAttribute("nic") != null ? request.getAttribute("nic") : "Not set" %></td>
-                            </tr>
-                        </table>
+                        <div class="profile-card">
+                            <div class="profile-header">
+                                <div class="profile-avatar">
+                                    <span class="material-icons">account_circle</span>
+                                </div>
+                                <div class="profile-info">
+                                    <h3 class="profile-name" id="overviewName"><%= request.getAttribute("name") != null ? request.getAttribute("name") : "Not set" %></h3>
+                                    <p class="profile-username" id="overviewUsername">@<%= request.getAttribute("username") != null ? request.getAttribute("username") : "username" %></p>
+                                </div>
+                            </div>
+                            <div class="profile-details">
+                                <div class="detail-item">
+                                    <span class="material-icons">email</span>
+                                    <div class="detail-content">
+                                        <p class="detail-label">Email</p>
+                                        <p class="detail-value" id="overviewEmail"><%= request.getAttribute("email") != null ? request.getAttribute("email") : "Not set" %></p>
+                                    </div>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="material-icons">phone</span>
+                                    <div class="detail-content">
+                                        <p class="detail-label">Phone</p>
+                                        <p class="detail-value" id="overviewPhone"><%= request.getAttribute("phone") != null ? request.getAttribute("phone") : "Not set" %></p>
+                                    </div>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="material-icons">home</span>
+                                    <div class="detail-content">
+                                        <p class="detail-label">Address</p>
+                                        <p class="detail-value" id="overviewAddress"><%= request.getAttribute("address") != null ? request.getAttribute("address") : "Not set" %></p>
+                                    </div>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="material-icons">badge</span>
+                                    <div class="detail-content">
+                                        <p class="detail-label">NIC</p>
+                                        <p class="detail-value" id="overviewNic"><%= request.getAttribute("nic") != null ? request.getAttribute("nic") : "Not set" %></p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="profile-actions">
+                                <button class="btn-secondary" onclick="showSection('personal-info')">
+                                    <span class="material-icons">edit</span>
+                                    Edit Profile
+                                </button>
+                            </div>
+                        </div>
                     </div>
 
                     <!-- Personal Information Section -->
-                    <div class="settings-section">
+                    <div id="personal-info" class="settings-section">
                         <h2 class="section-title">Edit Personal Information</h2>
                         <form id="personalInfoForm" action="<%= request.getContextPath() %>/customerProfile" method="post">
                             <input type="hidden" name="action" value="updatePersonalInfo">
                             <div class="form-group">
                                 <label for="name" class="form-label">Full Name</label>
-                                <input type="text" id="name" name="name" class="form-control" value="<%= request.getAttribute("name") != null ? request.getAttribute("name") : "" %>" required>
+                                <div class="input-with-icon">
+                                    <input type="text" id="name" name="name" class="form-control" value="<%= request.getAttribute("name") != null ? request.getAttribute("name") : "" %>" required>
+                                </div>
                             </div>
                             <div class="form-group">
                                 <label for="username" class="form-label">Username</label>
-                                <input type="text" id="username" name="username" class="form-control" value="<%= request.getAttribute("username") != null ? request.getAttribute("username") : "" %>" required>
+                                <div class="input-with-icon">
+                                    <input type="text" id="username" name="username" class="form-control" value="<%= request.getAttribute("username") != null ? request.getAttribute("username") : "" %>" required>
+                                </div>
                             </div>
                             <div class="form-group">
                                 <label for="email" class="form-label">Email Address</label>
-                                <input type="email" id="email" name="email" class="form-control" value="<%= request.getAttribute("email") != null ? request.getAttribute("email") : "" %>" required>
+                                <div class="input-with-icon">
+                                    <input type="email" id="email" name="email" class="form-control" value="<%= request.getAttribute("email") != null ? request.getAttribute("email") : "" %>" required>
+                                </div>
                             </div>
                             <div class="form-group">
                                 <label for="phone" class="form-label">Phone Number</label>
-                                <input type="tel" id="phone" name="phone" class="form-control" value="<%= request.getAttribute("phone") != null ? request.getAttribute("phone") : "" %>" required>
-                                <p class="form-hint">We'll use this number to send you ride updates.</p>
+                                <div class="input-with-icon">
+                                    <input type="tel" id="phone" name="phone" class="form-control" value="<%= request.getAttribute("phone") != null ? request.getAttribute("phone") : "" %>" required>
+                                </div>
                             </div>
                             <div class="form-group">
                                 <label for="address" class="form-label">Address</label>
-                                <input type="text" id="address" name="address" class="form-control" value="<%= request.getAttribute("address") != null ? request.getAttribute("address") : "" %>">
+                                <div class="input-with-icon">
+                                    <input type="text" id="address" name="address" class="form-control" value="<%= request.getAttribute("address") != null ? request.getAttribute("address") : "" %>">
+                                </div>
                             </div>
                             <div class="form-group">
                                 <label for="nic" class="form-label">NIC</label>
-                                <input type="text" id="nic" name="nic" class="form-control" value="<%= request.getAttribute("nic") != null ? request.getAttribute("nic") : "" %>">
+                                <div class="input-with-icon">
+                                    <input type="text" id="nic" name="nic" class="form-control" value="<%= request.getAttribute("nic") != null ? request.getAttribute("nic") : "" %>">
+                                </div>
                             </div>
                             <div class="form-footer">
+                                <button type="button" class="btn-outline" onclick="showSection('overview')">Cancel</button>
                                 <button type="submit" class="btn-primary">Save Changes</button>
                             </div>
                         </form>
                     </div>
 
                     <!-- Password Section -->
-                    <div class="settings-section">
+                    <div id="password" class="settings-section">
                         <h2 class="section-title">Change Password</h2>
                         <form id="passwordForm" action="<%= request.getContextPath() %>/customerProfile" method="post">
                             <input type="hidden" name="action" value="updatePassword">
                             <div class="form-group">
                                 <label for="currentPassword" class="form-label">Current Password</label>
-                                <input type="password" id="currentPassword" name="currentPassword" class="form-control" required>
+                                <div class="input-with-icon">
+                                    <input type="password" id="currentPassword" name="currentPassword" class="form-control" required>
+                                </div>
                             </div>
                             <div class="form-group">
                                 <label for="newPassword" class="form-label">New Password</label>
-                                <input type="password" id="newPassword" name="newPassword" class="form-control" required>
+                                <div class="input-with-icon">
+                                    <input type="password" id="newPassword" name="newPassword" class="form-control" required>
+                                </div>
                                 <div class="password-strength" id="passwordStrength">
                                     <div class="strength-meter">
                                         <div class="strength-meter-fill"></div>
@@ -389,9 +198,12 @@
                             </div>
                             <div class="form-group">
                                 <label for="confirmPassword" class="form-label">Confirm New Password</label>
-                                <input type="password" id="confirmPassword" name="confirmPassword" class="form-control" required>
+                                <div class="input-with-icon">
+                                    <input type="password" id="confirmPassword" name="confirmPassword" class="form-control" required>
+                                </div>
                             </div>
                             <div class="form-footer">
+                                <button type="button" class="btn-outline" onclick="showSection('overview')">Cancel</button>
                                 <button type="submit" class="btn-primary">Update Password</button>
                             </div>
                         </form>
@@ -404,37 +216,121 @@
     <jsp:include page="/Footer.jsp" />
 
     <script>
-        // Show success message
-        function showSuccess(message) {
-            const successAlert = document.getElementById('successAlert');
-            const successMessage = document.getElementById('successMessage');
-            successMessage.textContent = message || 'Your changes have been saved successfully.';
-            successAlert.style.display = 'flex';
-            setTimeout(() => successAlert.style.display = 'none', 5000);
-        }
+       
+       function showAlert(alertId) {
+           const alert = document.getElementById(alertId);
+           if (alert) {
+               alert.classList.add('show');
+               
+               // Automatically hide after 5 seconds
+               setTimeout(() => {
+                   closeAlert(alertId);
+               }, 5000);
+           }
+       }
 
-        // Show error message
-        function showError(message) {
-            const errorAlert = document.getElementById('errorAlert');
-            const errorMessage = document.getElementById('errorMessage');
-            errorMessage.textContent = message || 'An error occurred. Please try again.';
-            errorAlert.style.display = 'flex';
-            setTimeout(() => errorAlert.style.display = 'none', 5000);
-        }
+       function closeAlert(alertId) {
+           const alert = document.getElementById(alertId);
+           if (alert) {
+               alert.classList.remove('show');
+               alert.classList.add('hide');
+               
+               // Remove the alert from DOM after animation completes
+               setTimeout(() => {
+                   alert.classList.remove('hide');
+                   alert.style.display = 'none';
+               }, 400);
+           }
+       }
 
-        // Password Strength Meter
-        document.getElementById('newPassword').addEventListener('input', function(e) {
-            updatePasswordStrength(e.target.value);
+       // Call showAlert for success and error alerts when page loads
+       document.addEventListener("DOMContentLoaded", () => {
+           const successAlert = document.getElementById('successAlert');
+           const errorAlert = document.getElementById('errorAlert');
+
+           if (successAlert) {
+               showAlert('successAlert');
+           }
+
+           if (errorAlert) {
+               showAlert('errorAlert');
+           }
+       });
+
+        // Initialize the page
+        document.addEventListener("DOMContentLoaded", () => {
+            // Set up navigation
+            const navItems = document.querySelectorAll(".nav-item");
+            navItems.forEach((item) => {
+                item.addEventListener("click", function () {
+                    const target = this.getAttribute("data-target");
+                    showSection(target);
+                });
+            });
+
+            // Check for initial success or error messages from server and handle navigation
+            const errorMessage = "<%= request.getAttribute("error") %>";
+
+            if (errorMessage) {
+                const action = "<%= request.getParameter("action") %>"; 
+                if (action === "updatePersonalInfo") {
+                    showSection("personal-info");
+                } else if (action === "updatePassword") {
+                    showSection("password");
+                } else {
+                    showSection("overview"); // Default to overview if no action
+                }
+            }
+
+
+            // Set up password strength meter
+            const newPasswordInput = document.getElementById("newPassword");
+            if (newPasswordInput) {
+                updatePasswordStrength(newPasswordInput.value); // Initial call
+                newPasswordInput.addEventListener("input", function () {
+                    updatePasswordStrength(this.value);
+                });
+            }
+
+            // Initialize profile overview with form values
+            updateProfileOverview();
         });
 
-        function updatePasswordStrength(password) {
-            const strengthMeter = document.getElementById('passwordStrength');
-            const strengthText = document.getElementById('strengthText');
-            strengthMeter.classList.remove('strength-weak', 'strength-medium', 'strength-good', 'strength-strong');
+        // Show a specific section and handle success message for overview
+        function showSection(sectionId) {
+            const sections = document.querySelectorAll(".settings-section");
+            sections.forEach((section) => {
+                section.classList.remove("active");
+            });
 
-            if (!password) {
-                strengthText.textContent = 'Weak';
-                strengthMeter.classList.add('strength-weak');
+            const selectedSection = document.getElementById(sectionId);
+            if (selectedSection) {
+                selectedSection.classList.add("active");
+            }
+
+            const navItems = document.querySelectorAll(".nav-item");
+            navItems.forEach((item) => {
+                item.classList.remove("active");
+                if (item.getAttribute("data-target") === sectionId) {
+                    item.classList.add("active");
+                }
+            });
+        }
+
+         // Update password strength meter
+        function updatePasswordStrength(password) {
+            const strengthMeter = document.getElementById("passwordStrength");
+            const strengthText = document.getElementById("strengthText");
+            const strengthMeterFill = document.querySelector(".strength-meter-fill");
+
+            if (!strengthMeter || !strengthText || !strengthMeterFill) return;
+
+            // Reset classes and bar
+            strengthMeter.classList.remove("strength-weak", "strength-medium", "strength-good", "strength-strong");
+            strengthMeterFill.style.width = "0"; // Reset fill width
+
+            if (!password || password.trim() === "") {
+                strengthText.textContent = "Weak";
                 return;
             }
 
@@ -447,29 +343,41 @@
             if (/[^a-zA-Z0-9]/.test(password)) strength += 1;
 
             if (strength <= 2) {
-                strengthText.textContent = 'Weak';
-                strengthMeter.classList.add('strength-weak');
+                strengthText.textContent = "Weak";
+                strengthMeter.classList.add("strength-weak");
+                strengthMeterFill.style.width = "25%";
             } else if (strength <= 4) {
-                strengthText.textContent = 'Medium';
-                strengthMeter.classList.add('strength-medium');
+                strengthText.textContent = "Medium";
+                strengthMeter.classList.add("strength-medium");
+                strengthMeterFill.style.width = "50%";
             } else if (strength <= 5) {
-                strengthText.textContent = 'Good';
-                strengthMeter.classList.add('strength-good');
+                strengthText.textContent = "Good";
+                strengthMeter.classList.add("strength-good");
+                strengthMeterFill.style.width = "75%";
             } else {
-                strengthText.textContent = 'Strong';
-                strengthMeter.classList.add('strength-strong');
+                strengthText.textContent = "Strong";
+                strengthMeter.classList.add("strength-strong");
+                strengthMeterFill.style.width = "100%";
             }
         }
 
-        // Client-side validation for password form
-        document.getElementById('passwordForm').addEventListener('submit', function(e) {
-            const newPassword = document.getElementById('newPassword').value;
-            const confirmPassword = document.getElementById('confirmPassword').value;
-            if (newPassword !== confirmPassword) {
-                e.preventDefault();
-                showError('New passwords do not match.');
-            }
-        });
+        // Update profile overview with form values
+        function updateProfileOverview() {
+            const name = document.getElementById("name").value || "<%= request.getAttribute("name") != null ? request.getAttribute("name") : "Not set" %>";
+            const username = document.getElementById("username").value || "<%= request.getAttribute("username") != null ? request.getAttribute("username") : "username" %>";
+            const email = document.getElementById("email").value || "<%= request.getAttribute("email") != null ? request.getAttribute("email") : "Not set" %>";
+            const phone = document.getElementById("phone").value || "<%= request.getAttribute("phone") != null ? request.getAttribute("phone") : "Not set" %>";
+            const address = document.getElementById("address").value || "<%= request.getAttribute("address") != null ? request.getAttribute("address") : "Not set" %>";
+            const nic = document.getElementById("nic").value || "<%= request.getAttribute("nic") != null ? request.getAttribute("nic") : "Not set" %>";
+
+            document.getElementById("overviewName").textContent = name;
+            document.getElementById("overviewUsername").textContent = "@" + username;
+            document.getElementById("overviewEmail").textContent = email;
+            document.getElementById("overviewPhone").textContent = phone;
+            document.getElementById("overviewAddress").textContent = address;
+            document.getElementById("overviewNic").textContent = nic;
+        }
+
     </script>
 </body>
 </html>

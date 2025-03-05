@@ -53,6 +53,6 @@ public class BookingHistoryController extends HttpServlet {
     }
 
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        doGet(request, response); // Delegate POST to GET for simplicity
+        doGet(request, response); 
     }
 }

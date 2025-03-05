@@ -120,7 +120,7 @@
                                     <span class="status-badge <%= statusClass %>"><%= status %></span>
                                 </td>
                                 <td data-label="Amount" class="amount">
-                                    Rs.<%= booking.get("total_amount") != null ? String.format("%.2f", booking.get("total_amount")) : "N/A" %>
+                                    Rs.<%= booking.get("final_amount") != null ? String.format("%.2f", booking.get("final_amount")) : "N/A" %>
                                 </td>
                                 <td data-label="Payment">
                                     <span class="payment-type">
