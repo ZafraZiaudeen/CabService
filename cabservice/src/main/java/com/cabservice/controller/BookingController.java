@@ -112,8 +112,7 @@ public class BookingController extends HttpServlet {
                 String dropoffLocation = request.getParameter("dropoff_location");
                 String distanceKmStr = request.getParameter("distance_km");
 
-                // Validation logic (unchanged) ...
-
+              
                 int customerId = Integer.parseInt(customerIdStr);
                 int vehicleId = Integer.parseInt(vehicleIdStr);
                 double distanceKm = Double.parseDouble(distanceKmStr);

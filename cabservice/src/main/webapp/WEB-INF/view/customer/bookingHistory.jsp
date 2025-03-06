@@ -30,7 +30,7 @@
                 <span class="material-icons">history</span>
                 Your Booking History
             </h1>
-            <p class="page-subtitle">View and manage all your past and upcoming rides</p>
+            <p class="page-subtitle">View and manage all your past and upcoming rides. Please set your Active bookings to complete if you completed your ride.</p>
         </div>
 
         <% 

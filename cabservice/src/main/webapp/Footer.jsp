@@ -64,13 +64,13 @@
             
             <div class="footer-section">
                 <h3>Contact Info</h3>
-                <p>Email: info@cabservice.com</p>
-                <p>Phone: +1 (123) 456-7890</p>
-                <p>Address: 123 Cab Street, City, Country</p>
+                <p>Email: megacitycab11@gmail.com</p>
+                <p>Phone: +94 (777) 123-4567</p>
+                <p>Address: 123 Main street,Colombo11,Sri Lanka</p>
             </div>
         </div>
         <div class="footer-bottom">
-            <p>&copy; 2023 CabService. All rights reserved.</p>
+            <p>&copy; 2023 Mega City Cab. All rights reserved.</p>
         </div>
     </footer>
 

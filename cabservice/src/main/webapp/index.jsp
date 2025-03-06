@@ -37,11 +37,6 @@
                     <p>Reliable airport pickup and drop-off services.</p>
                 </div>
                 <div class="service-card">
-                    <span class="material-icons">event_available</span>
-                    <h3>Advance Booking</h3>
-                    <p>Plan ahead and book your rides in advance.</p>
-                </div>
-                <div class="service-card">
                     <span class="material-icons">star</span>
                     <h3>Premium Cars</h3>
                     <p>Luxury vehicles for special occasions.</p>
@@ -90,13 +85,13 @@
                 <p>All our vehicles undergo regular maintenance checks, and our drivers are thoroughly vetted for your safety.</p>
             </div>
             
-            <div class="benefit-card">
-                <div class="benefit-icon">
-                    <span class="material-icons">support_agent</span>
-                </div>
-                <h3>24/7 Support</h3>
-                <p>Our customer support team is available round the clock to assist you with any queries or concerns.</p>
-            </div>
+           <div class="benefit-card">
+    <div class="benefit-icon">
+        <span class="material-icons">group</span>
+    </div>
+    <h3>Seamless Group Travel</h3>
+    <p>Book larger vehicles for family or friends with ease, making group trips comfortable and hassle-free.</p>
+</div>
             
             <div class="benefit-card">
                 <div class="benefit-icon">
