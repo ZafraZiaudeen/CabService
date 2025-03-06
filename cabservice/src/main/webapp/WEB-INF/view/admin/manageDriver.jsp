@@ -118,6 +118,47 @@
         function editDriver(driverId) {
             window.location.href = "<%= request.getContextPath() %>/driver?action=edit&driverId=" + driverId;
         }
+        function searchDrivers() {
+            const searchValue = document.getElementById('search').value.toLowerCase();
+            const tableBody = document.getElementById('driversTableBody');
+            const rows = tableBody.getElementsByTagName('tr');
+            let visibleRows = 0;
+
+           
+            const existingNoResults = document.getElementById('noResultsRow');
+            if (existingNoResults) {
+                tableBody.removeChild(existingNoResults);
+            }
+
+            // Filter rows
+            for (let i = 0; i < rows.length; i++) {
+                const row = rows[i];
+                const name = row.cells[0].textContent.toLowerCase();
+                const nic = row.cells[1].textContent.toLowerCase();
+                const licenseNumber = row.cells[2].textContent.toLowerCase();
+                const phone = row.cells[3].textContent.toLowerCase();
+
+                if (name.includes(searchValue) || nic.includes(searchValue) || 
+                    licenseNumber.includes(searchValue) || phone.includes(searchValue)) {
+                    row.style.display = '';
+                    visibleRows++;
+                } else {
+                    row.style.display = 'none';
+                }
+            }
+
+            // If no rows are visible, add a "No drivers found" message
+            if (visibleRows === 0) {
+                const noResultsRow = document.createElement('tr');
+                noResultsRow.id = 'noResultsRow';
+                const noResultsCell = document.createElement('td');
+                noResultsCell.colSpan = 7;
+                noResultsCell.textContent = 'No drivers found for the search.';
+                noResultsCell.style.textAlign = 'center';
+                noResultsRow.appendChild(noResultsCell);
+                tableBody.appendChild(noResultsRow);
+            }
+        }
     </script>
 </body>
 

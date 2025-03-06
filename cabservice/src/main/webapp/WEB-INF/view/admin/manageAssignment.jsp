@@ -34,7 +34,14 @@
                 New Assignment
             </button>
         </div>
-
+<div class="search-container">
+            <div class="search-bar">
+                <input type="text" id="search" placeholder="Search by driver, plate number, or model" onkeyup="searchAssignments()">
+                <button class="search-btn" onclick="searchAssignments()">
+                    <span class="material-icons">search</span>
+                </button>
+            </div>
+        </div>
         <section class="assignments-table">
             <div class="table-container">
                 <% if (assignments != null && !assignments.isEmpty()) { %>
@@ -49,7 +56,7 @@
                                 <th>Actions</th>
                             </tr>
                         </thead>
-                       <tbody>
+                       <tbody id="assignmentsTableBody">
     <% for (Assignment assignment : assignments) { %>
         <tr>
             <td>
@@ -138,6 +145,46 @@
             handleResize();
             window.addEventListener('resize', handleResize);
         });
+     // Search functionality for assignments
+        function searchAssignments() {
+            const searchValue = document.getElementById('search').value.toLowerCase();
+            const tableBody = document.getElementById('assignmentsTableBody');
+            let rows = tableBody ? tableBody.getElementsByTagName('tr') : [];
+            let visibleRows = 0;
+
+            const existingNoResults = document.getElementById('noResultsRow');
+            if (existingNoResults && tableBody) {
+                tableBody.removeChild(existingNoResults);
+            }
+
+            if (tableBody) {
+                for (let i = 0; i < rows.length; i++) {
+                    const row = rows[i];
+                    const driverName = row.cells[0].textContent.toLowerCase();
+                    const plateNumber = row.cells[1].textContent.toLowerCase();
+                    const model = row.cells[2].textContent.toLowerCase();
+
+                    if (driverName.includes(searchValue) || plateNumber.includes(searchValue) || 
+                        model.includes(searchValue)) {
+                        row.style.display = '';
+                        visibleRows++;
+                    } else {
+                        row.style.display = 'none';
+                    }
+                }
+
+                if (visibleRows === 0) {
+                    const noResultsRow = document.createElement('tr');
+                    noResultsRow.id = 'noResultsRow';
+                    const noResultsCell = document.createElement('td');
+                    noResultsCell.colSpan = 6;
+                    noResultsCell.textContent = 'No assignments found for the search.';
+                    noResultsCell.style.textAlign = 'center';
+                    noResultsRow.appendChild(noResultsCell);
+                    tableBody.appendChild(noResultsRow);
+                }
+            }
+        }
     </script>
 </body>
 </html>

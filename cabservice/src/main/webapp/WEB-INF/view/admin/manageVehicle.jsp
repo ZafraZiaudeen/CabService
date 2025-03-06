@@ -112,6 +112,49 @@
         function editVehicle(vehicleId) {
             window.location.href = "<%= request.getContextPath() %>/vehicle?action=edit&vehicleId=" + vehicleId;
         }
+        function searchVehicles() {
+            const searchValue = document.getElementById('search').value.toLowerCase();
+            const tableBody = document.getElementById('vehiclesTableBody');
+            const rows = tableBody.getElementsByTagName('tr');
+            let visibleRows = 0;
+
+            // Remove any existing "No vehicles found" message
+            const existingNoResults = document.getElementById('noResultsRow');
+            if (existingNoResults) {
+                tableBody.removeChild(existingNoResults);
+            }
+
+            // Filter rows
+            for (let i = 0; i < rows.length; i++) {
+                const row = rows[i];
+                // Only process rows with actual vehicle data (skip initial "No Vehicles found" if present)
+                if (row.cells.length === 6) {
+                    const plateNumber = row.cells[0].textContent.toLowerCase();
+                    const model = row.cells[1].textContent.toLowerCase();
+                    const status = row.cells[4].textContent.toLowerCase();
+
+                    if (plateNumber.includes(searchValue) || model.includes(searchValue) || 
+                        status.includes(searchValue)) {
+                        row.style.display = '';
+                        visibleRows++;
+                    } else {
+                        row.style.display = 'none';
+                    }
+                }
+            }
+
+            // If no rows are visible, add a "No vehicles found" message
+            if (visibleRows === 0) {
+                const noResultsRow = document.createElement('tr');
+                noResultsRow.id = 'noResultsRow';
+                const noResultsCell = document.createElement('td');
+                noResultsCell.colSpan = 6;
+                noResultsCell.textContent = 'No vehicles found for the search.';
+                noResultsCell.style.textAlign = 'center';
+                noResultsRow.appendChild(noResultsCell);
+                tableBody.appendChild(noResultsRow);
+            }
+        }
     </script>
 </body>
 </html>
