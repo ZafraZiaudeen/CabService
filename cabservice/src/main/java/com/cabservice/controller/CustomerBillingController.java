@@ -24,6 +24,7 @@ import com.cabservice.service.BillingService;
 import com.cabservice.service.BookingService;
 import com.cabservice.service.CustomerService;
 import com.cabservice.service.SystemConfigService;
+import com.cabservice.util.EmailUtil; // Updated import
 import com.itextpdf.text.Document;
 import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.Font;
@@ -54,7 +55,7 @@ public class CustomerBillingController extends HttpServlet {
             CustomerService customerService = new CustomerService();
             VehicleDAO vehicleDAO = new VehicleDAO();  
             DriverDAO driverDAO = new DriverDAO();   
-            SystemConfigService systemConfigService = new SystemConfigService(conn); // Added SystemConfigService
+            SystemConfigService systemConfigService = new SystemConfigService(conn);
 
             if ("view".equals(action)) {
                 String billingIdStr = request.getParameter("id");
@@ -71,7 +72,6 @@ public class CustomerBillingController extends HttpServlet {
 
                 if (billing != null) {
                     request.setAttribute("billing", billing);
-                    // Fetch and set the SystemConfig to get tax and discount percentages
                     request.setAttribute("systemConfig", systemConfigService.getSystemConfig());
                     request.getRequestDispatcher("/WEB-INF/view/customer/billing.jsp").forward(request, response);
                 } else {
@@ -132,16 +132,13 @@ public class CustomerBillingController extends HttpServlet {
                     Billing billing = billingService.getBillingByBookingId(bookingId);
 
                     if (booking != null && billing != null) {
-                        // Fetch customer name
                         Customer customer = customerService.getCustomerById(booking.getCustomerId());
                         String customerName = customer != null ? customer.getName() : "Unknown Customer";
 
-                        // Fetch vehicle details
                         Vehicle vehicle = vehicleDAO.getVehicleById(booking.getVehicleId());
                         String vehicleModel = vehicle != null ? vehicle.getModel() : "N/A";
                         String plateNumber = vehicle != null ? vehicle.getPlateNumber() : "N/A";
 
-                        // Fetch driver name
                         Driver driver = driverDAO.getDriverById(booking.getDriverId());
                         String driverName = driver != null ? driver.getName() : "N/A";
 
@@ -209,6 +206,9 @@ public class CustomerBillingController extends HttpServlet {
         try (Connection conn = DBConnectionFactory.getConnection()) {
             BillingService billingService = new BillingService(conn);
             BookingService bookingService = new BookingService(conn);
+            CustomerService customerService = new CustomerService();
+            VehicleDAO vehicleDAO = new VehicleDAO();
+            DriverDAO driverDAO = new DriverDAO();
 
             if ("save".equals(action)) {
                 String bookingIdStr = request.getParameter("booking_id");
@@ -263,6 +263,33 @@ public class CustomerBillingController extends HttpServlet {
                     }
                 }
 
+                // Send email with booking and billing details
+                Booking booking = bookingService.getBookingById(bookingId);
+                Billing billing = billingService.getBillingByBookingId(bookingId);
+                Customer customer = customerService.getCustomerById(booking.getCustomerId());
+                String customerEmail = customer != null ? customer.getEmail() : null;
+
+
+
+                if (customerEmail != null) {
+                    String customerName = customer.getName() != null ? customer.getName() : "Unknown Customer";
+                    Vehicle vehicle = vehicleDAO.getVehicleById(booking.getVehicleId());
+                    String vehicleModel = vehicle != null ? vehicle.getModel() : "N/A";
+                    String plateNumber = vehicle != null ? vehicle.getPlateNumber() : "N/A";
+                    Driver driver = driverDAO.getDriverById(booking.getDriverId());
+                    String driverName = driver != null ? driver.getName() : "N/A";
+
+                    String emailBody = buildEmailBody(booking, billing, customerName, vehicleModel, plateNumber, driverName);
+                    try {
+                        EmailUtil.sendEmail(customerEmail, "Mega City Cab Receipt - Booking #" + 
+                            (booking.getBookingNumber() != null ? booking.getBookingNumber() : "ID_" + bookingId), emailBody);
+                    } catch (RuntimeException e) {
+                        e.printStackTrace();
+                        System.err.println("Failed to send email: " + e.getMessage());
+                        // Log the error but continue execution
+                    }
+                }
+
                 request.setAttribute("success", "Payment completed successfully!");
                 Integer customerId = (Integer) request.getSession().getAttribute("customerId");
                 if (customerId != null) {
@@ -277,5 +304,34 @@ public class CustomerBillingController extends HttpServlet {
             request.setAttribute("error", "An unexpected error occurred: " + e.getMessage());
             request.getRequestDispatcher("/WEB-INF/view/customer/billing.jsp").forward(request, response);
         }
+    }
+
+    private String buildEmailBody(Booking booking, Billing billing, String customerName, String vehicleModel, String plateNumber, String driverName) {
+        StringBuilder body = new StringBuilder();
+        body.append("Mega City Cab Receipt\n");
+        body.append("Booking Number: ").append(booking.getBookingNumber() != null ? booking.getBookingNumber() : "N/A").append("\n");
+        body.append("--------------------------------------------------\n");
+        body.append("Booking Details\n");
+        body.append("Customer Name: ").append(customerName).append("\n");
+        body.append("Driver Name: ").append(driverName).append("\n");
+        body.append("Vehicle Model: ").append(vehicleModel).append("\n");
+        body.append("Plate Number: ").append(plateNumber).append("\n");
+        body.append("Pickup Location: ").append(booking.getPickupLocation() != null ? booking.getPickupLocation() : "N/A").append("\n");
+        body.append("Dropoff Location: ").append(booking.getDropoffLocation() != null ? booking.getDropoffLocation() : "N/A").append("\n");
+        body.append("Distance: ").append(booking.getDistanceKm()).append(" km\n");
+        body.append("Booked At: ").append(booking.getBookedAt() != null ? booking.getBookedAt() : "N/A").append("\n");
+        body.append("Status: ").append(booking.getStatus() != null ? booking.getStatus() : "N/A").append("\n");
+        body.append("--------------------------------------------------\n");
+        body.append("Billing Details\n");
+        body.append("Total Amount: Rs. ").append(String.format("%.2f", billing.getTotalAmount())).append("\n");
+        body.append("Tax: Rs. ").append(String.format("%.2f", billing.getTax())).append("\n");
+        body.append("Discount: Rs. ").append(String.format("%.2f", billing.getDiscount())).append("\n");
+        body.append("Final Amount: Rs. ").append(String.format("%.2f", billing.getFinalAmount())).append("\n");
+        body.append("Payment Status: ").append(billing.getStatus() != null ? billing.getStatus() : "Pending").append("\n");
+        body.append("Payment Type: ").append(billing.getPaymentType() != null ? billing.getPaymentType() : "Pending").append("\n");
+        body.append("--------------------------------------------------\n");
+        body.append("Thank you for choosing Mega City Cab!\n");
+
+        return body.toString();
     }
 }

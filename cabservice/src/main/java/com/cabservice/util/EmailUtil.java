@@ -30,7 +30,16 @@ public class EmailUtil {
         }
     }
 
+    // Existing method for verification emails
     public static void sendVerificationEmail(String toEmail, String token) {
+        String subject = "Verify Your Email";
+        String verificationLink = "http://localhost:8080/cabservice/user?action=verify&token=" + token;
+        String body = "Please click the following link to verify your email: " + verificationLink;
+        sendEmail(toEmail, subject, body);
+    }
+
+    // New general method for sending emails
+    public static void sendEmail(String toEmail, String subject, String body) {
         Properties props = new Properties();
         props.put("mail.smtp.auth", "true");
         props.put("mail.smtp.starttls.enable", "true");
@@ -48,12 +57,11 @@ public class EmailUtil {
             Message message = new MimeMessage(session);
             message.setFrom(new InternetAddress(FROM_EMAIL));
             message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(toEmail));
-            message.setSubject("Verify Your Email");
-            String verificationLink = "http://localhost:8080/cabservice/user?action=verify&token=" + token;
-            message.setText("Please click the following link to verify your email: " + verificationLink);
+            message.setSubject(subject);
+            message.setText(body);
 
             Transport.send(message);
-            System.out.println("Verification email sent to: " + toEmail);
+            System.out.println("Email sent to: " + toEmail);
         } catch (MessagingException e) {
             throw new RuntimeException("Failed to send email: " + e.getMessage());
         }

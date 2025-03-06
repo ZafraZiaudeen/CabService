@@ -235,7 +235,7 @@
                     </div>
                     <div class="faq-answer">
                         <div class="faq-answer-content">
-                           . You can also find all your receipts in the "Booking History" section of your account. Click on any past booking and select "Print" in the action column to get a PDF copy.
+                           A receipt is automatically emailed to you after completing your ride. You can also find all your receipts in the "Booking History" section of your account. Click on any past booking and select "Print" in the action column to get a PDF copy.
                         </div>
                     </div>
                 </div>
