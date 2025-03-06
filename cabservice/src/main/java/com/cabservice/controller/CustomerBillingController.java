@@ -23,6 +23,7 @@ import com.cabservice.model.Vehicle;
 import com.cabservice.service.BillingService;
 import com.cabservice.service.BookingService;
 import com.cabservice.service.CustomerService;
+import com.cabservice.service.SystemConfigService;
 import com.itextpdf.text.Document;
 import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.Font;
@@ -53,33 +54,28 @@ public class CustomerBillingController extends HttpServlet {
             CustomerService customerService = new CustomerService();
             VehicleDAO vehicleDAO = new VehicleDAO();  
             DriverDAO driverDAO = new DriverDAO();   
+            SystemConfigService systemConfigService = new SystemConfigService(conn); // Added SystemConfigService
 
             if ("view".equals(action)) {
                 String billingIdStr = request.getParameter("id");
                 String bookingIdStr = request.getParameter("booking_id");
 
+                Billing billing = null;
                 if (bookingIdStr != null && !bookingIdStr.isEmpty()) {
                     int bookingId = Integer.parseInt(bookingIdStr);
-                    Billing billing = billingService.getBillingByBookingId(bookingId);
-                    if (billing != null) {
-                        request.setAttribute("billing", billing);
-                        request.getRequestDispatcher("/WEB-INF/view/customer/billing.jsp").forward(request, response);
-                    } else {
-                        request.setAttribute("error", "Billing details not found for this booking.");
-                        request.getRequestDispatcher("/WEB-INF/view/customer/billing.jsp").forward(request, response);
-                    }
+                    billing = billingService.getBillingByBookingId(bookingId);
                 } else if (billingIdStr != null && !billingIdStr.isEmpty()) {
                     int billingId = Integer.parseInt(billingIdStr);
-                    Billing billing = billingService.getBillingById(billingId);
-                    if (billing != null) {
-                        request.setAttribute("billing", billing);
-                        request.getRequestDispatcher("/WEB-INF/view/customer/billing.jsp").forward(request, response);
-                    } else {
-                        request.setAttribute("error", "Billing details not found.");
-                        request.getRequestDispatcher("/WEB-INF/view/customer/billing.jsp").forward(request, response);
-                    }
+                    billing = billingService.getBillingById(billingId);
+                }
+
+                if (billing != null) {
+                    request.setAttribute("billing", billing);
+                    // Fetch and set the SystemConfig to get tax and discount percentages
+                    request.setAttribute("systemConfig", systemConfigService.getSystemConfig());
+                    request.getRequestDispatcher("/WEB-INF/view/customer/billing.jsp").forward(request, response);
                 } else {
-                    request.setAttribute("error", "Invalid billing or booking ID.");
+                    request.setAttribute("error", "Billing details not found.");
                     request.getRequestDispatcher("/WEB-INF/view/customer/billing.jsp").forward(request, response);
                 }
             } else if ("completeBilling".equals(action)) {
@@ -153,7 +149,7 @@ public class CustomerBillingController extends HttpServlet {
                         String filename = "Receipt_Booking_" + 
                                 (booking.getBookingNumber() != null ? booking.getBookingNumber() : "ID_" + bookingId) + 
                                 ".pdf";
-               response.setHeader("Content-Disposition", "attachment; filename=\"" + filename + "\"");
+                        response.setHeader("Content-Disposition", "attachment; filename=\"" + filename + "\"");
                         Document document = new Document();
                         try {
                             PdfWriter.getInstance(document, response.getOutputStream());
@@ -183,7 +179,6 @@ public class CustomerBillingController extends HttpServlet {
                             document.add(new Paragraph("Final Amount: Rs. " + String.format("%.2f", billing.getFinalAmount()), normalFont));
                             document.add(new Paragraph("Payment Status: " + (billing.getStatus() != null ? billing.getStatus() : "Pending"), normalFont));
                             document.add(new Paragraph("Payment Type: " + (billing.getPaymentType() != null ? billing.getPaymentType() : "Pending"), normalFont));
-                          
                             document.add(new Paragraph("--------------------------------------------------", normalFont));
                             document.add(new Paragraph("Thank you for choosing Mega City Cab!", normalFont));
 

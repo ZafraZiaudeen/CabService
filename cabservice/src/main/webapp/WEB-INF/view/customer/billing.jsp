@@ -1,5 +1,6 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ page import="com.cabservice.model.Billing" %>
+<%@ page import="com.cabservice.model.SystemConfig" %>
 <!DOCTYPE html>
 <html>
 <head>
@@ -10,7 +11,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
     <link rel="stylesheet" href="<c:url value='/css/styles.css'/>">
-     <link rel="stylesheet" href="<c:url value='/css/customerBilling.css'/>">
+    <link rel="stylesheet" href="<c:url value='/css/customerBilling.css'/>">
 </head>
 <body>
     <jsp:include page="/Header.jsp" />
@@ -37,7 +38,14 @@
                 <div class="card-body">
                     <%
                         Billing billing = (Billing) request.getAttribute("billing");
+                        SystemConfig systemConfig = (SystemConfig) request.getAttribute("systemConfig");
                         if (billing != null) {
+                            String taxLabel = (systemConfig != null && systemConfig.getTaxRate() != null) 
+                                ? "Tax (" + systemConfig.getTaxRate().toString() + "%)" 
+                                : "Tax (N/A)";
+                            String discountLabel = (systemConfig != null && systemConfig.getDiscountRate() != null) 
+                                ? "Discount (" + systemConfig.getDiscountRate().toString() + "%)" 
+                                : "Discount (N/A)";
                     %>
                         <div class="detail-item">
                             <span class="label">Booking ID</span>
@@ -48,11 +56,11 @@
                             <span class="value">Rs.<%= String.format("%.2f", billing.getTotalAmount()) %></span>
                         </div>
                         <div class="detail-item">
-                            <span class="label">Tax (18%)</span>
+                            <span class="label"><%= taxLabel %></span>
                             <span class="value">Rs.<%= String.format("%.2f", billing.getTax()) %></span>
                         </div>
                         <div class="detail-item">
-                            <span class="label">Discount</span>
+                            <span class="label"><%= discountLabel %></span>
                             <span class="value">-Rs.<%= String.format("%.2f", billing.getDiscount()) %></span>
                         </div>
                         <div class="detail-item final-amount">

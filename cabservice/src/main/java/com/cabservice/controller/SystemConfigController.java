@@ -113,7 +113,7 @@ public class SystemConfigController extends HttpServlet {
 
                 if (taxRateStr == null || discountRateStr == null ||
                     taxRateStr.trim().isEmpty() || discountRateStr.trim().isEmpty()) {
-                    response.sendRedirect(request.getContextPath() + "/system-config?action=view&error=missingFields");
+                    response.sendRedirect(request.getContextPath() + "/system-config?action=add&error=missingFields");
                     return;
                 }
 
@@ -124,12 +124,12 @@ public class SystemConfigController extends HttpServlet {
                 if (isInserted) {
                     response.sendRedirect(request.getContextPath() + "/system-config?action=view");
                 } else {
-                    response.sendRedirect(request.getContextPath() + "/system-config?action=view&error=insertFailed");
+                    response.sendRedirect(request.getContextPath() + "/system-config?action=add&error=insertFailed");
                 }
             }
         } catch (SQLException | NumberFormatException e) {
             e.printStackTrace();
-            response.sendRedirect(request.getContextPath() + "/system-config?action=view&error=serverError");
+            response.sendRedirect(request.getContextPath() + "/system-config?action=add&error=serverError");
         }
     }
 }
