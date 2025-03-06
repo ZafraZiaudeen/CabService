@@ -173,7 +173,7 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
     document.addEventListener('DOMContentLoaded', function() {
-        var map = L.map('map').setView([7.8731, 80.7718], 7); // Center of Sri Lanka
+        var map = L.map('map').setView([7.8731, 80.7718], 7); 
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         }).addTo(map);
@@ -192,7 +192,7 @@
                 routeLine = L.polyline([pickup, drop], { color: '#0984e3', weight: 4 }).addTo(map);
                 var bounds = L.latLngBounds([pickup, drop]);
                 map.fitBounds(bounds, { padding: [50, 50] });
-                var distance = pickup.distanceTo(drop) / 1000; // Distance in km
+                var distance = pickup.distanceTo(drop) / 1000;
                 distanceValueElement.textContent = distance.toFixed(1);
                 distanceField.value = distance.toFixed(1);
                 return distance;

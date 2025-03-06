@@ -14,11 +14,11 @@
             --gray-light: #666666;
             --bg-dark: #242424;
             --bg-light: #ffffff;
-           --border-color: #D3D3D3; /* Light gray */
+           --border-color: #D3D3D3;
             --shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
             --sidebar-width-expanded: 260px;
             --sidebar-width-collapsed: 70px;
-            --profile-card-width: 320px; /* Fixed width for left card */
+            --profile-card-width: 320px; 
         }
 
         body {

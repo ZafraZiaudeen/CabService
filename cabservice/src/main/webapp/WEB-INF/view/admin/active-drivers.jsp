@@ -42,7 +42,7 @@
                             List<Driver> drivers = (List<Driver>) request.getAttribute("drivers");
                             if (drivers != null && !drivers.isEmpty()) {
                                 for (Driver driver : drivers) {
-                                    if (driver.isAvailability()) { // ✅ Only display active drivers
+                                    if (driver.isAvailability()) {
                         %>
                         <tr>
                             <td><%= driver.getName() %></td>

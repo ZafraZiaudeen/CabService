@@ -127,7 +127,7 @@
             rows.forEach(row => {
                 const cells = row.getElementsByTagName('td');
                 let found = false;
-                for (let i = 0; i < cells.length - 1; i++) { // Exclude Actions column
+                for (let i = 0; i < cells.length - 1; i++) { 
                     if (cells[i].textContent.toLowerCase().includes(searchValue)) {
                         found = true;
                         break;

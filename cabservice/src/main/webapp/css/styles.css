@@ -23,7 +23,7 @@ body {
 }
 
 main {
-    flex: 1; /* This makes sure the content section expands to fill available space */
+    flex: 1;
 }
 a {
     text-decoration: none;

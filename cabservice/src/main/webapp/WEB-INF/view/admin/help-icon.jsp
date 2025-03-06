@@ -134,7 +134,7 @@
             }
         });
 
-        // Optional: Add escape key handler to navigate to help
+       
         document.addEventListener('keydown', function(event) {
             if (event.key === '?' && event.shiftKey) {
                 navigateToHelp();

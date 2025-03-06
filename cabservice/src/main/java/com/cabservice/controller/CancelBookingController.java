@@ -21,10 +21,10 @@ import com.cabservice.service.BookingService;
 public class CancelBookingController extends HttpServlet {
     private static final long serialVersionUID = 1L;
 
-    // No BookingService instance in init; create it per request
+   
     @Override
     public void init() throws ServletException {
-        // No connection initialization here
+       
     }
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {

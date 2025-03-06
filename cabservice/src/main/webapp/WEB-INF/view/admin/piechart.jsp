@@ -82,7 +82,7 @@
             const period = document.getElementById('timeFilter')?.value || 'all';
             if (filteredData[period].pending === 0 && filteredData[period].ongoing === 0 && 
                 filteredData[period].completed === 0 && filteredData[period].cancelled === 0) {
-                // Placeholder for fetchFilteredData if implemented later
+              
                 drawPieChart(filteredData[period]);
             } else {
                 drawPieChart(filteredData[period]);

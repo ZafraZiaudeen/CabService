@@ -22,7 +22,7 @@ public class AdminProfileController extends HttpServlet {
     }
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        HttpSession session = request.getSession(false); // Don't create a new session
+        HttpSession session = request.getSession(false); 
         if (session == null || session.getAttribute("adminUser") == null) {
             response.sendRedirect(request.getContextPath() + "/user?action=login");
             return;
@@ -38,7 +38,7 @@ public class AdminProfileController extends HttpServlet {
                 response.sendRedirect(request.getContextPath() + "/user?action=login");
                 return;
             }
-            session.setAttribute("adminUser", admin); // Update session with latest data
+            session.setAttribute("adminUser", admin);
         } catch (Exception e) {
             request.setAttribute("error", "Error fetching admin details: " + e.getMessage());
         }
@@ -62,7 +62,7 @@ public class AdminProfileController extends HttpServlet {
             admin.setUsername(request.getParameter("username"));
             admin.setPhoneNumber(request.getParameter("phone"));
             admin.setAddress(request.getParameter("address"));
-            admin.setEmail(request.getParameter("email")); // Added email field
+            admin.setEmail(request.getParameter("email")); 
 
             try {
                 userService.updateAdminDetails(admin);

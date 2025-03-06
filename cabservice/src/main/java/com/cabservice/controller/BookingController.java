@@ -153,7 +153,7 @@ public class BookingController extends HttpServlet {
                         List<Map<String, Object>> bookings = bookingService.getAllBookingsWithCustomerDetails();
                         request.setAttribute("bookings", bookings);
                         request.getRequestDispatcher("/WEB-INF/view/admin/manageBooking.jsp").forward(request, response);
-                        return; // Exit after successful forward
+                        return; 
                     } else {
                         request.setAttribute("error", "Billing creation failed.");
                     }
@@ -210,7 +210,7 @@ public class BookingController extends HttpServlet {
                     booking.setPickupLocation(pickupLocation);
                     booking.setDropoffLocation(dropoffLocation);
                     booking.setDistanceKm(distanceKm);
-                    booking.setStatus(status); // Set status from form
+                    booking.setStatus(status); 
                     bookingService.updateBooking(booking);
                     bookingService.updateBookingStatus(bookingId, status);
 

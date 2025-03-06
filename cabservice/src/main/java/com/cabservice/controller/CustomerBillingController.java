@@ -51,8 +51,8 @@ public class CustomerBillingController extends HttpServlet {
             BillingService billingService = new BillingService(conn);
             BookingService bookingService = new BookingService(conn);
             CustomerService customerService = new CustomerService();
-            VehicleDAO vehicleDAO = new VehicleDAO();  // Add VehicleDAO
-            DriverDAO driverDAO = new DriverDAO();    // Add DriverDAO
+            VehicleDAO vehicleDAO = new VehicleDAO();  
+            DriverDAO driverDAO = new DriverDAO();   
 
             if ("view".equals(action)) {
                 String billingIdStr = request.getParameter("id");
@@ -183,13 +183,7 @@ public class CustomerBillingController extends HttpServlet {
                             document.add(new Paragraph("Final Amount: Rs. " + String.format("%.2f", billing.getFinalAmount()), normalFont));
                             document.add(new Paragraph("Payment Status: " + (billing.getStatus() != null ? billing.getStatus() : "Pending"), normalFont));
                             document.add(new Paragraph("Payment Type: " + (billing.getPaymentType() != null ? billing.getPaymentType() : "Pending"), normalFont));
-                            if ("Card".equals(billing.getPaymentType())) {
-                                String maskedCardNumber = billing.getCardNumber() != null 
-                                    ? "****-****-****-" + billing.getCardNumber().substring(billing.getCardNumber().length() - 4) 
-                                    : "N/A";
-                                document.add(new Paragraph("Card Number: " + maskedCardNumber, normalFont));
-                                document.add(new Paragraph("Expiry Date: " + (billing.getExpiryDate() != null ? billing.getExpiryDate() : "N/A"), normalFont));
-                            }
+                          
                             document.add(new Paragraph("--------------------------------------------------", normalFont));
                             document.add(new Paragraph("Thank you for choosing Mega City Cab!", normalFont));
 

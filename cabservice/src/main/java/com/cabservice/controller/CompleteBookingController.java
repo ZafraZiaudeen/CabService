@@ -92,7 +92,7 @@ public class CompleteBookingController extends HttpServlet {
      * Handles POST requests by delegating to doGet
      */
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        doGet(request, response); // For simplicity, delegate POST to GET
+        doGet(request, response); 
     }
 
     /**

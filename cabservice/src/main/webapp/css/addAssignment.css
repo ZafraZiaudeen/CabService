@@ -106,13 +106,13 @@ body {
     border-radius: 6px;
     font-size: 14px;
     transition: all 0.2s;
-    background-color: #FFFFFF; /* White */
+    background-color: #FFFFFF;
 }
 
 .search-input:focus {
     outline: none;
     border-color: var(--primary-color);
-    box-shadow: 0 0 0 3px rgba(255, 193, 7, 0.1); /* Yellow shadow */
+    box-shadow: 0 0 0 3px rgba(255, 193, 7, 0.1); 
 }
 
 .search-icon {
@@ -147,7 +147,7 @@ body {
 
 .list-item.selected {
     border-color: var(--primary-color);
-    background-color: #FFF8E1; /* Light yellow */
+    background-color: #FFF8E1;
 }
 
 .item-header {
@@ -166,8 +166,8 @@ body {
     padding: 4px 8px;
     border-radius: 4px;
     font-size: 12px;
-    background-color: #FFF8E1; /* Light yellow */
-    color: var(--primary-color); /* Yellow */
+    background-color: #FFF8E1; 
+    color: var(--primary-color); 
 }
 
 .item-details {
@@ -175,7 +175,7 @@ body {
     grid-template-columns: repeat(2, 1fr);
     gap: 8px;
     font-size: 13px;
-    color: var(--secondary-color); /* Darker black */
+    color: var(--secondary-color);
 }
 
 .detail-item {
@@ -200,7 +200,7 @@ body {
     justify-content: flex-end;
     gap: 12px;
     transition: left 0.3s ease;
-    z-index: 10; /* Ensure buttons stay above content */
+    z-index: 10;
 }
 
 .main-content.expanded .form-buttons {
@@ -219,14 +219,14 @@ body {
 }
 
 .form-button.primary {
-    background-color: var(--primary-color); /* Yellow */
-    color: #000000; /* Black */
+    background-color: var(--primary-color); 
+    color: #000000; 
     border: none;
 }
 
 .form-button.secondary {
-    background-color: #333333; /* Darker black */
-    color: var(--text-secondary); /* White */
+    background-color: #333333;
+    color: var(--text-secondary); 
     border: none;
 }
 
@@ -235,11 +235,11 @@ body {
 }
 
 .form-button.primary:hover:not(:disabled) {
-    background-color: #FFA000; /* Darker yellow */
+    background-color: #FFA000; 
 }
 
 .form-button.secondary:hover:not(:disabled) {
-    background-color: #4a4a4a; /* Slightly lighter darker black */
+    background-color: #4a4a4a; 
 }
 
 .form-button:disabled {

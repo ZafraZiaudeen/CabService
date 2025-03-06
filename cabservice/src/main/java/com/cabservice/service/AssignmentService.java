@@ -34,7 +34,7 @@ public class AssignmentService {
     public boolean unassignVehicle(int driverId, int vehicleId) {
         boolean unassigned = assignmentDAO.unassignVehicle(driverId, vehicleId);
         if (unassigned) {
-            vehicleDAO.updateVehicleStatus(vehicleId, "Available");  // Reset status to "Available"
+            vehicleDAO.updateVehicleStatus(vehicleId, "Available");  
         }
         return unassigned;
     }

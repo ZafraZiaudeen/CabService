@@ -16,7 +16,7 @@ public class VerificationService {
         this.verificationDAO = new VerificationDAO();
     }
 
-    // For dependency injection (e.g., testing)
+    
     public VerificationService(VerificationDAO verificationDAO) {
         this.verificationDAO = verificationDAO;
     }

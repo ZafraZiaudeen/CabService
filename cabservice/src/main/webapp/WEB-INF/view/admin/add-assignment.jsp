@@ -7,13 +7,13 @@
     // Ensure drivers list is properly retrieved
     List<Driver> drivers = service.getUnassignedDrivers();
     if (drivers == null) {
-        drivers = new ArrayList<>();  // Prevents null errors
+        drivers = new ArrayList<>();  
     }
 
     // Ensure vehicles list is properly retrieved
     List<Vehicle> vehicles = service.getAvailableVehicles();
     if (vehicles == null) {
-        vehicles = new ArrayList<>();  // Prevents null errors
+        vehicles = new ArrayList<>();  
     }
 %>
 

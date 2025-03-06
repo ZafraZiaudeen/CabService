@@ -9,7 +9,7 @@
 
 body {
     background: #f5f6fa;
-    color: #333; /* Default unchanged, but overridden below */
+    color: #333;
     line-height: 1.6;
 }
 
@@ -26,19 +26,19 @@ body {
     margin-bottom: 40px;
     text-align: center;
     padding-bottom: 20px;
-    border-bottom: 2px solid #333333; /* Darker black */
+    border-bottom: 2px solid #333333;
 }
 
 .help-title {
     font-size: 32px;
     font-weight: 700;
-    color: #000000; /* Black */
+    color: #000000;
     margin-bottom: 10px;
     letter-spacing: 0.5px;
 }
 
 .help-subtitle {
-    color: #FFFFFF; /* White */
+    color: #FFFFFF;
     font-size: 18px;
     font-weight: 400;
 }
@@ -53,18 +53,18 @@ body {
 .search-box input {
     width: 100%;
     padding: 14px 20px 14px 50px;
-    border: 1px solid #333333; /* Darker black */
+    border: 1px solid #333333;
     border-radius: 25px;
     font-size: 16px;
-    background: #FFFFFF; /* White */
+    background: #FFFFFF; 
     box-shadow: 0 2px 4px rgba(0,0,0,0.05);
     transition: all 0.3s ease;
-    color: #000000; /* Black text */
+    color: #000000; 
 }
 
 .search-box input:focus {
-    border-color: #FFC107; /* Yellow */
-    box-shadow: 0 0 0 3px rgba(255, 193, 7, 0.2); /* Yellow shadow */
+    border-color: #FFC107;
+    box-shadow: 0 0 0 3px rgba(255, 193, 7, 0.2); 
     outline: none;
 }
 
@@ -73,7 +73,7 @@ body {
     left: 20px;
     top: 50%;
     transform: translateY(-50%);
-    color: #FFFFFF; /* White */
+    color: #FFFFFF; 
     font-size: 24px;
 }
 
@@ -86,7 +86,7 @@ body {
 }
 
 .category-card {
-    background: #FFFFFF; /* White */
+    background: #FFFFFF;
     border-radius: 12px;
     padding: 28px;
     box-shadow: 0 4px 6px rgba(0,0,0,0.05);
@@ -102,7 +102,7 @@ body {
 .category-icon {
     width: 60px;
     height: 60px;
-    background: #333333; /* Darker black */
+    background: #333333; 
     border-radius: 12px;
     display: flex;
     align-items: center;
@@ -132,13 +132,13 @@ body {
 }
 
 .category-description {
-    color: #FFFFFF; /* White */
+    color: #FFFFFF; 
     font-size: 14px;
     margin-bottom: 20px;
 }
 
 .category-link {
-    color: #FFC107; /* Yellow */
+    color: #FFC107;
     font-size: 14px;
     font-weight: 500;
     text-decoration: none;
@@ -149,13 +149,13 @@ body {
 }
 
 .category-link:hover {
-    color: #FFA000; /* Darker yellow */
+    color: #FFA000;
     text-decoration: underline;
 }
 
 /* FAQ Section */
 .faq-section {
-    background: #FFFFFF; /* White */
+    background: #FFFFFF;
     border-radius: 12px;
     box-shadow: 0 4px 6px rgba(0,0,0,0.05);
     margin-bottom: 40px;
@@ -166,21 +166,21 @@ body {
     padding: 24px 30px;
     font-size: 22px;
     font-weight: 600;
-    color: #000000; /* Black */
+    color: #000000; 
     display: flex;
     align-items: center;
     gap: 10px;
-    background: #f8f9fa; /* Light gray unchanged */
-    border-bottom: 1px solid #333333; /* Darker black */
+    background: #f8f9fa; 
+    border-bottom: 1px solid #CCCCCC;
 }
 
 .section-title .material-icons {
-    color: #FFC107; /* Yellow */
+    color: #FFC107;
     font-size: 26px;
 }
 
 .faq-item {
-    border-bottom: 1px solid #333333; /* Darker black */
+   border-bottom: 1px solid #CCCCCC;
 }
 
 .faq-item:last-child {
@@ -191,7 +191,7 @@ body {
     padding: 20px 30px;
     font-size: 16px;
     font-weight: 500;
-    color: #000000; /* Black */
+    color: #000000; 
     cursor: pointer;
     display: flex;
     align-items: center;
@@ -200,18 +200,18 @@ body {
 }
 
 .faq-question:hover {
-    background-color: #f8f9fa; /* Light gray unchanged */
+    background-color: #f8f9fa; 
 }
 
 .faq-question .material-icons {
     font-size: 20px;
-    color: #000000; /* White */
+    color: #000000; 
     transition: transform 0.3s ease;
 }
 
 .faq-question.active .material-icons {
     transform: rotate(180deg);
-    color: #FFC107; /* Yellow */
+    color: #FFC107;
 }
 
 .faq-answer {
@@ -227,14 +227,14 @@ body {
 }
 
 .faq-content {
-    color: #000000; /* Black */
+    color: #000000; 
     font-size: 14px;
     line-height: 1.8;
 }
 
 /* Contact Support */
 .contact-support {
-    background: #FFFFFF; /* White */
+    background: #FFFFFF;
     border-radius: 12px;
     padding: 30px;
     box-shadow: 0 4px 6px rgba(0,0,0,0.05);
@@ -244,7 +244,7 @@ body {
 .contact-title {
     font-size: 22px;
     font-weight: 600;
-    color: #000000; /* Black */
+    color: #000000;
     margin-bottom: 24px;
     display: flex;
     align-items: center;
@@ -279,7 +279,7 @@ body {
 .contact-method-title {
     font-size: 16px;
     font-weight: 600;
-    color: #000000; /* Black */
+    color: #000000; 
     margin-bottom: 8px;
 }
 
@@ -294,8 +294,8 @@ body {
     align-items: center;
     gap: 8px;
     padding: 10px 20px;
-    background: #FFC107; /* Yellow */
-    color: #000000; /* Black */
+    background: #FFC107;
+    color: #000000; 
     border: none;
     border-radius: 6px;
     font-size: 14px;
@@ -306,7 +306,7 @@ body {
 }
 
 .contact-button:hover {
-    background: #FFA000; /* Darker yellow */
+    background: #FFA000;
 }
 
 /* Back to Top Button */
@@ -316,8 +316,8 @@ body {
     right: 40px;
     width: 48px;
     height: 48px;
-    background: #FFC107; /* Yellow */
-    color: #000000; /* Black */
+    background: #FFC107; 
+    color: #000000; 
     border: none;
     border-radius: 50%;
     display: flex;
@@ -339,19 +339,19 @@ body {
 .back-to-top:hover {
     transform: translateY(-5px);
     box-shadow: 0 6px 16px rgba(0,0,0,0.2);
-    background: #FFA000; /* Darker yellow */
+    background: #FFA000; 
 }
 
 /* Responsive Design */
 @media (max-width: 768px) {
     .main-content {
-        margin-left: 70px; /* Matches collapsed sidebar width */
+        margin-left: 70px;
         padding: 20px;
-        width: calc(100% - 70px); /* Ensure full width minus sidebar */
+        width: calc(100% - 70px);
     }
 
     .sidebar:not(.collapsed) + .main-content {
-        margin-left: 260px; /* Full sidebar width when expanded */
+        margin-left: 260px; 
         width: calc(100% - 260px);
     }
 
@@ -372,12 +372,12 @@ body {
     }
 
     .faq-question:hover {
-        background-color: transparent; /* Disable hover in mobile */
+        background-color: transparent;
     }
 
     .faq-question,
     .faq-answer {
-        z-index: 2; /* Keep FAQ items above sidebar */
+        z-index: 2; 
     }
 
     .back-to-top {

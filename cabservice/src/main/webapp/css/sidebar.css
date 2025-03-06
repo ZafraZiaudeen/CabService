@@ -14,14 +14,14 @@ body {
 .sidebar {
     width: 260px;
     height: 100vh;
-    background-color: #000000; /* Black */
-    color: #FFFFFF; /* White */
+    background-color: #000000; 
+    color: #FFFFFF;
     position: fixed;
     left: 0;
     top: 0;
     transition: width 0.3s ease;
     overflow-x: hidden;
-    z-index: 1000; /* Ensure sidebar stays above content */
+    z-index: 1000; 
 }
 
 .sidebar.collapsed {
@@ -43,13 +43,13 @@ body {
     font-weight: 600;
     white-space: nowrap;
     transition: opacity 0.3s ease, width 0.3s ease;
-    color: #FFFFFF; /* White */
+    color: #FFFFFF; 
 }
 
 .toggle-btn {
     background: none;
     border: none;
-    color: #FFFFFF; /* White */
+    color: #FFFFFF; 
     cursor: pointer;
     padding: 5px;
     border-radius: 4px;
@@ -62,7 +62,7 @@ body {
 }
 
 .toggle-btn:hover {
-    background-color: #333333; /* Darker black */
+    background-color: #333333;
 }
 
 .sidebar.collapsed .site-title {
@@ -78,7 +78,7 @@ body {
 .nav-menu {
     padding: 20px 0;
     overflow-y: auto;
-    height: calc(100vh - 80px - 120px); /* Adjusted for extra footer space */
+    height: calc(100vh - 80px - 120px);
 }
 
 .nav-menu ul {
@@ -103,8 +103,8 @@ body {
 }
 
 .nav-menu a:hover {
-    background-color: #FFC107; /* Yellow */
-    color: #000000; /* Black text on hover */
+    background-color: #FFC107; 
+    color: #000000;
 }
 
 .nav-menu .menu-item.active > a {
@@ -120,7 +120,7 @@ body {
     max-height: 0;
     overflow: hidden;
     transition: max-height 0.3s ease;
-    background-color: #1A1A1A; /* Slightly lighter black */
+    background-color: #1A1A1A;
 }
 
 .nav-menu .submenu.expanded {
@@ -146,8 +146,8 @@ body {
     bottom: 0;
     width: 100%;
     padding: 20px;
-    border-top: 1px solid #333333; /* Darker black */
-    background-color: #000000; /* Black */
+    border-top: 1px solid #333333; 
+    background-color: #000000; 
 }
 
 .user-info {
@@ -164,30 +164,30 @@ body {
     flex-shrink: 0;
 }
 
-/* New styling for settings button */
+/* styling for settings button */
 .settings-btn {
     display: flex;
     align-items: center;
     gap: 10px;
-    color: #FFFFFF; /* White */
+    color: #FFFFFF; 
     text-decoration: none;
     padding: 8px;
     border-radius: 4px;
     white-space: nowrap;
-    margin-bottom: 10px; /* Space between settings and logout */
+    margin-bottom: 10px; 
     transition: background-color 0.2s;
 }
 
 .settings-btn:hover {
-    background-color: #FFC107; /* Yellow */
-    color: #000000; /* Black */
+    background-color: #FFC107; 
+    color: #000000; 
 }
 
 .logout-btn {
     display: flex;
     align-items: center;
     gap: 10px;
-    color: #FFFFFF; /* White */
+    color: #FFFFFF; 
     text-decoration: none;
     padding: 8px;
     border-radius: 4px;
@@ -196,8 +196,8 @@ body {
 }
 
 .logout-btn:hover {
-    background-color: #FFC107; /* Yellow */
-    color: #000000; /* Black */
+    background-color: #FFC107; 
+    color: #000000; 
 }
 
 .nav-text {
@@ -212,7 +212,7 @@ body {
 
 @media (max-width: 768px) {
     .sidebar {
-        width: 70px; /* Start collapsed */
+        width: 70px; 
     }
 
     .sidebar:not(.collapsed) {
@@ -246,10 +246,10 @@ body {
     }
 
     .nav-menu .submenu {
-        display: none; /* Hide by default */
+        display: none;
     }
 
     .sidebar:not(.collapsed) .nav-menu .submenu {
-        display: block; /* Show when expanded */
+        display: block; 
     }
 }
