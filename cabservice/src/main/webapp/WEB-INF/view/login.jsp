@@ -4,84 +4,74 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login</title>
-    <style>
-        body {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            background-color: #f5f5f5;
-            font-family: Arial, sans-serif;
-        }
-        .container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            width: 100%;
-        }
-        .form-box {
-            background: white;
-            padding: 40px;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            max-width: 400px;
-            width: 100%;
-            text-align: center;
-        }
-        .input-group {
-            margin-bottom: 20px;
-            text-align: left;
-        }
-        .input-group label {
-            display: block;
-            margin-bottom: 5px;
-        }
-        .input-group input {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-        }
-        button {
-            width: 50%;
-            padding: 10px;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-        button:hover {
-            background-color: #0056b3;
-        }
-        p {
-            margin-top: 20px;
-        }
-        p a {
-            color: #007bff;
-            text-decoration: none;
-        }
-    </style>
+    <title>Login - Mega City Cab</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+     <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+    <link rel="stylesheet" href="<c:url value='/css/login.css' />">
 </head>
 <body>
-    <main class="container">
-        <div class="form-box">
-            <h2>Login</h2>
-            <form action="user?action=login" id="loginForm" method="post">
-                <div class="input-group">
-                    <label for="username">Username</label>
-                    <input type="username" id="username" name="username" required>
+    <div class="page-container">
+        <div class="login-container">
+            <div class="login-card">
+                <div class="login-header">
+                    <div class="logo">
+                        <span class="logo-text">Mega City Cab</span>
+                    </div>
+                    <h1>Welcome Back</h1>
+                    <p class="subtitle">Log in to access your account</p>
                 </div>
-                <div class="input-group">
-                    <label for="password">Password</label>
-                    <input type="password" id="password" name="password" required>
-                </div>
-                <button type="submit">Login</button>
-            </form>
-            <p>Don't have an account? <a href="user?action=register">Sign up</a></p>
-           <p><a href="user?action=home">Back to Home</a></p>
+
+                <% if (request.getAttribute("errorMessage") != null) { %>
+                    <div class="alert alert-error">
+                        <span class="material-icons">error</span>
+                        <span><%= request.getAttribute("errorMessage") %></span>
+                    </div>
+                <% } %>
+
+                <form action="user?action=login" id="loginForm" method="post" novalidate>
+                    <div class="form-group">
+                        <label for="username">Username</label>
+                        <div class="input-with-icon">
+                            <span class="material-icons">person</span>
+                            <input type="text" id="username" name="username" placeholder="Enter your username" required>
+                        </div>
+                        <div class="error-message" id="usernameError"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <div class="input-with-icon">
+                            <span class="material-icons">lock</span>
+                            <input type="password" id="password" name="password" placeholder="Enter your password" required>
+                            <button type="button" class="toggle-password" onclick="togglePasswordVisibility()">
+                                <span class="material-icons">visibility_off</span>
+                            </button>
+                        </div>
+                        <div class="error-message" id="passwordError"></div>
+                    </div>
+
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">
+                            <span class="material-icons">login</span>
+                            Log In
+                        </button>
+                    </div>
+
+                    <div class="form-footer">
+                        <p>Don't have an account? <a href="user?action=register">Sign Up</a></p>
+                        <p><a href="user?action=home" class="back-home">
+                            <span class="material-icons">home</span>
+                            Back to Home
+                        </a></p>
+                    </div>
+                </form>
+            </div>
         </div>
-    </main>
+    </div>
+
+     <script src="<c:url value='/js/login.js' />"></script>
 </body>
 </html>
+

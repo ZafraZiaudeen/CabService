@@ -21,7 +21,7 @@ body {
     display: flex;
     flex-direction: column;
 }
-/* Main content area should take up available space */
+
 main {
     flex: 1; /* This makes sure the content section expands to fill available space */
 }

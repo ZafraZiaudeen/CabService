@@ -13,6 +13,7 @@
             height: 100vh;
             background-color: #f5f5f5;
             font-family: Arial, sans-serif;
+            margin: 0;
         }
         .container {
             display: flex;
@@ -29,29 +30,38 @@
             width: 100%;
             text-align: center;
         }
-        .success-message {
-            color: green;
-            margin-bottom: 20px;
-            font-size: 18px;
+        .success-title {
+            color: #000;
+            font-size: 24px;
+            margin-bottom: 15px;
         }
-        a {
+        .success-message {
+            color: #666;
+            margin-bottom: 20px;
+            font-size: 16px;
+            line-height: 1.5;
+        }
+        .close-button {
             display: inline-block;
-            padding: 10px 20px;
-            background-color: #007bff;
+            padding: 10px 30px;
+            background-color: #000;
             color: white;
             text-decoration: none;
             border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
         }
-        a:hover {
-            background-color: #0056b3;
+        .close-button:hover {
+            background-color: #333;
         }
     </style>
 </head>
 <body>
     <main class="container">
         <div class="success-box">
-            <p class="success-message">Verification successful! You can now log in.</p>
-            <a href="<%= request.getContextPath() %>/user?action=login">Go to Login</a>
+            <h2 class="success-title">Email verified</h2>
+            <p class="success-message">Your email address has been verified. You may now close this window.</p>
+            <button class="close-button" onclick="window.close()">Close window</button>
         </div>
     </main>
 </body>

@@ -4,131 +4,147 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Registration</title>
-    <style>
-        body {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            background-color: #f5f5f5;
-            font-family: Arial, sans-serif;
-        }
-        .container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            width: 100%;
-        }
-        .form-box {
-            background: white;
-            padding: 40px;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            max-width: 400px;
-            width: 100%;
-            text-align: center;
-        }
-        .input-group {
-            margin-bottom: 20px;
-            text-align: left;
-        }
-        .input-group label {
-            display: block;
-            margin-bottom: 5px;
-        }
-        .input-group input {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-        }
-        button {
-            width: 100%;
-            padding: 10px;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-        button:hover {
-            background-color: #0056b3;
-        }
-        p {
-            margin-top: 20px;
-        }
-        p a {
-            color: #007bff;
-            text-decoration: none;
-        }
-        .error-message {
-            color: red;
-            margin-top: 10px;
-        }
-        .success-message {
-            color: green;
-            margin-top: 10px;
-        }
-    </style>
+    <title>Register - Mega City Cab</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+    <link rel="stylesheet" href="<c:url value='/css/register.css' />">
 </head>
 <body>
-    <main class="container">
-        <div class="form-box">
-            <h2>Register</h2>
-            <% if (request.getAttribute("successMessage") != null) { %>
-                <p class="success-message"><%= request.getAttribute("successMessage") %></p>
-                <p><a href="user?action=login">Click here to log in</a></p>
-            <% } else if (request.getAttribute("message") != null) { %>
-                <p class="success-message"><%= request.getAttribute("message") %></p>
-            <% } else { %>
-                <form action="user?action=register" id="registrationForm" method="post">
-                    <div class="input-group">
-                        <label for="name">Full Name</label>
-                        <input type="text" id="name" name="name" required>
+    <div class="page-container">
+        <div class="register-container">
+            <div class="register-card">
+                <div class="register-header">
+                    <div class="logo">
+                        <span class="logo-text">Mega City Cab</span>
                     </div>
-                    <div class="input-group">
-                        <label for="address">Address</label>
-                        <input type="text" id="address" name="address" required>
+                    <h1>Create an Account</h1>
+                    <p class="subtitle">Join our community and enjoy premium cab services</p>
+                </div>
+ <% if (request.getAttribute("errorMessage") != null) { %>
+                    <div class="alert alert-error">
+                        <span class="material-icons">error</span>
+                        <span><%= request.getAttribute("errorMessage") %></span>
                     </div>
-                    <div class="input-group">
-                        <label for="phone">Phone Number</label>
-                        <input type="text" id="phone" name="phoneNumber" required>
+                <% } %>
+                <% if (request.getAttribute("successMessage") != null) { %>
+                    <div class="alert alert-success">
+                        <span class="material-icons">check_circle</span>
+                        <span><%= request.getAttribute("successMessage") %></span>
                     </div>
-                    <div class="input-group">
-                        <label for="email">Email</label>
-                        <input type="email" id="email" name="email" required>
+                    <div class="success-actions">
+                        <a href="user?action=login" class="btn btn-primary">
+                            <span class="material-icons">login</span>
+                            Log In Now
+                        </a>
                     </div>
-                    <div class="input-group">
-                        <label for="nic">NIC</label>
-                        <input type="text" id="nic" name="nic" required>
+                <% } else if (request.getAttribute("message") != null) { %>
+                    <div class="alert alert-success">
+                        <span class="material-icons">check_circle</span>
+                        <span><%= request.getAttribute("message") %></span>
                     </div>
-                    <div class="input-group">
-                        <label for="username">Username</label>
-                        <input type="text" id="username" name="username" required>
+                    <div class="success-actions">
+                        <a href="user?action=login" class="btn btn-primary">
+                            <span class="material-icons">arrow_forward</span>
+                            Continue
+                        </a>
                     </div>
-                    <div class="input-group">
-                        <label for="password">Password</label>
-                        <input type="password" id="password" name="password" required>
-                    </div>
-                    <button type="submit">Register</button>
-                </form>
-                <p>Already have an account? <a href="user?action=login">Login</a></p>
-            <% } %>
-            <% if (request.getAttribute("errorMessage") != null) { %>
-                <p class="error-message"><%= request.getAttribute("errorMessage") %></p>
-            <% } %>
+                <% } else { %>
+                    <form action="user?action=register" id="registrationForm" method="post" novalidate>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="name">Full Name</label>
+                                <div class="input-with-icon">
+                                    <span class="material-icons">person</span>
+                                    <input type="text" id="name" name="name" placeholder="Enter your full name" required>
+                                </div>
+                                <div class="error-message" id="nameError"></div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="username">Username</label>
+                                <div class="input-with-icon">
+                                    <span class="material-icons">alternate_email</span>
+                                    <input type="text" id="username" name="username" placeholder="Choose a username" required>
+                                </div>
+                                <div class="error-message" id="usernameError"></div>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="email">Email</label>
+                                <div class="input-with-icon">
+                                    <span class="material-icons">email</span>
+                                    <input type="email" id="email" name="email" placeholder="Enter your email address" required>
+                                </div>
+                                <div class="error-message" id="emailError"></div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="phone">Phone Number</label>
+                                <div class="input-with-icon">
+                                    <span class="material-icons">phone</span>
+                                    <input type="text" id="phone" name="phoneNumber" placeholder="Enter your phone number" required>
+                                </div>
+                                <div class="error-message" id="phoneError"></div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="address">Address</label>
+                            <div class="input-with-icon">
+                                <span class="material-icons">home</span>
+                                <input type="text" id="address" name="address" placeholder="Enter your address" required>
+                            </div>
+                            <div class="error-message" id="addressError"></div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="nic">NIC</label>
+                            <div class="input-with-icon">
+                                <span class="material-icons">badge</span>
+                                <input type="text" id="nic" name="nic" placeholder="Enter your NIC number" required>
+                            </div>
+                            <div class="error-message" id="nicError"></div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="password">Password</label>
+                            <div class="input-with-icon">
+                                <span class="material-icons">lock</span>
+                                <input type="password" id="password" name="password" placeholder="Create a strong password" required>
+                                <button type="button" class="toggle-password" onclick="togglePasswordVisibility()">
+                                    <span class="material-icons">visibility_off</span>
+                                </button>
+                            </div>
+                            <div class="password-strength" id="passwordStrength">
+                                <div class="strength-meter">
+                                    <div class="strength-meter-fill"></div>
+                                </div>
+                                <div class="strength-text">Password strength: <span id="strengthText">Weak</span></div>
+                            </div>
+                            <div class="error-message" id="passwordError"></div>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary">
+                                <span class="material-icons">how_to_reg</span>
+                                Register
+                            </button>
+                        </div>
+
+                        <div class="form-footer">
+                            <p>Already have an account? <a href="user?action=login">Log In</a></p>
+                        </div>
+                    </form>
+                <% } %>
+
+               
+            </div>
         </div>
-    </main>
+    </div>
+
+    <script src="<c:url value='/js/register.js' />"></script>
 </body>
-<script>
-    document.getElementById("registrationForm")?.addEventListener("submit", function(event) {
-        const email = document.getElementById("email").value;
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailRegex.test(email)) {
-            alert("Please enter a valid email address.");
-            event.preventDefault();
-        }
-    });
-</script>
 </html>
