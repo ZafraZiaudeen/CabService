@@ -27,7 +27,7 @@ public class AssignmentDAO {
 	            assignment.setAssignedAt(rs.getTimestamp("assigned_at"));
 	            assignment.setDriverName(rs.getString("driver_name"));  
 	            assignment.setVehiclePlate(rs.getString("vehicle_plate"));
-	            assignment.setVehicleModel(rs.getString("vehicle_model"));  // Fetch vehicle model
+	            assignment.setVehicleModel(rs.getString("vehicle_model"));  
 	            assignments.add(assignment);
 	        }
 
