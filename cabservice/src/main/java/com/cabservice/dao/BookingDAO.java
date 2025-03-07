@@ -62,41 +62,9 @@ public class BookingDAO {
         }
         return vehicles;
     }
-    public double getDistance(String fromLocation, String toLocation) throws SQLException {
-        // Try to find distance directly (from -> to)
-        String sql = "SELECT distance_km FROM distance WHERE (from_location = ? AND to_location = ?) OR (from_location = ? AND to_location = ?)";
-        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setString(1, fromLocation);
-            stmt.setString(2, toLocation);
-            stmt.setString(3, toLocation);
-            stmt.setString(4, fromLocation);
-            ResultSet rs = stmt.executeQuery();
-            if (rs.next()) {
-                return rs.getDouble("distance_km");
-            }
-        }
+   
 
-        // If no direct or reverse entry exists, try to find a path through intermediate locations
-        sql = """
-            SELECT d1.distance_km + d2.distance_km AS total_distance
-            FROM distance d1
-            JOIN distance d2 ON d1.to_location = d2.from_location
-            WHERE (d1.from_location = ? AND d2.to_location = ?) OR (d1.from_location = ? AND d2.to_location = ?)
-        """;
-        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setString(1, fromLocation);
-            stmt.setString(2, toLocation);
-            stmt.setString(3, toLocation);
-            stmt.setString(4, fromLocation);
-            ResultSet rs = stmt.executeQuery();
-            if (rs.next()) {
-                return rs.getDouble("total_distance");
-            }
-        }
-
-        // If no path is found, return 0 (or throw an exception if preferred)
-        return 0;
-    }
+       
 
     public int getDriverForVehicle(int vehicleId) throws SQLException {
         String sql = "SELECT driver_id FROM driver_vehicle WHERE vehicle_id = ?";
@@ -147,17 +115,7 @@ public class BookingDAO {
         }
         return -1;
     }
-    public List<String> getLocations() throws SQLException {
-        List<String> locations = new ArrayList<>();
-        String sql = "SELECT DISTINCT from_location FROM distance UNION SELECT DISTINCT to_location FROM distance";
-        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
-            ResultSet rs = stmt.executeQuery();
-            while (rs.next()) {
-                locations.add(rs.getString("from_location"));
-            }
-        }
-        return locations;
-    }
+    
     public List<Map<String, String>> getCustomers() throws SQLException {
         List<Map<String, String>> customers = new ArrayList<>();
         String sql = """

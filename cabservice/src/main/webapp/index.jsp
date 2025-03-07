@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CabService - Your Ride, Your Way</title>
+    <title>Mega City Cab - Your Ride, Your Way</title>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
     <link rel="stylesheet" href="<c:url value='/css/styles.css'/>">
@@ -17,7 +17,7 @@
         <section id="hero" class="hero">
             <div class="hero-content">
                 <h1>Your Ride, Your Way</h1>
-                <p>Experience comfort and reliability with CabService. Book your ride now and travel with ease.</p>
+                <p>Experience comfort and reliability with Mega City Cab. Book your ride now and travel with ease.</p>
                <a href="javascript:void(0);" class="btn-primary" onclick="checkLogin()">Book a Ride</a>
 
             </div>
@@ -46,7 +46,7 @@
 
         <section id="about" class="about">
             <h2>About CabService</h2>
-            <p>CabService is committed to providing safe, reliable, and comfortable transportation solutions. With our fleet of well-maintained vehicles and professional drivers, we ensure that your journey is always pleasant and stress-free.</p>
+            <p>Mega City Cab is committed to providing safe, reliable, and comfortable transportation solutions. With our fleet of well-maintained vehicles and professional drivers, we ensure that your journey is always pleasant and stress-free.</p>
         </section>
 
        <section id="why-choose-us" class="why-choose-us">

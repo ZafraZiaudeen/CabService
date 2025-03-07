@@ -27,10 +27,7 @@ public class BookingService {
         return bookingDAO.getAvailableVehicles();
     }
 
-    public double calculateDistance(String from, String to) throws SQLException {
-        return bookingDAO.getDistance(from, to);
-    }
-
+   
     public int createBooking(Booking booking) throws SQLException {
         return bookingDAO.createBooking(booking);
     }
