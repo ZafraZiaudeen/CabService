@@ -1,13 +1,16 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
-<%@ page import="java.util.List, java.util.Map, java.sql.Connection, java.sql.SQLException, com.cabservice.dao.DBConnectionFactory, com.cabservice.dao.BookingDAO" %>
+<%@ page import="java.util.List, java.util.Map" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Manage Bookings - Cab Service</title>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    <link rel="stylesheet" href="<c:url value='/css/adminManagement.css'/>">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+     <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+    <link rel="stylesheet" href="<c:url value='/css/bookingManagement.css'/>">
 </head>
 <body>
     <jsp:include page="Sidebar.jsp" />
@@ -19,14 +22,29 @@
             <div class="search-bar">
                 <input type="text" id="search" placeholder="Search by Booking Number, Customer, or Status">
                 <button onclick="searchBookings()">
-                    <span class="material-icons">search</span>
+                    <i class="material-icons">search</i>
                 </button>
             </div>
             <button class="add-button" onclick="window.location.href='<%= request.getContextPath() %>/booking?action=add'">
-                <span class="material-icons">add</span>
+                <i class="material-icons">add</i>
                 Add Booking
             </button>
         </div>
+
+        <% String success = (String) request.getAttribute("success"); %>
+        <% if (success != null) { %>
+            <div class="message success">
+                <i class="material-icons">check_circle</i>
+                <%= success %>
+            </div>
+        <% } %>
+        <% String error = (String) request.getAttribute("error"); %>
+        <% if (error != null) { %>
+            <div class="message error">
+                <i class="material-icons">error</i>
+                <%= error %>
+            </div>
+        <% } %>
         <section class="section-table">
             <div class="table-container">
                 <table>
@@ -51,13 +69,13 @@
                     <tbody id="bookingsTableBody">
                         <% 
                             List<Map<String, Object>> bookings = (List<Map<String, Object>>) request.getAttribute("bookings");
+                            int totalEntries = bookings != null ? bookings.size() : 0;
                             if (bookings != null && !bookings.isEmpty()) {
-                                int totalBookings = bookings.size();
-                                for (int i = 0; i < totalBookings; i++) { 
+                                for (int i = 0; i < totalEntries; i++) { 
                                     Map<String, Object> booking = bookings.get(i);
-                                    int displayNumber = totalBookings - i;
+                                    int displayNumber = totalEntries - i;
                         %>
-                        <tr>
+                        <tr data-index="<%= i %>">
                             <td><%= displayNumber %></td>
                             <td><%= booking.get("bookingNumber") %></td>
                             <td><%= booking.get("customerName") %></td>
@@ -74,10 +92,13 @@
                             <td>
                                 <div class="action-buttons">
                                     <button class="action-btn edit" onclick="window.location.href='<%= request.getContextPath() %>/booking?action=edit&bookingId=<%= booking.get("bookingId") %>'">
-                                        <span class="material-icons">edit</span>
+                                        <i class="material-icons">edit</i>
                                     </button>
                                     <button class="action-btn delete" onclick="showDeleteModal(<%= booking.get("bookingId") %>)">
-                                        <span class="material-icons">delete</span>
+                                        <i class="material-icons">delete</i>
+                                    </button>
+                                    <button class="action-btn download" onclick="window.location.href='<%= request.getContextPath() %>/booking?action=generateReceipt&bookingId=<%= booking.get("bookingId") %>'" title="Download Receipt">
+                                        <i class="material-icons">download</i>
                                     </button>
                                 </div>
                             </td>
@@ -95,50 +116,54 @@
                     </tbody>
                 </table>
             </div>
+            <div class="pagination">
+                <div class="pagination-info" id="paginationInfo">
+                    Showing 1 to <%= Math.min(6, totalEntries) %> of <%= totalEntries %> entries
+                </div>
+                <div class="pagination-buttons" id="paginationButtons">
+                    <button class="pagination-btn" id="prevBtn" onclick="changePage(-1)">Previous</button>
+                    <!-- Page numbers will be dynamically added here -->
+                    <button class="pagination-btn" id="nextBtn" onclick="changePage(1)">Next</button>
+                </div>
+            </div>
         </section>
-        <% String success = (String) request.getAttribute("success"); %>
-        <% if (success != null) { %>
-            <div class="message success">
-                <span class="material-icons">check_circle</span>
-                <%= success %>
-            </div>
-        <% } %>
-        <% String error = (String) request.getAttribute("error"); %>
-        <% if (error != null) { %>
-            <div class="message error">
-                <span class="material-icons">error</span>
-                <%= error %>
-            </div>
-        <% } %>
+
+
         <!-- Delete Modal -->
         <div class="modal-backdrop" id="deleteModal">
             <div class="modal">
                 <div class="modal-header">
                     <h3 class="modal-title">Confirm Delete</h3>
                     <button class="modal-close" onclick="closeDeleteModal()">
-                        <span class="material-icons">close</span>
+                        <i class="material-icons">close</i>
                     </button>
                 </div>
                 <div class="modal-body">
                     <p>Are you sure you want to delete this booking? This action cannot be undone.</p>
                 </div>
                 <div class="modal-footer">
-                    <button class="search-btn secondary" onclick="closeDeleteModal()">Cancel</button>
-                    <button class="search-btn primary" onclick="confirmDelete()">Delete</button>
+                    <button class="btn btn-secondary" onclick="closeDeleteModal()">Cancel</button>
+                    <button class="btn btn-danger" onclick="confirmDelete()">Delete</button>
                 </div>
             </div>
         </div>
     </main>
+
     <script>
         let bookingToDelete = null;
+        const itemsPerPage = 6;
+        let currentPage = 1;
+        const totalEntries = <%= totalEntries %>;
 
         function showDeleteModal(bookingId) {
             bookingToDelete = bookingId;
             document.getElementById('deleteModal').style.display = 'block';
+            document.body.style.overflow = 'hidden';
         }
 
         function closeDeleteModal() {
             document.getElementById('deleteModal').style.display = 'none';
+            document.body.style.overflow = '';
             bookingToDelete = null;
         }
 
@@ -165,6 +190,75 @@
                 } else {
                     row.style.display = 'none';
                 }
+            }
+            updatePagination(); // Update pagination after search
+        }
+
+        function updateTable() {
+            const rows = document.getElementById('bookingsTableBody').getElementsByTagName('tr');
+            const start = (currentPage - 1) * itemsPerPage;
+            const end = start + itemsPerPage;
+
+            for (let i = 0; i < rows.length; i++) {
+                if (rows[i].getAttribute('data-index')) {
+                    rows[i].style.display = (i >= start && i < end) ? '' : 'none';
+                }
+            }
+
+            const showingEnd = Math.min(end, totalEntries);
+            document.getElementById('paginationInfo').textContent = 
+                `Showing ${start + 1} to ${showingEnd} of ${totalEntries} entries`;
+
+            updatePaginationButtons();
+        }
+
+        function updatePaginationButtons() {
+            const paginationButtons = document.getElementById('paginationButtons');
+            const totalPages = Math.ceil(totalEntries / itemsPerPage);
+            
+            // Clear existing page numbers
+            while (paginationButtons.children.length > 2) {
+                paginationButtons.removeChild(paginationButtons.children[1]);
+            }
+
+            // Add page number buttons
+            for (let i = 1; i <= totalPages; i++) {
+                const btn = document.createElement('button');
+                btn.className = 'pagination-btn' + (i === currentPage ? ' active' : '');
+                btn.textContent = i;
+                btn.onclick = () => {
+                    currentPage = i;
+                    updateTable();
+                };
+                paginationButtons.insertBefore(btn, document.getElementById('nextBtn'));
+            }
+
+            // Update Previous/Next buttons
+            document.getElementById('prevBtn').disabled = currentPage === 1;
+            document.getElementById('nextBtn').disabled = currentPage === totalPages;
+        }
+
+        function changePage(delta) {
+            const totalPages = Math.ceil(totalEntries / itemsPerPage);
+            currentPage = Math.max(1, Math.min(totalPages, currentPage + delta));
+            updateTable();
+        }
+
+        // Initial setup
+        document.addEventListener('DOMContentLoaded', () => {
+            updateTable();
+        });
+
+        document.getElementById('search').addEventListener('keyup', function(event) {
+            if (event.key === 'Enter') {
+                searchBookings();
+            }
+        });
+
+        window.onclick = function(event) {
+            const deleteModal = document.getElementById('deleteModal');
+            if (event.target === deleteModal) {
+                closeDeleteModal();
             }
         }
     </script>

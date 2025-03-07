@@ -3,8 +3,14 @@ package com.cabservice.controller;
 import com.cabservice.dao.DBConnectionFactory;
 import com.cabservice.model.Billing;
 import com.cabservice.model.Booking;
+import com.cabservice.model.Customer;
+import com.cabservice.model.Driver;
+import com.cabservice.model.Vehicle;
 import com.cabservice.service.BillingService;
 import com.cabservice.service.BookingService;
+import com.cabservice.dao.DriverDAO;
+import com.cabservice.dao.VehicleDAO;
+import com.cabservice.service.CustomerService;
 
 import java.io.IOException;
 import java.sql.Connection;
@@ -18,6 +24,12 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+
+import com.itextpdf.text.Document;
+import com.itextpdf.text.DocumentException;
+import com.itextpdf.text.Font;
+import com.itextpdf.text.Paragraph;
+import com.itextpdf.text.pdf.PdfWriter;
 
 @WebServlet("/booking")
 public class BookingController extends HttpServlet {
@@ -39,6 +51,10 @@ public class BookingController extends HttpServlet {
 
         try (Connection conn = DBConnectionFactory.getConnection()) {
             BookingService bookingService = new BookingService(conn);
+            BillingService billingService = new BillingService(conn);
+            CustomerService customerService = new CustomerService();
+            VehicleDAO vehicleDAO = new VehicleDAO();
+            DriverDAO driverDAO = new DriverDAO();
 
             if ("add".equals(action)) {
                 request.getRequestDispatcher("/WEB-INF/view/admin/add-booking.jsp").forward(request, response);
@@ -50,7 +66,7 @@ public class BookingController extends HttpServlet {
                 List<Map<String, Object>> bookings = bookingService.getPendingBookings();
                 request.setAttribute("bookings", bookings);
                 request.getRequestDispatcher("/WEB-INF/view/admin/pendingBooking.jsp").forward(request, response);
-            } else if ("ongoing".equals(action)) { // New action for ongoing bookings
+            } else if ("ongoing".equals(action)) {
                 List<Map<String, Object>> bookings = bookingService.getOngoingBookings();
                 request.setAttribute("bookings", bookings);
                 request.getRequestDispatcher("/WEB-INF/view/admin/ongoingBooking.jsp").forward(request, response);
@@ -83,10 +99,82 @@ public class BookingController extends HttpServlet {
                 } else {
                     request.setAttribute("error", "Invalid booking ID.");
                 }
-                // Fetch updated bookings list using the same connection
                 List<Map<String, Object>> bookings = bookingService.getAllBookingsWithCustomerDetails();
                 request.setAttribute("bookings", bookings);
                 request.getRequestDispatcher("/WEB-INF/view/admin/manageBooking.jsp").forward(request, response);
+            } else if ("generateReceipt".equals(action)) {
+                String bookingIdStr = request.getParameter("bookingId");
+                if (bookingIdStr != null && !bookingIdStr.isEmpty()) {
+                    int bookingId = Integer.parseInt(bookingIdStr);
+                    Booking booking = bookingService.getBookingById(bookingId);
+                    Billing billing = billingService.getBillingByBookingId(bookingId);
+
+                    if (booking != null) {
+                        Customer customer = customerService.getCustomerById(booking.getCustomerId());
+                        String customerName = customer != null ? customer.getName() : "Unknown Customer";
+
+                        Vehicle vehicle = vehicleDAO.getVehicleById(booking.getVehicleId());
+                        String vehicleModel = vehicle != null ? vehicle.getModel() : "N/A";
+                        String plateNumber = vehicle != null ? vehicle.getPlateNumber() : "N/A";
+
+                        Driver driver = driverDAO.getDriverById(booking.getDriverId());
+                        String driverName = driver != null ? driver.getName() : "N/A";
+
+                        response.setContentType("application/pdf");
+                        String filename = "Receipt_Booking_" + 
+                                (booking.getBookingNumber() != null ? booking.getBookingNumber() : "ID_" + bookingId) + 
+                                ".pdf";
+                        response.setHeader("Content-Disposition", "attachment; filename=\"" + filename + "\"");
+                        Document document = new Document();
+                        try {
+                            PdfWriter.getInstance(document, response.getOutputStream());
+                            document.open();
+
+                            Font titleFont = new Font(Font.FontFamily.HELVETICA, 18, Font.BOLD);
+                            Font normalFont = new Font(Font.FontFamily.HELVETICA, 12, Font.NORMAL);
+
+                            document.add(new Paragraph("Mega City Cab Receipt", titleFont));
+                            document.add(new Paragraph("Booking Number: " + (booking.getBookingNumber() != null ? booking.getBookingNumber() : "N/A"), normalFont));
+                            document.add(new Paragraph("--------------------------------------------------", normalFont));
+                            document.add(new Paragraph("Booking Details", titleFont));
+                            document.add(new Paragraph("Customer Name: " + customerName, normalFont));
+                            document.add(new Paragraph("Driver Name: " + driverName, normalFont));
+                            document.add(new Paragraph("Vehicle Model: " + vehicleModel, normalFont));
+                            document.add(new Paragraph("Plate Number: " + plateNumber, normalFont));
+                            document.add(new Paragraph("Pickup Location: " + (booking.getPickupLocation() != null ? booking.getPickupLocation() : "N/A"), normalFont));
+                            document.add(new Paragraph("Dropoff Location: " + (booking.getDropoffLocation() != null ? booking.getDropoffLocation() : "N/A"), normalFont));
+                            document.add(new Paragraph("Distance: " + booking.getDistanceKm() + " km", normalFont));
+                            document.add(new Paragraph("Booked At: " + (booking.getBookedAt() != null ? booking.getBookedAt() : "N/A"), normalFont));
+                            document.add(new Paragraph("Status: " + (booking.getStatus() != null ? booking.getStatus() : "N/A"), normalFont));
+                            document.add(new Paragraph("--------------------------------------------------", normalFont));
+                            if (billing != null) {
+                                document.add(new Paragraph("Billing Details", titleFont));
+                                document.add(new Paragraph("Total Amount: Rs. " + String.format("%.2f", billing.getTotalAmount()), normalFont));
+                                document.add(new Paragraph("Tax: Rs. " + String.format("%.2f", billing.getTax()), normalFont));
+                                document.add(new Paragraph("Discount: Rs. " + String.format("%.2f", billing.getDiscount()), normalFont));
+                                document.add(new Paragraph("Final Amount: Rs. " + String.format("%.2f", billing.getFinalAmount()), normalFont));
+                                document.add(new Paragraph("Payment Status: " + (billing.getStatus() != null ? billing.getStatus() : "Pending"), normalFont));
+                                document.add(new Paragraph("Payment Type: " + (billing.getPaymentType() != null ? billing.getPaymentType() : "Pending"), normalFont));
+                            } else {
+                                document.add(new Paragraph("Billing Details", titleFont));
+                                document.add(new Paragraph("Billing information not available.", normalFont));
+                            }
+                            document.add(new Paragraph("--------------------------------------------------", normalFont));
+                            document.add(new Paragraph("Thank you for choosing Mega City Cab!", normalFont));
+
+                            document.close();
+                        } catch (DocumentException e) {
+                            e.printStackTrace();
+                            throw new IOException("Error generating PDF: " + e.getMessage());
+                        }
+                    } else {
+                        request.setAttribute("error", "Booking details not found for booking ID: " + bookingId);
+                        request.getRequestDispatcher("/WEB-INF/view/admin/manageBooking.jsp").forward(request, response);
+                    }
+                } else {
+                    request.setAttribute("error", "Invalid booking ID.");
+                    request.getRequestDispatcher("/WEB-INF/view/admin/manageBooking.jsp").forward(request, response);
+                }
             } else {
                 request.setAttribute("error", "Invalid action.");
                 request.getRequestDispatcher("/WEB-INF/view/admin/add-booking.jsp").forward(request, response);
@@ -112,12 +200,10 @@ public class BookingController extends HttpServlet {
                 String dropoffLocation = request.getParameter("dropoff_location");
                 String distanceKmStr = request.getParameter("distance_km");
 
-              
                 int customerId = Integer.parseInt(customerIdStr);
                 int vehicleId = Integer.parseInt(vehicleIdStr);
                 double distanceKm = Double.parseDouble(distanceKmStr);
 
-                // Booking creation
                 Booking newBooking = new Booking();
                 newBooking.setBookingNumber("BK" + System.currentTimeMillis());
                 newBooking.setCustomerId(customerId);
@@ -152,16 +238,15 @@ public class BookingController extends HttpServlet {
                         List<Map<String, Object>> bookings = bookingService.getAllBookingsWithCustomerDetails();
                         request.setAttribute("bookings", bookings);
                         request.getRequestDispatcher("/WEB-INF/view/admin/manageBooking.jsp").forward(request, response);
-                        return; 
+                        return;
                     } else {
                         request.setAttribute("error", "Billing creation failed.");
                     }
                 } else {
                     request.setAttribute("error", "Booking creation failed.");
                 }
-                // Forward to add-booking.jsp only if booking or billing creation fails
                 request.getRequestDispatcher("/WEB-INF/view/admin/add-booking.jsp").forward(request, response);
-            }else if ("edit".equals(action)) {
+            } else if ("edit".equals(action)) {
                 String bookingIdStr = request.getParameter("bookingId");
                 String pickupLocation = request.getParameter("pickup_location");
                 String dropoffLocation = request.getParameter("dropoff_location");
@@ -209,7 +294,7 @@ public class BookingController extends HttpServlet {
                     booking.setPickupLocation(pickupLocation);
                     booking.setDropoffLocation(dropoffLocation);
                     booking.setDistanceKm(distanceKm);
-                    booking.setStatus(status); 
+                    booking.setStatus(status);
                     bookingService.updateBooking(booking);
                     bookingService.updateBookingStatus(bookingId, status);
 
