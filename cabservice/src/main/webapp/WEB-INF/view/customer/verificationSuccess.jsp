@@ -59,9 +59,19 @@
 <body>
     <main class="container">
         <div class="success-box">
-            <h2 class="success-title">Email verified</h2>
-            <p class="success-message">Your email address has been verified. You may now close this window.</p>
-            <button class="close-button" onclick="window.close()">Close window</button>
+            <h2 class="success-title">Email Verified</h2>
+            <p class="success-message">
+                <% 
+                    String verificationMessage = (String) request.getAttribute("verificationMessage");
+                    if (verificationMessage != null) {
+                        out.print(verificationMessage);
+                    } else {
+                        out.print("Your email address has been verified. You may now close this window.");
+                    }
+                %>
+            </p>
+            <button class="close-button" onclick="window.close()">Close Window</button>
+            <p><a href="<%= request.getContextPath() %>/user?action=login">Proceed to Login</a></p>
         </div>
     </main>
 </body>

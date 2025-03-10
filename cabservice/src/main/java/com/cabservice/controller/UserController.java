@@ -4,6 +4,8 @@ import com.cabservice.model.Admin;
 import com.cabservice.model.Customer;
 import com.cabservice.service.UserService;
 import com.cabservice.service.VerificationService;
+import com.cabservice.service.RegistrationEventManager;
+import com.cabservice.service.EmailNotifier;
 import com.cabservice.util.EmailUtil;
 import org.mindrot.jbcrypt.BCrypt;
 
@@ -19,33 +21,42 @@ public class UserController extends HttpServlet {
     private static final long serialVersionUID = 1L;
     private UserService userService;
     private VerificationService verificationService;
+    private RegistrationEventManager eventManager;
 
+    @Override
     public void init() throws ServletException {
         userService = UserService.getInstance();
         verificationService = new VerificationService();
+        eventManager = new RegistrationEventManager();
+        eventManager.addObserver(new EmailNotifier());
     }
 
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) 
+            throws ServletException, IOException {
         String action = request.getParameter("action");
         if ("verify".equals(action)) {
             processVerification(request, response);
-        } else if (action == null || action.equals("home")) {
+        } else if (action == null || "home".equals(action)) {
             request.getRequestDispatcher("/index.jsp").forward(request, response);
-        } else if (action.equals("register")) {
+        } else if ("register".equals(action)) {
             request.getRequestDispatcher("/WEB-INF/view/customer/register.jsp").forward(request, response);
-        } else if (action.equals("login")) {
+        } else if ("login".equals(action)) {
             request.getRequestDispatcher("/WEB-INF/view/login.jsp").forward(request, response);
         } else if ("logout".equals(action)) {
             request.getSession(false).invalidate();
             response.sendRedirect(request.getContextPath() + "/index.jsp");
         } else if ("checkLogin".equals(action)) {
-            boolean isLoggedIn = request.getSession(false) != null && request.getSession().getAttribute("customerUser") != null;
+            boolean isLoggedIn = request.getSession(false) != null && 
+                                request.getSession().getAttribute("customerUser") != null;
             response.setContentType("application/json");
             response.getWriter().write("{\"isLoggedIn\": " + isLoggedIn + "}");
         }
     }
 
-    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) 
+            throws ServletException, IOException {
         String action = request.getParameter("action");
         if ("login".equals(action)) {
             processLogin(request, response);
@@ -56,7 +67,8 @@ public class UserController extends HttpServlet {
         }
     }
 
-    private void processCustomerRegistration(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    private void processCustomerRegistration(HttpServletRequest request, HttpServletResponse response) 
+            throws ServletException, IOException {
         try {
             Customer customer = new Customer();
             customer.setName(request.getParameter("name"));
@@ -82,9 +94,11 @@ public class UserController extends HttpServlet {
                 return;
             }
 
+            eventManager.notifyObservers("Pending Registration", customer);
             String token = verificationService.storePendingUser(customer);
             if (token != null) {
                 EmailUtil.sendVerificationEmail(customer.getEmail(), token);
+                eventManager.notifyObservers("Verification Sent", customer);
                 request.setAttribute("message", "A verification email has been sent to your email address. Please verify to complete registration.");
             } else {
                 request.setAttribute("errorMessage", "Failed to store pending user details.");
@@ -96,23 +110,26 @@ public class UserController extends HttpServlet {
         }
     }
 
-    private void processVerification(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    private void processVerification(HttpServletRequest request, HttpServletResponse response) 
+            throws ServletException, IOException {
         String token = request.getParameter("token");
         Customer customer = verificationService.verifyUser(token);
 
         if (customer != null) {
-            // Check if the user is already registered (e.g., verified from another device)
             if (!userService.isUsernameTaken(customer.getUsername()) && 
                 !userService.isEmailTaken(customer.getEmail()) && 
                 !userService.isNICTaken(customer.getNic())) {
-                int userId = userService.addUser(customer); // Save to database only if not already registered
-                if (userId <= 0) {
-                    request.setAttribute("errorMessage", "Failed to save user after verification.");
-                    request.getRequestDispatcher("/WEB-INF/view/customer/register.jsp").forward(request, response);
+                int userId = userService.addUser(customer);
+                if (userId > 0) {
+                    eventManager.notifyObservers("Registration Verified", customer);
+                    request.setAttribute("verificationMessage", 
+                        "Welcome, " + customer.getUsername() + "! Your registration has been successfully verified.");
+                    request.getRequestDispatcher("/WEB-INF/view/customer/verificationSuccess.jsp").forward(request, response);
                     return;
                 }
             }
-            // Redirect to the verification success page
+            request.setAttribute("verificationMessage", 
+                "Email verified successfully for " + customer.getUsername() + ".");
             request.getRequestDispatcher("/WEB-INF/view/customer/verificationSuccess.jsp").forward(request, response);
         } else {
             request.setAttribute("errorMessage", "Invalid or expired verification link.");
@@ -120,7 +137,8 @@ public class UserController extends HttpServlet {
         }
     }
 
-    private void processLogin(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    private void processLogin(HttpServletRequest request, HttpServletResponse response) 
+            throws ServletException, IOException {
         String username = request.getParameter("username");
         String password = request.getParameter("password");
 
