@@ -3,7 +3,6 @@ package com.cabservice.controller;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.Map;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -44,13 +43,7 @@ public class CustomerBookingController extends HttpServlet {
             BillingService billingService = new BillingService(conn);
 
             if ("save".equals(action)) {
-                // Debugging: Print all form parameters for logging
-                System.out.println("customer_id: " + request.getParameter("customer_id"));
-                System.out.println("pickup_location: " + request.getParameter("pickup_location"));
-                System.out.println("dropoff_location: " + request.getParameter("dropoff_location"));
-                System.out.println("vehicle_id: " + request.getParameter("vehicle_id"));
-                System.out.println("distance_km: " + request.getParameter("distance_km"));
-
+             
                 // Retrieve form parameters
                 String customerIdStr = request.getParameter("customer_id");
                 String vehicleIdStr = request.getParameter("vehicle_id");
@@ -111,29 +104,18 @@ public class CustomerBookingController extends HttpServlet {
                 // Save the booking and get the generated booking ID
                 int bookingId = bookingService.createBooking(newBooking);
                 if (bookingId != -1) {
-                    // Fetch tax and discount rates
-                    Map<String, Double> config = bookingService.getSystemConfig();
-                    double taxRate = config.get("taxRate");
-                    double discountRate = config.get("discountRate");
+                    double finalAmount = bookingService.calculateFinalAmount(vehicleId, distanceKm);
+                    if (finalAmount < 0) {
+                        request.setAttribute("error", "Failed to calculate final amount.");
+                        request.getRequestDispatcher("/WEB-INF/view/customer/booking.jsp").forward(request, response);
+                        return;
+                    }
 
-                    // Calculate billing details
-                    double ratePerKm = bookingService.getRatePerKm(vehicleId);
-                    double totalAmount = bookingService.calculateFare(distanceKm, ratePerKm);
-                    double tax = totalAmount * (taxRate / 100);
-                    double discount = totalAmount * (discountRate / 100);
-                    double finalAmount = totalAmount + tax - discount;
-
-                    // Create and save the billing entry
                     Billing billing = new Billing();
                     billing.setBookingId(bookingId);
-                    billing.setTotalAmount(totalAmount);
-                    billing.setTax(tax);
-                    billing.setDiscount(discount);
-                    billing.setFinalAmount(finalAmount);
-
+                    // Let sp_create_billing calculate total_amount, tax, discount, and final_amount
                     int billingId = billingService.createBilling(billing);
                     if (billingId != -1) {
-                        // Redirect to the billing page with the billing ID
                         response.sendRedirect(request.getContextPath() + "/customerBilling?action=view&id=" + billingId);
                     } else {
                         request.setAttribute("error", "Billing creation failed.");

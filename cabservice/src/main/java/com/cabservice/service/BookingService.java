@@ -39,8 +39,8 @@ public class BookingService {
         return bookingDAO.getRatePerKm(vehicleId);
     }
 
-    public double calculateFare(double distanceKm, double ratePerKm) {
-        return distanceKm * ratePerKm;
+    public double calculateFinalAmount(int vehicleId, double distanceKm) throws SQLException {
+        return bookingDAO.calculateFinalAmount(vehicleId, distanceKm);
     }
     public Map<String, Double> getSystemConfig() throws SQLException {
         return bookingDAO.getSystemConfig();

@@ -200,9 +200,34 @@ public class BookingController extends HttpServlet {
                 String dropoffLocation = request.getParameter("dropoff_location");
                 String distanceKmStr = request.getParameter("distance_km");
 
-                int customerId = Integer.parseInt(customerIdStr);
-                int vehicleId = Integer.parseInt(vehicleIdStr);
-                double distanceKm = Double.parseDouble(distanceKmStr);
+                // Validate input
+                if (customerIdStr == null || vehicleIdStr == null || pickupLocation == null || 
+                    dropoffLocation == null || distanceKmStr == null || 
+                    customerIdStr.isEmpty() || vehicleIdStr.isEmpty() || pickupLocation.isEmpty() || 
+                    dropoffLocation.isEmpty() || distanceKmStr.isEmpty()) {
+                    request.setAttribute("error", "All fields are required.");
+                    request.getRequestDispatcher("/WEB-INF/view/admin/add-booking.jsp").forward(request, response);
+                    return;
+                }
+
+                int customerId;
+                int vehicleId;
+                double distanceKm;
+                try {
+                    customerId = Integer.parseInt(customerIdStr);
+                    vehicleId = Integer.parseInt(vehicleIdStr);
+                    distanceKm = Double.parseDouble(distanceKmStr);
+                } catch (NumberFormatException e) {
+                    request.setAttribute("error", "Invalid customer ID, vehicle ID, or distance format.");
+                    request.getRequestDispatcher("/WEB-INF/view/admin/add-booking.jsp").forward(request, response);
+                    return;
+                }
+
+                if (distanceKm <= 0) {
+                    request.setAttribute("error", "Distance must be greater than zero.");
+                    request.getRequestDispatcher("/WEB-INF/view/admin/add-booking.jsp").forward(request, response);
+                    return;
+                }
 
                 Booking newBooking = new Booking();
                 newBooking.setBookingNumber("BK" + System.currentTimeMillis());
@@ -215,23 +240,16 @@ public class BookingController extends HttpServlet {
 
                 int bookingId = bookingService.createBooking(newBooking);
                 if (bookingId != -1) {
-                    Map<String, Double> config = bookingService.getSystemConfig();
-                    double taxRate = config.get("taxRate");
-                    double discountRate = config.get("discountRate");
-
-                    double ratePerKm = bookingService.getRatePerKm(vehicleId);
-                    double totalAmount = bookingService.calculateFare(distanceKm, ratePerKm);
-                    double tax = totalAmount * (taxRate / 100);
-                    double discount = totalAmount * (discountRate / 100);
-                    double finalAmount = totalAmount + tax - discount;
+                    double finalAmount = bookingService.calculateFinalAmount(vehicleId, distanceKm);
+                    if (finalAmount < 0) {
+                        request.setAttribute("error", "Failed to calculate final amount.");
+                        request.getRequestDispatcher("/WEB-INF/view/admin/add-booking.jsp").forward(request, response);
+                        return;
+                    }
 
                     Billing billing = new Billing();
                     billing.setBookingId(bookingId);
-                    billing.setTotalAmount(totalAmount);
-                    billing.setTax(tax);
-                    billing.setDiscount(discount);
-                    billing.setFinalAmount(finalAmount);
-
+                    // Let sp_create_billing calculate total_amount, tax, discount, and final_amount
                     int billingId = billingService.createBilling(billing);
                     if (billingId != -1) {
                         request.setAttribute("success", "Booking created successfully with ID: " + bookingId);
@@ -265,14 +283,17 @@ public class BookingController extends HttpServlet {
                     return;
                 }
 
-                int bookingId = Integer.parseInt(bookingIdStr);
-                int customerId = Integer.parseInt(customerIdStr);
-                int vehicleId = Integer.parseInt(vehicleIdStr);
+                int bookingId;
+                int customerId;
+                int vehicleId;
                 double distanceKm;
                 try {
+                    bookingId = Integer.parseInt(bookingIdStr);
+                    customerId = Integer.parseInt(customerIdStr);
+                    vehicleId = Integer.parseInt(vehicleIdStr);
                     distanceKm = Double.parseDouble(distanceKmStr);
                 } catch (NumberFormatException e) {
-                    request.setAttribute("error", "Invalid distance value.");
+                    request.setAttribute("error", "Invalid booking ID, customer ID, vehicle ID, or distance format.");
                     List<Map<String, Object>> bookings = bookingService.getAllBookingsWithCustomerDetails();
                     request.setAttribute("bookings", bookings);
                     request.getRequestDispatcher("/WEB-INF/view/admin/manageBooking.jsp").forward(request, response);
@@ -299,23 +320,15 @@ public class BookingController extends HttpServlet {
                     bookingService.updateBookingStatus(bookingId, status);
 
                     if (!"Cancelled".equals(status)) {
-                        double ratePerKm = bookingService.getRatePerKm(booking.getVehicleId());
-                        Map<String, Double> config = bookingService.getSystemConfig();
-                        double taxRate = config.get("taxRate");
-                        double discountRate = config.get("discountRate");
-
-                        double totalAmount = bookingService.calculateFare(distanceKm, ratePerKm);
-                        double tax = totalAmount * (taxRate / 100);
-                        double discount = totalAmount * (discountRate / 100);
-                        double finalAmount = totalAmount + tax - discount;
-
-                        Billing billing = billingService.getBillingByBookingId(bookingId);
-                        if (billing != null) {
-                            billing.setTotalAmount(totalAmount);
-                            billing.setTax(tax);
-                            billing.setDiscount(discount);
-                            billing.setFinalAmount(finalAmount);
-                            billingService.updateBilling(billing);
+                        double finalAmount = bookingService.calculateFinalAmount(vehicleId, distanceKm);
+                        if (finalAmount < 0) {
+                            request.setAttribute("error", "Failed to calculate final amount.");
+                        } else {
+                            Billing billing = billingService.getBillingByBookingId(bookingId);
+                            if (billing != null) {
+                                billing.setFinalAmount(finalAmount); // Preview; sp_create_billing will override if re-run
+                                billingService.updateBilling(billing);
+                            }
                         }
                     } else {
                         Billing billing = billingService.getBillingByBookingId(bookingId);
@@ -336,7 +349,7 @@ public class BookingController extends HttpServlet {
             }
         } catch (SQLException e) {
             e.printStackTrace();
-            request.setAttribute("error", "An error occurred while processing your request.");
+            request.setAttribute("error", "Database error: " + e.getMessage());
             request.getRequestDispatcher("/WEB-INF/view/admin/manageBooking.jsp").forward(request, response);
         }
     }

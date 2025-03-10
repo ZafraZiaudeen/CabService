@@ -1,9 +1,11 @@
 package com.cabservice.dao;
 
+import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Types;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -29,42 +31,55 @@ public class BillingDAO {
         return config;
     }
     public int createBilling(Billing billing) throws SQLException {
-        String sql = """
-            INSERT INTO billing (booking_id, total_amount, tax, discount, final_amount, generated_at, card_number, cvv, expiry_date, payment_type)
-            VALUES (?, ?, ?, ?, ?, NOW(), ?, ?, ?, ?)
-        """;
-        try (PreparedStatement stmt = conn.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS)) {
+        String sql = "{CALL sp_create_billing(?, ?, ?, ?, ?, ?, ?, ?, ?)}";
+        try (CallableStatement stmt = conn.prepareCall(sql)) {
+            // Input parameters
             stmt.setInt(1, billing.getBookingId());
-            stmt.setDouble(2, billing.getTotalAmount());
-            stmt.setDouble(3, billing.getTax());
-            stmt.setDouble(4, billing.getDiscount());
-            stmt.setDouble(5, billing.getFinalAmount());
+            stmt.setString(2, billing.getPaymentType());
+            stmt.setString(3, billing.getCardNumber());
+            stmt.setString(4, billing.getCvv());
+            stmt.setString(5, billing.getExpiryDate());
 
-           
-            if ("Card".equals(billing.getPaymentType())) {
-                stmt.setString(6, billing.getCardNumber());
-                stmt.setString(7, billing.getCvv());
-                stmt.setString(8, billing.getExpiryDate());
-            } else {
-                stmt.setNull(6, java.sql.Types.VARCHAR);  
-                stmt.setNull(7, java.sql.Types.VARCHAR);
-                stmt.setNull(8, java.sql.Types.VARCHAR);
-            }
+            // Output parameters
+            stmt.registerOutParameter(6, Types.DECIMAL); // total_amount
+            stmt.registerOutParameter(7, Types.DECIMAL); // tax
+            stmt.registerOutParameter(8, Types.DECIMAL); // discount
+            stmt.registerOutParameter(9, Types.DECIMAL); // final_amount
 
-            stmt.setString(9, billing.getPaymentType()); 
+            // Execute the stored procedure
+            stmt.execute();
 
-            int rowsAffected = stmt.executeUpdate();
-            if (rowsAffected > 0) {
-                ResultSet rs = stmt.getGeneratedKeys();
+            // Update Billing object
+            billing.setTotalAmount(stmt.getDouble(6));
+            billing.setTax(stmt.getDouble(7));
+            billing.setDiscount(stmt.getDouble(8));
+            billing.setFinalAmount(stmt.getDouble(9));
+
+            // Fetch generated ID
+            String getIdSql = "SELECT LAST_INSERT_ID() AS billing_id";
+            try (PreparedStatement idStmt = conn.prepareStatement(getIdSql);
+                 ResultSet rs = idStmt.executeQuery()) {
                 if (rs.next()) {
-                    return rs.getInt(1);  
+                    int billingId = rs.getInt("billing_id");
+                    billing.setId(billingId);
+                    return billingId;
                 }
             }
         }
-        return -1;  
+        return -1;
     }
-
-    
+    public double calculateFinalAmount(int vehicleId, double distanceKm) throws SQLException {
+        String sql = "SELECT fn_calculate_final_amount(?, ?) AS final_amount";
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, vehicleId);
+            stmt.setDouble(2, distanceKm);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return rs.getDouble("final_amount");
+            }
+        }
+        return -1.0; // Indicate error if no result
+    }
     public Billing getBillingById(int billingId) throws SQLException {
         String sql = "SELECT * FROM billing WHERE id = ?";
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {

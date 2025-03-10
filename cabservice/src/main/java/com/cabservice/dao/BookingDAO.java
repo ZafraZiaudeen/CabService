@@ -91,31 +91,33 @@ public class BookingDAO {
     }
 
     public int createBooking(Booking booking) throws SQLException {
-        String sql = """
-            INSERT INTO bookings (booking_number, customer_id, driver_id, vehicle_id, pickup_location, dropoff_location, distance_km, status, booked_at)
-            VALUES (?, ?, ?, ?, ?, ?, ?, 'Pending', NOW())
-        """;
-        try (PreparedStatement stmt = conn.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS)) {
+        String sql = "{CALL sp_create_booking(?, ?, ?, ?, ?, ?, ?)}";
+        try (CallableStatement stmt = conn.prepareCall(sql)) {
             stmt.setString(1, booking.getBookingNumber());
             stmt.setInt(2, booking.getCustomerId());
-            stmt.setInt(3, booking.getDriverId());
-            stmt.setInt(4, booking.getVehicleId());
-            stmt.setString(5, booking.getPickupLocation());
-            stmt.setString(6, booking.getDropoffLocation());
-            stmt.setDouble(7, booking.getDistanceKm());
-            stmt.executeUpdate();
-
-            ResultSet rs = stmt.getGeneratedKeys();
-            if (rs.next()) {
-                int bookingId = rs.getInt(1);
-                // Immediately mark driver as unavailable
-                updateDriverAndVehicleAvailability(bookingId, "Pending");
-                return bookingId;
-            }
+            stmt.setInt(3, booking.getVehicleId());
+            stmt.setString(4, booking.getPickupLocation());
+            stmt.setString(5, booking.getDropoffLocation());
+            stmt.setDouble(6, booking.getDistanceKm());
+            stmt.registerOutParameter(7, Types.INTEGER);
+            stmt.execute();
+            return stmt.getInt(7);
         }
-        return -1;
     }
     
+ // method to calculate final amount using fn_calculate_final_amount
+    public double calculateFinalAmount(int vehicleId, double distanceKm) throws SQLException {
+        String sql = "SELECT fn_calculate_final_amount(?, ?) AS final_amount";
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, vehicleId);
+            stmt.setDouble(2, distanceKm);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return rs.getDouble("final_amount");
+            }
+        }
+        return -1.0; // Indicate error if no result
+    }
     public List<Map<String, String>> getCustomers() throws SQLException {
         List<Map<String, String>> customers = new ArrayList<>();
         String sql = """
@@ -149,20 +151,7 @@ public class BookingDAO {
         return config;
     }
 
-    public boolean createBilling(Billing billing) throws SQLException {
-        String sql = """
-            INSERT INTO billing (booking_id, total_amount, tax, discount, final_amount, generated_at)
-            VALUES (?, ?, ?, ?, ?, NOW())
-        """;
-        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setInt(1, billing.getBookingId());
-            stmt.setDouble(2, billing.getTotalAmount());
-            stmt.setDouble(3, billing.getTax());
-            stmt.setDouble(4, billing.getDiscount());
-            stmt.setDouble(5, billing.getFinalAmount());
-            return stmt.executeUpdate() > 0;
-        }
-    }
+    
     
     public Booking getBookingById(int bookingId) throws SQLException {
         String sql = "SELECT * FROM bookings WHERE id = ?";
@@ -436,23 +425,17 @@ public class BookingDAO {
     }
     
     public void updateBookingStatus(int bookingId, String status) throws SQLException {
-        String sql;
+        String sql = "UPDATE bookings SET status = ? WHERE id = ?";
         if ("Completed".equals(status)) {
             sql = "UPDATE bookings SET status = ?, completed_at = NOW() WHERE id = ?";
-        } else {
-            sql = "UPDATE bookings SET status = ? WHERE id = ?";
         }
-        
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, status);
             stmt.setInt(2, bookingId);
             stmt.executeUpdate();
         }
-        
-        // Update driver and vehicle availability based on new status
-        updateDriverAndVehicleAvailability(bookingId, status);
+        //  updateDriverAndVehicleAvailability; trigger handles it
     }
-    
     public List<Map<String, Object>> getPendingBooking() throws SQLException {
         List<Map<String, Object>> bookings = new ArrayList<>();
         String sql = """
@@ -565,36 +548,6 @@ public class BookingDAO {
         return bookings;
     }
  
-    public void updateDriverAndVehicleAvailability(int bookingId, String newStatus) throws SQLException {
-        if ("Pending".equalsIgnoreCase(newStatus) || "Ongoing".equalsIgnoreCase(newStatus)) {
-            String sql = """
-                UPDATE driver d
-                INNER JOIN bookings b ON d.id = b.driver_id
-                SET d.availability = FALSE
-                WHERE b.id = ? AND b.status IN ('Pending', 'Ongoing')
-            """;
-            try (PreparedStatement stmt = conn.prepareStatement(sql)) {
-                stmt.setInt(1, bookingId);
-                stmt.executeUpdate();
-            }
-            
-            // Vehicle status is already 'In Use' by default in getAvailableVehicles(),
-            // so no additional update is needed unless you want to enforce it explicitly.
-        } else if ("Completed".equalsIgnoreCase(newStatus) || "Cancelled".equalsIgnoreCase(newStatus)) {
-            // When booking ends, make driver available again
-            String sql = """
-                UPDATE driver d
-                INNER JOIN bookings b ON d.id = b.driver_id
-                SET d.availability = TRUE
-                WHERE b.id = ?
-            """;
-            try (PreparedStatement stmt = conn.prepareStatement(sql)) {
-                stmt.setInt(1, bookingId);
-                stmt.executeUpdate();
-            }
-        }
-    }
-    
     public int getTotalBookingsCount() throws SQLException {
         String sql = "SELECT COUNT(*) AS total FROM bookings";
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
