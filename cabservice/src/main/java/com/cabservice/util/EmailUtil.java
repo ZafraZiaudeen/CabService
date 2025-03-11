@@ -38,7 +38,7 @@ public class EmailUtil {
         sendEmail(toEmail, subject, body);
     }
 
-    // New general method for sending emails
+    // method for sending emails
     public static void sendEmail(String toEmail, String subject, String body) {
         Properties props = new Properties();
         props.put("mail.smtp.auth", "true");

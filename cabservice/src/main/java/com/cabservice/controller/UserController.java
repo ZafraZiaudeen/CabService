@@ -94,22 +94,15 @@ public class UserController extends HttpServlet {
                 return;
             }
 
+            // Notify observers of pending registration; EmailNotifier will handle email sending
             eventManager.notifyObservers("Pending Registration", customer);
-            String token = verificationService.storePendingUser(customer);
-            if (token != null) {
-                EmailUtil.sendVerificationEmail(customer.getEmail(), token);
-                eventManager.notifyObservers("Verification Sent", customer);
-                request.setAttribute("message", "A verification email has been sent to your email address. Please verify to complete registration.");
-            } else {
-                request.setAttribute("errorMessage", "Failed to store pending user details.");
-            }
+            request.setAttribute("message", "A verification email has been sent to your email address. Please verify to complete registration.");
             request.getRequestDispatcher("/WEB-INF/view/customer/register.jsp").forward(request, response);
         } catch (Exception e) {
             request.setAttribute("errorMessage", "Registration failed: " + e.getMessage());
             request.getRequestDispatcher("/WEB-INF/view/customer/register.jsp").forward(request, response);
         }
     }
-
     private void processVerification(HttpServletRequest request, HttpServletResponse response) 
             throws ServletException, IOException {
         String token = request.getParameter("token");
