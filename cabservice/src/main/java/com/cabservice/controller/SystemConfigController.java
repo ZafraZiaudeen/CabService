@@ -31,7 +31,7 @@ public class SystemConfigController extends HttpServlet {
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String action = request.getParameter("action");
-        HttpSession session = request.getSession(false); 
+        HttpSession session = request.getSession(false);
 
         if (session == null || session.getAttribute("adminUser") == null) {
             System.out.println("Redirecting: No active session found!");
@@ -65,7 +65,9 @@ public class SystemConfigController extends HttpServlet {
                     if (isDeleted) {
                         response.sendRedirect(request.getContextPath() + "/system-config?action=view");
                     } else {
-                        response.sendRedirect(request.getContextPath() + "/system-config?action=view&error=deleteFailed");
+                        request.setAttribute("errorMessage", "Failed to delete existing tax/discount configuration.");
+                        request.setAttribute("config", systemConfigService.getSystemConfig());
+                        request.getRequestDispatcher("/WEB-INF/view/admin/manageTax.jsp").forward(request, response);
                     }
                     break;
 
@@ -75,7 +77,8 @@ public class SystemConfigController extends HttpServlet {
             }
         } catch (SQLException e) {
             e.printStackTrace();
-            response.sendRedirect(request.getContextPath() + "/system-config?action=view&error=serverError");
+            request.setAttribute("errorMessage", "Server error occurred.");
+            request.getRequestDispatcher("/WEB-INF/view/admin/manageTax.jsp").forward(request, response);
         }
     }
 
@@ -89,47 +92,117 @@ public class SystemConfigController extends HttpServlet {
                 String taxRateStr = request.getParameter("tax_rate");
                 String discountRateStr = request.getParameter("discount_rate");
 
-                if (taxRateStr == null || discountRateStr == null ||
-                    taxRateStr.trim().isEmpty() || discountRateStr.trim().isEmpty()) {
-                    response.sendRedirect(request.getContextPath() + "/system-config?action=edit&error=missingFields");
+                if (taxRateStr == null || discountRateStr == null || taxRateStr.trim().isEmpty() || discountRateStr.trim().isEmpty()) {
+                    request.setAttribute("errorMessage", "Tax rate and discount rate are required.");
+                    request.setAttribute("config", systemConfigService.getSystemConfig());
+                    request.getRequestDispatcher("/WEB-INF/view/admin/edit-tax.jsp").forward(request, response);
                     return;
                 }
 
                 BigDecimal taxRate = new BigDecimal(taxRateStr.trim());
                 BigDecimal discountRate = new BigDecimal(discountRateStr.trim());
+                BigDecimal hundred = new BigDecimal("100");
+
+                if (taxRate.compareTo(hundred) > 0 || discountRate.compareTo(hundred) > 0) {
+                    request.setAttribute("errorMessage", "Tax rate and discount rate cannot exceed 100%.");
+                    request.setAttribute("config", systemConfigService.getSystemConfig());
+                    request.getRequestDispatcher("/WEB-INF/view/admin/edit-tax.jsp").forward(request, response);
+                    return;
+                }
 
                 boolean isUpdated = systemConfigService.updateSystemConfig(taxRate, discountRate);
                 if (isUpdated) {
                     response.sendRedirect(request.getContextPath() + "/system-config?action=view");
                 } else {
-                    response.sendRedirect(request.getContextPath() + "/system-config?action=edit&error=updateFailed");
+                    request.setAttribute("errorMessage", "Failed to update tax/discount configuration.");
+                    request.setAttribute("config", systemConfigService.getSystemConfig());
+                    request.getRequestDispatcher("/WEB-INF/view/admin/edit-tax.jsp").forward(request, response);
                 }
-            }
-
-            // Add new tax/discount configuration
-            if ("add".equals(action)) {
+            } else if ("add".equals(action)) {
                 String taxRateStr = request.getParameter("tax_rate");
                 String discountRateStr = request.getParameter("discount_rate");
 
-                if (taxRateStr == null || discountRateStr == null ||
-                    taxRateStr.trim().isEmpty() || discountRateStr.trim().isEmpty()) {
-                    response.sendRedirect(request.getContextPath() + "/system-config?action=add&error=missingFields");
+                if (taxRateStr == null || discountRateStr == null || taxRateStr.trim().isEmpty() || discountRateStr.trim().isEmpty()) {
+                    request.setAttribute("errorMessage", "Tax rate and discount rate are required.");
+                    request.getRequestDispatcher("/WEB-INF/view/admin/add-tax.jsp").forward(request, response);
                     return;
                 }
 
                 BigDecimal taxRate = new BigDecimal(taxRateStr.trim());
                 BigDecimal discountRate = new BigDecimal(discountRateStr.trim());
+                BigDecimal hundred = new BigDecimal("100");
 
-                boolean isInserted = systemConfigService.insertSystemConfig(taxRate, discountRate);
-                if (isInserted) {
-                    response.sendRedirect(request.getContextPath() + "/system-config?action=view");
-                } else {
-                    response.sendRedirect(request.getContextPath() + "/system-config?action=add&error=insertFailed");
+                if (taxRate.compareTo(hundred) > 0 || discountRate.compareTo(hundred) > 0) {
+                    request.setAttribute("errorMessage", "Tax rate and discount rate cannot exceed 100%.");
+                    request.getRequestDispatcher("/WEB-INF/view/admin/add-tax.jsp").forward(request, response);
+                    return;
+                }
+
+                // Delete existing config and insert new one
+                conn.setAutoCommit(false); // Start transaction
+                try {
+                    if (systemConfigService.getSystemConfig() != null) {
+                        systemConfigService.deleteSystemConfig(); // Delete existing config
+                    }
+                    boolean isInserted = systemConfigService.insertSystemConfig(taxRate, discountRate);
+                    if (isInserted) {
+                        conn.commit();
+                        response.sendRedirect(request.getContextPath() + "/system-config?action=view");
+                    } else {
+                        try {
+                            conn.rollback();
+                        } catch (SQLException rollbackEx) {
+                            rollbackEx.printStackTrace(); // Log rollback failure
+                        }
+                        request.setAttribute("errorMessage", "Failed to add new tax/discount configuration.");
+                        request.getRequestDispatcher("/WEB-INF/view/admin/add-tax.jsp").forward(request, response);
+                    }
+                } catch (SQLException e) {
+                    try {
+                        conn.rollback();
+                    } catch (SQLException rollbackEx) {
+                        rollbackEx.printStackTrace(); // Log rollback failure
+                    }
+                    request.setAttribute("errorMessage", "Error adding new tax/discount: " + e.getMessage());
+                    request.getRequestDispatcher("/WEB-INF/view/admin/add-tax.jsp").forward(request, response);
+                } finally {
+                    try {
+                        conn.setAutoCommit(true); // Reset to default
+                    } catch (SQLException resetEx) {
+                        resetEx.printStackTrace(); // Log reset failure
+                    }
                 }
             }
-        } catch (SQLException | NumberFormatException e) {
+        } catch (SQLException e) {
             e.printStackTrace();
-            response.sendRedirect(request.getContextPath() + "/system-config?action=add&error=serverError");
+            request.setAttribute("errorMessage", "Server error occurred: " + e.getMessage());
+            if ("update".equals(action)) {
+                try {
+                    request.setAttribute("config", systemConfigService.getSystemConfig());
+                    request.getRequestDispatcher("/WEB-INF/view/admin/edit-tax.jsp").forward(request, response);
+                } catch (SQLException configEx) {
+                    configEx.printStackTrace();
+                    request.setAttribute("errorMessage", "Server error occurred and failed to retrieve config: " + configEx.getMessage());
+                    request.getRequestDispatcher("/WEB-INF/view/admin/edit-tax.jsp").forward(request, response);
+                }
+            } else {
+                request.getRequestDispatcher("/WEB-INF/view/admin/add-tax.jsp").forward(request, response);
+            }
+        } catch (NumberFormatException e) {
+            e.printStackTrace();
+            request.setAttribute("errorMessage", "Invalid number format: " + e.getMessage());
+            if ("update".equals(action)) {
+                try {
+                    request.setAttribute("config", systemConfigService.getSystemConfig());
+                    request.getRequestDispatcher("/WEB-INF/view/admin/edit-tax.jsp").forward(request, response);
+                } catch (SQLException configEx) {
+                    configEx.printStackTrace();
+                    request.setAttribute("errorMessage", "Invalid number format and failed to retrieve config: " + configEx.getMessage());
+                    request.getRequestDispatcher("/WEB-INF/view/admin/edit-tax.jsp").forward(request, response);
+                }
+            } else {
+                request.getRequestDispatcher("/WEB-INF/view/admin/add-tax.jsp").forward(request, response);
+            }
         }
     }
 }
