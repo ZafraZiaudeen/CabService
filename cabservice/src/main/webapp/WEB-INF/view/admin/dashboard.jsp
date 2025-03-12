@@ -41,9 +41,9 @@
                         %>
                         <p class="stat"><%= formattedTotal %></p>
                         <span class="trend <%= trendClass %>">
-                            <span class="material-icons"><%= trendIcon %></span>
-                            <%= formattedGrowth %>%
-                        </span>
+					    <span class="material-icons"><%= trendIcon %></span>
+					    <%= formattedGrowth %>% vs. last month
+					</span>
                     </div>
                 </div>
 

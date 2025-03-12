@@ -152,7 +152,7 @@ public class BookingService {
         }
 
         double growth = ((double) (currentMonthCount - previousMonthCount) / previousMonthCount) * 100;
-        return growth;
+        return Math.min(Math.max(growth, -100.0), 100.0); 
     }
     
     public int getPendingBookingsCount() throws SQLException {
