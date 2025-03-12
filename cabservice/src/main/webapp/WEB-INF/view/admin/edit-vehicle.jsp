@@ -38,7 +38,17 @@
             outline: none;
             border-color: #0984e3;
             box-shadow: 0 0 0 3px rgba(9, 132, 227, 0.1);
-        }</style>
+        }
+        .error-message {
+            color: #dc3545;
+            font-size: 14px;
+            margin-bottom: 10px;
+            text-align: center;
+            background-color: #f8d7da;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        </style>
 </head>
 <body>
     <!-- Include Sidebar -->
@@ -48,7 +58,9 @@
         <div class="page-header">
             <h1 class="page-title">Edit Vehicle</h1>
         </div>
-
+  <% if (request.getAttribute("errorMessage") != null) { %>
+            <div class="error-message"><%= request.getAttribute("errorMessage") %></div>
+        <% } %>
         <!-- ✅ Updated Form with Existing Vehicle Details -->
         <form class="section-form" id="vehicleForm" action="<%= request.getContextPath() %>/vehicle?action=update" method="post">
             <input type="hidden" name="vehicleId" value="<%= vehicle.getId() %>">

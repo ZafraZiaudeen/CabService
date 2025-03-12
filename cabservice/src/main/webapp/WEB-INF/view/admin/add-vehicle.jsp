@@ -23,7 +23,15 @@
             width: 100%;
         }
 
-       
+        .error-message {
+            color: #dc3545;
+            font-size: 14px;
+            margin-bottom: 10px;
+            text-align: center;
+            background-color: #f8d7da;
+            padding: 10px;
+            border-radius: 5px;
+        }
     </style>
 </head>
 <body>
@@ -34,7 +42,9 @@
         <div class="page-header">
             <h1 class="page-title">Add New Vehicle</h1>
         </div>
-
+  <% if (request.getAttribute("errorMessage") != null) { %>
+            <div class="error-message"><%= request.getAttribute("errorMessage") %></div>
+        <% } %>
         <form class="section-form" id="vehicleForm" action="<%= request.getContextPath() %>/vehicle?action=save" method="post">
             <div class="form-grid">
                 <div class="form-field">

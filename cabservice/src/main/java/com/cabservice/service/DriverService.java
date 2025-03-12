@@ -45,6 +45,23 @@ public class DriverService {
 
     // Method to update driver information
     public boolean updateDriver(int driverId, String name, String nic, String licenseNumber, String phoneNumber, int experience, boolean availability) {
+        // Fetch the current driver to compare NIC and license number
+        Driver currentDriver = driverDAO.getDriverById(driverId);
+        if (currentDriver == null) {
+            throw new IllegalArgumentException("Driver with ID " + driverId + " not found.");
+        }
+
+        // Check if NIC is taken by another driver
+        if (!nic.equals(currentDriver.getNic()) && driverDAO.isNicExists(nic)) {
+            throw new IllegalArgumentException("NIC '" + nic + "' is already taken by another driver.");
+        }
+
+        // Check if license number is taken by another driver
+        if (!licenseNumber.equals(currentDriver.getLicenseNumber()) && driverDAO.isLicenseNumberExists(licenseNumber)) {
+            throw new IllegalArgumentException("License Number '" + licenseNumber + "' is already taken by another driver.");
+        }
+
+        // Update driver if validations pass
         Driver driver = new Driver();
         driver.setDriverId(driverId);
         driver.setName(name);

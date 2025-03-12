@@ -17,10 +17,10 @@
     <meta charset="UTF-8">
     <title>Edit Driver - Cab Service</title>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-     <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+    <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
     <link rel="stylesheet" href="<c:url value='/css/adminAdd.css'/>">
     <style>
-     .form-field label {
+        .form-field label {
             font-size: 14px;
             font-weight: 500;
             color: #4a5568;
@@ -38,7 +38,17 @@
             outline: none;
             border-color: #0984e3;
             box-shadow: 0 0 0 3px rgba(9, 132, 227, 0.1);
-        }</style>
+        }
+        .error-message {
+            color: #dc3545;
+            font-size: 14px;
+            margin-bottom: 10px;
+            text-align: center;
+            background-color: #f8d7da;
+            padding: 10px;
+            border-radius: 5px;
+        }
+    </style>
 </head>
 <body>
     <!-- Include the sidebar -->
@@ -46,11 +56,13 @@
 
     <main class="main-content" id="mainContent">
         <div class="page-header">
-            
             <h1 class="page-title">Edit Driver</h1>
         </div>
 
-       
+        <% if (request.getAttribute("errorMessage") != null) { %>
+            <div class="error-message"><%= request.getAttribute("errorMessage") %></div>
+        <% } %>
+
         <form class="section-form" id="driverForm" action="<%= request.getContextPath() %>/driver?action=update" method="post">
             <input type="hidden" name="driverId" value="<%= driver.getDriverId() %>">
 
@@ -89,7 +101,7 @@
                 </div>
 
                 <div class="form-buttons">
-                   <button type="button" class="form-button secondary" onclick="window.location.href='<%= request.getContextPath() %>/driver?action=list'">
+                    <button type="button" class="form-button secondary" onclick="window.location.href='<%= request.getContextPath() %>/driver?action=list'">
                         Cancel
                     </button>
                     <button type="submit" class="form-button primary">
