@@ -13,19 +13,30 @@ jobs:
   build-and-test:
     runs-on: ubuntu-latest
 
+    # Add MySQL service
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: Zafra@123  
+          MYSQL_DATABASE: cab_service_db 
+        ports:
+          - 3306:3306  # Expose port 3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=5
+
     steps:
     # Step 1: Checkout the code
     - name: Checkout code
       uses: actions/checkout@v4
 
-    # Step 2: Set up JDK (Java Development Kit)
+    # Step 2: Set up JDK 17
     - name: Set up JDK 17
       uses: actions/setup-java@v4
       with:
         java-version: '17'
         distribution: 'temurin'
 
-    # Step 3: Cache Maven dependencies to speed up builds
+    # Step 3: Cache Maven dependencies
     - name: Cache Maven dependencies
       uses: actions/cache@v4
       with:
@@ -38,28 +49,28 @@ jobs:
     - name: List directory structure
       run: find .
 
-    # Step 5: Build the project with Maven
+    # Step 5: Initialize MySQL database with SQL dumps
+    - name: Initialize MySQL database
+      run: |
+        mysql -h 127.0.0.1 -u root -pZafra@123 cab_service_db < cabservice/src/main/resources/Dump20250313.sql
+        mysql -h 127.0.0.1 -u root -pZafra@123 cab_service_db < cabservice/src/main/resources/sqlquery.sql
+
+    # Step 6: Build with Maven
     - name: Build with Maven
       run: mvn clean install -DskipTests
       working-directory: cabservice
-      env:
-        CI: true  
 
-    # Step 6: Run tests with Maven
+    # Step 7: Run tests with Maven
     - name: Run tests
       run: mvn test
       working-directory: cabservice
-      env:
-        CI: true 
 
-    # Step 7: Package the application
+    # Step 8: Package application
     - name: Package application
-      run: mvn package -DskipTests
+      run: mvn package
       working-directory: cabservice
-      env:
-        CI: true 
 
-    # Step 8: Upload the artifact (e.g., WAR file)
+    # Step 9: Upload the artifact
     - name: Upload artifact
       uses: actions/upload-artifact@v4
       with:
