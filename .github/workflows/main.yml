@@ -41,23 +41,30 @@ jobs:
     # Step 5: Build the project with Maven
     - name: Build with Maven
       run: mvn clean install -DskipTests
-      working-directory: cabservice 
+      working-directory: cabservice
+      env:
+        CI: true  
 
     # Step 6: Run tests with Maven
     - name: Run tests
       run: mvn test
-      working-directory: cabservice 
+      working-directory: cabservice
+      env:
+        CI: true 
+
     # Step 7: Package the application
     - name: Package application
       run: mvn package -DskipTests
-      working-directory: cabservice 
+      working-directory: cabservice
+      env:
+        CI: true 
 
-    # Step 8: Upload the artifact (e.g., JAR/WAR file)
+    # Step 8: Upload the artifact (e.g., WAR file)
     - name: Upload artifact
       uses: actions/upload-artifact@v4
       with:
         name: cab-service-artifact
-        path: cabservice/target/*.jar  
+        path: cabservice/target/cabservice.war
         if-no-files-found: warn
         retention-days: 30
         overwrite: true
