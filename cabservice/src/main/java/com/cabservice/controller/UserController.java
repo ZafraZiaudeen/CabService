@@ -6,7 +6,6 @@ import com.cabservice.service.UserService;
 import com.cabservice.service.VerificationService;
 import com.cabservice.service.RegistrationEventManager;
 import com.cabservice.service.EmailNotifier;
-import com.cabservice.util.EmailUtil;
 import org.mindrot.jbcrypt.BCrypt;
 
 import javax.servlet.ServletException;

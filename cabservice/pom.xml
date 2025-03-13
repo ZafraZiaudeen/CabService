@@ -41,8 +41,14 @@
     <groupId>mysql</groupId>
     <artifactId>mysql-connector-java</artifactId>
     <version>8.0.32</version>
+    <scope>runtime</scope>
 </dependency>
-
+<dependency>
+    <groupId>com.h2database</groupId>
+    <artifactId>h2</artifactId>
+    <version>2.2.224</version>
+    <scope>test</scope>
+</dependency>
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
@@ -50,15 +56,21 @@
       <scope>test</scope>
     </dependency>
    <dependency>
-    <groupId>org.mockito</groupId>
-    <artifactId>mockito-core</artifactId>
-    <version>5.12.0</version>
-    <scope>test</scope>
-</dependency>
+        <groupId>org.mockito</groupId>
+        <artifactId>mockito-core</artifactId>
+        <version>5.13.0</version> <!-- Use the latest version -->
+        <scope>test</scope>
+    </dependency>
+    <dependency>
+        <groupId>org.mockito</groupId>
+        <artifactId>mockito-inline</artifactId>
+        <version>5.2.0</version> <!-- Match with mockito-core version -->
+        <scope>test</scope>
+    </dependency>
 <dependency>
     <groupId>net.bytebuddy</groupId>
     <artifactId>byte-buddy</artifactId>
-    <version>1.14.12</version> <!-- Latest version with Java 23 support -->
+    <version>1.15.7</version>
     <scope>test</scope>
 </dependency>
 

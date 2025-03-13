@@ -26,12 +26,13 @@ public class UserService {
     private UserService() {
         this(new UserDAO());
     }
-
-    public static UserService getInstance() {
+ 
+   
+    public static synchronized UserService getInstance() {
         if (instance == null) {
             synchronized (UserService.class) {
                 if (instance == null) {
-                    instance = new UserService();
+                    instance = new UserService(new UserDAO());
                 }
             }
         }

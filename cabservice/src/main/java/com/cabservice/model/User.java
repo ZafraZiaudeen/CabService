@@ -11,8 +11,7 @@ public class User {
     private String role;
     private String email;
     
-    // Full constructor with all attributes
- // Corrected constructor with 8 parameters including email
+   
     public User(int userId, String name, String address, String phoneNumber, String username, 
                 String password, String role, String email) {
         this.userId = userId;
