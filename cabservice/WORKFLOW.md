@@ -73,7 +73,7 @@ The commit history spans February 11, 2025, to March 13, 2025, reflecting progre
 ## CI/CD Pipeline
 A GitHub Actions workflow automates building, testing, and deployment simulation:
 
-- **File:** `.github/workflows/build.yml`
+- **File:** `.github/workflows/main.yml`
 - **Steps:**
   - Checkout repository
   - Setup Java and Maven
