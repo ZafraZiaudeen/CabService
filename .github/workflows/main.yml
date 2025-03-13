@@ -18,10 +18,10 @@ jobs:
       mysql:
         image: mysql:8.0
         env:
-          MYSQL_ROOT_PASSWORD: Zafra@123  
-          MYSQL_DATABASE: cab_service_db 
+          MYSQL_ROOT_PASSWORD: Zafra@123
+          MYSQL_DATABASE: cab_service_db
         ports:
-          - 3306:3306  # Expose port 3306
+          - 3306:3306
         options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=5
 
     steps:
@@ -52,25 +52,34 @@ jobs:
     # Step 5: Initialize MySQL database with SQL dumps
     - name: Initialize MySQL database
       run: |
-        mysql -h 127.0.0.1 -u root -pZafra@123 cab_service_db < cabservice/src/main/resources/Dump20250313.sql
-        mysql -h 127.0.0.1 -u root -pZafra@123 cab_service_db < cabservice/src/main/resources/sqlquery.sql
+        # Create a temporary script to handle the dump
+        echo "SET FOREIGN_KEY_CHECKS=0;" > init_db.sql
+        cat /home/runner/work/CabService/CabService/cabservice/src/main/resources/Dump20250313.sql >> init_db.sql
+        echo "SET FOREIGN_KEY_CHECKS=1;" >> init_db.sql
+        # Execute the script
+        mysql -h 127.0.0.1 -u root -pZafra@123 cab_service_db < init_db.sql
+        rm init_db.sql
 
-    # Step 6: Build with Maven
+    # Step 6: Debug - Verify database content
+    - name: Verify database initialization
+      run: mysql -h 127.0.0.1 -u root -pZafra@123 cab_service_db -e "SHOW TABLES;"
+
+    # Step 7: Build with Maven
     - name: Build with Maven
       run: mvn clean install -DskipTests
       working-directory: cabservice
 
-    # Step 7: Run tests with Maven
+    # Step 8: Run tests with Maven
     - name: Run tests
       run: mvn test
       working-directory: cabservice
 
-    # Step 8: Package application
+    # Step 9: Package application
     - name: Package application
       run: mvn package
       working-directory: cabservice
 
-    # Step 9: Upload the artifact
+    # Step 10: Upload the artifact
     - name: Upload artifact
       uses: actions/upload-artifact@v4
       with:
