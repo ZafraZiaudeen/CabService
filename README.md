@@ -36,47 +36,85 @@ Key design patterns like **Singleton** and **Observer** enhance efficiency and e
 - **Server:** Apache Tomcat
 - **CI/CD:** GitHub Actions
 
-## Prerequisites
-- **Java:** JDK 11 or higher
-- **Maven:** 3.6.0 or higher
-- **MySQL:** 8.0 or higher
-- **Apache Tomcat:** 9.0 or higher
-- **Git:** For cloning the repository
-- **SMTP Server:** Access to an SMTP server (e.g., Gmail SMTP)
-
-### Access the Application
-- **Default admin login:** 
-  - **Username:** Admin
-  - **Password:** Admin@12
- - **Default customer login:** 
-  - **Username:** Customer
-  - **Password:** Customer@12
-
-## Usage
-
-### Customer Flow
-1. Register at `/user?action=register` (receive SMTP verification email).
-2. Verify email via the link sent by `EmailUtil`.
-3. Log in at `/user?action=login`.
-4. Book a ride at `/customerBooking?action=book`.
-5. View billing at `/billing`.
-6. View billing and booking history `/booking/history`
-
-### Admin Flow
-1. Log in at `/user?action=login` with admin credentials.
-2. Access the dashboard at `/dashboard`.
-3. Assign vehicles to drivers at `/assignment?action=add` or manage assignments at `/assignment?action=list`.
-4. Update system configuration at `/config`.
-
-## Testing
-Run the test suite with Junit
-
-**Coverage includes:**
-- `DBConnection`
-- `User` model
-- `UserDAO`
-- `UserService`
-- `UserController` (see `src/test/java`)
+ ## Prerequisites
+ - **Java:** JDK 11 or higher
+ - **Maven:** 3.6.0 or higher
+ - **MySQL:** 8.0 or higher
+ - **Apache Tomcat:** 9.0 or higher
+ - **Git:** For cloning the repository
+ - **SMTP Server:** Access to an SMTP server (e.g., Gmail SMTP)
+ 
+ ## Setup Instructions
+ 
+ ### Clone the Repository
+ ```bash
+ git clone https://github.com/ZafraZiaudeen/CabService.git
+ cd CabService
+ ```
+ 
+ ### Configure the Database
+ 1. Create a MySQL database:
+ ```sql
+ CREATE DATABASE cab_service_db;
+ ```
+ 2. Import the schema from `src/main/resources/database/schema.sql` (if available).
+ 3. Update `src/main/java/com/cabservice/util/DBConnection.java`:
+ ```java
+ private static final String URL = "jdbc:mysql://localhost:3306/cab_service_db";
+ private static final String USERNAME = "your_username";
+ private static final String PASSWORD = "your_password";
+ ```
+ 
+ ### Configure SMTP for Email
+ 1. **Create a new file** named `application.properties` in the `src/main/resources/` folder.
+ 2. Add the following details with your SMTP settings (e.g., Gmail):
+ ```properties
+ email.username=your-email@gmail.com
+ email.password=your-app-specific-password
+ email.host=smtp.gmail.com
+ email.port=587
+ ```
+ **Note:** For Gmail, generate an **App Password** if 2FA is enabled.
+ 
+ ### Build the Project
+ ```bash
+ mvn clean install
+ ```
+ 
+ ### Access the Application
+ - Open [http://localhost:8080/CabService](http://localhost:8080/CabService)
+ - **Default admin login:** 
+   - **Username:** Admin
+   - **Password:** Admin@12
+  - **Default customer login:** 
+   - **Username:** Customer
+   - **Password:** Customer@12
+ 
+ ## Usage
+ 
+ ### Customer Flow
+ 1. Register at `/user?action=register` (receive SMTP verification email).
+ 2. Verify email via the link sent by `EmailUtil`.
+ 3. Log in at `/user?action=login`.
+ 4. Book a ride at `/customerBooking?action=book`.
+ 5. View billing at `/billing`.
+ 6. View billing and booking history `/booking/history`
+ 
+ ### Admin Flow
+ 1. Log in at `/user?action=login` with admin credentials.
+ 2. Access the dashboard at `/dashboard`.
+ 3. Assign vehicles to drivers at `/assignment?action=add` or manage assignments at `/assignment?action=list`.
+ 4. Update system configuration at `/config`.
+ 
+ ## Testing
+ Run the test suite with Junit
+ 
+ **Coverage includes:**
+ - `DBConnection`
+ - `User` model
+ - `UserDAO`
+ - `UserService`
+ - `UserController` (see `src/test/java`)
 
 ## CI/CD Pipeline
 - **GitHub Actions** automates building and testing on pushes to `master`.
