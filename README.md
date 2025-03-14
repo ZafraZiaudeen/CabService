@@ -75,12 +75,7 @@ Key design patterns like **Singleton** and **Observer** enhance efficiency and e
  email.port=587
  ```
  **Note:** For Gmail, generate an **App Password** if 2FA is enabled.
- 
- ### Build the Project
- ```bash
- mvn clean install
- ```
- 
+
  ### Access the Application
  - Open [http://localhost:8080/CabService](http://localhost:8080/CabService)
  - **Default admin login:** 
