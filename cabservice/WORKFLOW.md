@@ -24,12 +24,7 @@ email.username=your-email@gmail.com
 email.password=your-app-password
 email.host=smtp.gmail.com
 email.port=587
-```
-
-### Build and Deploy
-```bash
-mvn clean install
-```
+``
 
 ### Access the Application
 - **Default Admin Login:**
